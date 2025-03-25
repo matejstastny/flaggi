@@ -4,5 +4,8 @@
   "java.import.gradle.enabled": true,
   "java.project.referencedLibraries": [
     "${workspaceFolder}/app/shared/build/libs/*.jar"
-  ]
+  ],
+  "extensions": {
+    "recommendations": ["vscjava.vscode-java-pack"]
+  }
 }

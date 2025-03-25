@@ -66,10 +66,10 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
     public void render(Graphics2D g, int[] size, int[] origin, Container focusCycleRootAncestor) {
         calculateElementPositions(size);
         renderBackground(g, size, focusCycleRootAncestor);
-        // renderLogo(g, size, focusCycleRootAncestor);
-        // renderErrorMessage(g, size);
-        // renderTextFields(g, focusCycleRootAncestor);
-        // renderStartButton(g, focusCycleRootAncestor);
+        renderLogo(g, size, focusCycleRootAncestor);
+        renderErrorMessage(g, size);
+        renderTextFields(g, focusCycleRootAncestor);
+        renderStartButton(g, focusCycleRootAncestor);
     }
 
     private void calculateElementPositions(int[] size) {
@@ -100,8 +100,11 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
     private void renderLogo(Graphics2D g, int[] size, Container fcra) {
         int centerX = size[0] / 2;
-        int centerY = size[1] / 2;
-        g.drawImage(ImageUtil.scaleToWidth(this.logo, 800, false), centerX - 400, centerY - 450, fcra);
+        int logoWidth = (int) (size[0] * 0.4);
+        Image logo = ImageUtil.scaleToWidth(this.logo, logoWidth, false);
+        int logoX = centerX - logo.getWidth(null) / 2;
+        int logoY = (int) (size[1] * 0.2) - logo.getHeight(null) / 2;
+        g.drawImage(logo, logoX, logoY, fcra);
     }
 
     private void renderErrorMessage(Graphics2D g, int[] size) {
@@ -109,7 +112,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         synchronized (this.errorMessage) {
             g.setColor(this.errorMessage.equals("Connecting...") ? Color.GREEN : Color.RED);
             int[] errorPos = FontUtil.calculateCenteredPosition(size[0], size[1], g.getFontMetrics(), this.errorMessage);
-            g.drawString(this.errorMessage, errorPos[0], errorPos[1] + 90);
+            g.drawString(this.errorMessage, errorPos[0], (int) (size[1] * 0.55));
         }
     }
 
@@ -117,13 +120,14 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         g.drawImage(this.textField, nameFieldBounds.x, nameFieldBounds.y, focusCycleRootAncestor);
         g.drawImage(this.textField, ipFieldBounds.x, ipFieldBounds.y, focusCycleRootAncestor);
 
+        int textFieldPadding = (int) (this.textField.getWidth(null) * 0.05);
         int[] textFieldTextPos = FontUtil.calculateCenteredPosition(this.textField.getWidth(null), this.textField.getHeight(null), g.getFontMetrics(), "Dummy");
 
         g.setColor(isNameFieldFocused ? Color.BLUE : Color.WHITE);
-        g.drawString("Name: " + usernameInput, nameFieldBounds.x + 20, nameFieldBounds.y + textFieldTextPos[1]);
+        g.drawString("Name: " + usernameInput, nameFieldBounds.x + textFieldPadding, nameFieldBounds.y + textFieldTextPos[1]);
 
         g.setColor(isIpFieldFocused ? Color.BLUE : Color.WHITE);
-        g.drawString("IP: " + ipInput, ipFieldBounds.x + 20, ipFieldBounds.y + textFieldTextPos[1]);
+        g.drawString("IP: " + ipInput, ipFieldBounds.x + textFieldPadding, ipFieldBounds.y + textFieldTextPos[1]);
     }
 
     private void renderStartButton(Graphics2D g, Container focusCycleRootAncestor) {
