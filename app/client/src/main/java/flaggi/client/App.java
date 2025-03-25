@@ -13,13 +13,15 @@ import java.awt.event.MouseWheelEvent;
 import javax.swing.SwingUtilities;
 
 import flaggi.client.constants.Constants;
+import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
-import flaggi.client.ui.MenuScreen.MenuHandeler;
+import flaggi.client.ui.MenuScreen.MenuHandler;
 import flaggi.shared.common.GPanel;
+import flaggi.shared.common.Logger;
 import flaggi.shared.common.GPanel.InteractableHandler;
 import flaggi.shared.util.ScreenUtil;
 
-public class App implements InteractableHandler, MenuHandeler {
+public class App implements InteractableHandler, MenuHandler {
 
     private final GPanel gpanel;
 
@@ -33,13 +35,14 @@ public class App implements InteractableHandler, MenuHandeler {
         this.gpanel = getDefaultGpanel();
         addDefaultWidgets();
         this.gpanel.toggleWidgetsVisibility(true); // TODO DEBUG
+        Logger.logMemoryUsage(5);
     }
 
     // Private ------------------------------------------------------------------
 
     private GPanel getDefaultGpanel() {
         int[] screenSize = ScreenUtil.getScreenDimensions();
-        GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.BASE_WINDOW_SIZE[0], Constants.BASE_WINDOW_SIZE[1], true, Constants.WINDOW_NAME, this);
+        GPanel gp = new GPanel(screenSize[0], screenSize[1], true, Constants.WINDOW_NAME, this);
         if (Constants.FRAMERATE >= 0) {
             gp.setFpsCap(Constants.FRAMERATE);
         }
@@ -47,8 +50,12 @@ public class App implements InteractableHandler, MenuHandeler {
     }
 
     private void addDefaultWidgets() {
-        this.gpanel.add(new MenuScreen("nameinit", "ipinit", this));
+        this.gpanel.add( //
+                new MenuScreen("nameinit", "ipinit", this), //
+                new MenuBackground() //
+        );
     }
+
     // UI Handeling -------------------------------------------------------------
 
     @Override
