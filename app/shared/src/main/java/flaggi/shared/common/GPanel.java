@@ -6,13 +6,16 @@
 
 package flaggi.shared.common;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -25,67 +28,31 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
- * <h2>GPanel</h2> {@code GPanel} is a custom {@code JPanel} object that handles
- * rendering of graphical elements using an internal Renderer, running on a
- * separate thread. It integrates with a {@code JFrame} to manage window
- * properties.
- * </p>
- * <hr>
- * <br>
- * <h3>Constructor</h3> {@code GPanel} will be upon costruction set with these
- * values:
+ * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed
+ * rendering loop, and a flexible region-based layout for UI elements.
+ *
+ * <h3>Features:</h3>
  * <ul>
- * <li><b>FPS</b> - interval, at which will the renderer calculate new
- * frames</li>
- * <li><b>Window width & window height</b> - dimensions of the
- * {@code JFrame}</li>
- * <li><b>Resizable</b> - makes the window fixed size or resizable by user</li>
- * <li><b>App title</b> - text displayed on the {@code JFrame} as the app
- * title</li>
+ * <li>Custom rendering with adjustable FPS</li>
+ * <li>Thread-safe widget management</li>
+ * <li>Region-based UI layout for structured rendering</li>
+ * <li>Event handling for mouse, keyboard, and scrolling</li>
+ * <li>Automatic resizing with aspect-ratio constraints</li>
  * </ul>
- * The {@code JFrame} will be put in the middle of the user screen by default.
- * It will also have the default icon, that can be changed separatly by using
- * the {@code setIcon()} method. If the project is being packaged, change the
- * style the icon is being accesed. The app will be made visible, and the
- * rendering prosess will start.
- * </p>
- * <hr>
- * <h3>UI Elements</h3> This class supports adding renderable objects that are
- * drawn in a layered order based on their {@code z-index}. The higher the
- * index, the more on top they are. The object must implement the interface
- * {@code Renderable}. This is how the objects are added:
- *
- * <pre>
- * <code>
- * public void add(Renderable renderable);
- * </code>
- * </pre>
- *
- * </p>
- * <hr>
- * <h3>Rendering</h3> The rendering loop can be controlled with {@code start()}
- * and {@code stop()} methods.
- * </p>
- * The Renderer class inside GPanel controls the rendering loop, adjusting its
- * interval based on the provided frames-per-second value.
- * </p>
- * <hr>
- * <h3>Action listeners</h3> This class implements {@codeMouseListener} and
- * {@code MouseMotionListener} to handle mouse interaction events. This class
- * also includes a public interface {@code InteracableHandeler} that can be used
- * on classes that handle these events. Widgets that can be interacted with need
- * to implement the {@code Interactable} interface also contained in this class.
- * <hr>
  *
  * @author Matěj Šťastný aka
  *         <a href="https://github.com/kireiiiiiiii">@kireiiiiiiii</a>
@@ -93,13 +60,13 @@ import javax.swing.SwingUtilities;
  */
 public class GPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
 
-    private final InteractableHandler handler;
+    private final Map<PanelRegion, Rectangle> regions;
     private final RenderingEngine renderingEngine;
-    private final ArrayList<Renderable> widgets;
-    private JFrame appFrame;
+    private final List<Renderable> widgets;
+    private final InteractableHandler handler;
+    private int[] viewportOffset;
     private boolean isRendering;
-    private int[] viewportOffset, contentSize;
-    private double[] renderScale;
+    private JFrame appFrame;
 
     // Constructor ---------------------------------------------------------------
 
@@ -115,39 +82,17 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
      *                     panel interaction.
      */
     public GPanel(int windowWidth, int windowHeight, boolean resizable, String appTitle, InteractableHandler handler) {
-        this(new Dimension(windowWidth, windowHeight), resizable, appTitle, handler);
-        this.contentSize = new int[] { windowWidth, windowHeight };
-        startRendering();
-    }
-
-    /**
-     * Constructs a GPanel with the specified parameters.
-     *
-     * @param handler      - {@code InteractableHandler} object that will handle
-     *                     panel user interaction.
-     * @param windowWidth  - The width of the window.
-     * @param windowHeight - The height of the window.
-     * @param resizable    - If the panel is resizable by the user.
-     * @param appTitle     - The title of the window (name of the app).
-     * @param renderScale  - The scale for rendering.
-     */
-    public GPanel(int windowWidth, int windowHeight, int contentWidth, int contentHeight, boolean resizable, String appTitle, InteractableHandler handler) {
-        this(new Dimension(windowWidth, windowHeight), resizable, appTitle, handler);
-        this.contentSize = new int[] { contentWidth, contentHeight };
-        startRendering();
-    }
-
-    private GPanel(Dimension size, boolean resizable, String appTitle, InteractableHandler handler) {
         this.renderingEngine = new RenderingEngine();
-        this.widgets = new ArrayList<>();
+        this.widgets = new CopyOnWriteArrayList<Renderable>();
+        this.regions = new EnumMap<>(PanelRegion.class);
         this.viewportOffset = new int[2];
-        this.renderScale = new double[] { 1.0, 1.0 };
         this.isRendering = false;
         this.handler = handler;
-        this.setPreferredSize(size);
-        this.appFrame = getDefaultJFrame(this, resizable, appTitle, Color.WHITE);
+        this.setPreferredSize(new Dimension(windowWidth, windowHeight));
+        this.appFrame = getDefaultJFrame(resizable, appTitle);
 
         setupListeners();
+        startRendering();
     }
 
     // Rendering -----------------------------------------------------------------
@@ -168,18 +113,8 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
     protected void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D g = (Graphics2D) graphics;
-        AffineTransform originalTransform = g.getTransform();
-        int[] contentSize = scaleGraphicPane(g, this.contentSize[0], this.contentSize[1], false);
-
-        synchronized (widgets) {
-            widgets.stream().filter(Renderable::isVisible).forEach(r -> r.render(g, contentSize, viewportOffset, appFrame.getFocusCycleRootAncestor()));
-        }
-
-        g.setColor(Color.RED); // TODO DEBUG
-        g.setStroke(new BasicStroke(10));
-        g.drawRect(0, 0, contentSize[0], contentSize[1]);
-
-        g.setTransform(originalTransform);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        regions.forEach((region, bounds) -> renderRegion(g, region, bounds));
     }
 
     // Accesors -----------------------------------------------------------------cv
@@ -222,18 +157,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
      */
     public void setViewportOffset(int[] offset) {
         this.viewportOffset = offset;
-    }
-
-    /**
-     * Sets the rendering scale, every element in the window will act according to
-     * the scale, but the window will stay the same size.
-     *
-     * @param x - X scale
-     * @param y - Y scale
-     */
-    public void setRenderScale(double x, double y) {
-        this.renderScale[0] = x;
-        this.renderScale[1] = y;
     }
 
     /**
@@ -383,17 +306,16 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
     /**
      * @see GPanel#GPanel(InteractableHandler, int, int, boolean, String, Color)
      */
-    private static JFrame getDefaultJFrame(JPanel panel, boolean resizable, String appTitle, Color backgroundColor) {
+    private JFrame getDefaultJFrame(boolean resizable, String appTitle) {
         JFrame frame = new JFrame(appTitle);
+        frame.setBackground(Color.BLACK);
         frame.setResizable(resizable);
         // frame.setUndecorated(true); Transparent window
-        frame.setBackground(backgroundColor);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
+        frame.setContentPane(this);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        System.out.println(frame.getWidth() + " | " + frame.getHeight());
         return frame;
     }
 
@@ -406,6 +328,60 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
         addKeyListener(this);
         addMouseWheelListener(this);
         requestFocusInWindow();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateRegions();
+            }
+        });
+    }
+
+    private void updateRegions() {
+        int width = getWidth();
+        int height = getHeight();
+        int minSize = Math.min(width, height) / 2;
+
+        regions.put(PanelRegion.BACKGROUND, computeRegion(0, 0, width, height));
+        regions.put(PanelRegion.CENTER, computeRegion((width - minSize * 2) / 2, (height - minSize * 2) / 2, minSize * 2, minSize * 2));
+        regions.put(PanelRegion.TOP_LEFT, computeRegion(0, 0, minSize, minSize));
+        regions.put(PanelRegion.TOP_RIGHT, computeRegion(width - minSize, 0, minSize, minSize));
+        regions.put(PanelRegion.BOTTOM_LEFT, computeRegion(0, height - minSize, minSize, minSize));
+        regions.put(PanelRegion.BOTTOM_RIGHT, computeRegion(width - minSize, height - minSize, minSize, minSize));
+
+        double pxPerVh = minSize / 100.0;
+        double centerPxPerVh = (minSize * 2) / 100.0;
+        double backgroundPxPerVh = Math.max(width, height) / 100;
+
+        widgets.forEach(c -> {
+            if (c.getRegion() == PanelRegion.CENTER) {
+                c.setPxPerVh(centerPxPerVh);
+            } else if (c.getRegion() == PanelRegion.BACKGROUND) {
+                c.setPxPerVh(backgroundPxPerVh);
+            } else {
+                c.setPxPerVh(pxPerVh);
+            }
+        });
+
+        widgets.forEach(w -> w.setScreenSize(new int[] { width, height }));
+
+    }
+
+    private Rectangle computeRegion(int x, int y, int width, int height) {
+        return new Rectangle(x, y, width, height);
+    }
+
+    private void renderRegion(Graphics2D g2, PanelRegion region, Rectangle bounds) {
+        g2.setClip(bounds);
+        g2.translate(bounds.x, bounds.y);
+
+        getComponentsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.viewportOffset, this.appFrame.getFocusCycleRootAncestor()));
+
+        g2.translate(-bounds.x, -bounds.y);
+        g2.setClip(null);
+    }
+
+    private List<Renderable> getComponentsForRegion(PanelRegion region) {
+        return this.widgets.stream().filter(c -> c.getRegion() == region).collect(Collectors.toList());
     }
 
     /**
@@ -431,11 +407,9 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
     private int binarySearchInsertZIndex(int zIndex) {
         int low = 0;
         int high = this.widgets.size() - 1;
-
         while (low <= high) {
             int mid = (low + high) >>> 1;
             int midVal = this.widgets.get(mid).getZIndex();
-
             if (midVal < zIndex) {
                 low = mid + 1;
             } else {
@@ -443,43 +417,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
             }
         }
         return low;
-    }
-
-    /**
-     * Scales a graphic pane to fit inside a the JFrame application window.
-     *
-     * @param g             - target {@code Graphics2D} object.
-     * @param contentWidth  - width of the content.
-     * @param contentHeight - height of the content.
-     * @param fitFrame      - if the content should be fitted to the frame,
-     *                      potentionally leaving empty space around the content, or
-     *                      scaled to fit the frame.
-     * @return the size of the content after scaling. Will remain the same if fit
-     *         frame is false.
-     */
-    private int[] scaleGraphicPane(Graphics2D g, int contentWidth, int contentHeight, boolean fitFrame) {
-        double scaleX = (double) this.getWidth() / contentWidth;
-        double scaleY = (double) this.getHeight() / contentHeight;
-        int[] contentSize = new int[] { contentWidth, contentHeight };
-
-        if (fitFrame) {
-            if (scaleX < scaleY) {
-                contentSize[1] *= scaleX;
-                g.scale(scaleX, scaleX);
-            } else {
-                contentSize[0] *= scaleY;
-                g.scale(scaleY, scaleY);
-            }
-        } else {
-            if (scaleX > scaleY) {
-                contentSize[1] = (int) (this.getHeight() / scaleX);
-                g.scale(scaleX, scaleX);
-            } else {
-                contentSize[0] = (int) (this.getWidth() / scaleY);
-                g.scale(scaleY, scaleY);
-            }
-        }
-        return contentSize;
     }
 
     // Render engine ------------------------------------------------------------
@@ -527,7 +464,9 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
                 }
 
                 if (targetFPS > 0) {
-                    long sleepTime = (1_000_000_000 / targetFPS) - (System.nanoTime() - startTime);
+                    long frameDuration = 1_000_000_000 / targetFPS;
+                    long elapsedTime = System.nanoTime() - startTime;
+                    long sleepTime = frameDuration - elapsedTime;
                     if (sleepTime > 0) {
                         try {
                             Thread.sleep(sleepTime / 1_000_000, (int) (sleepTime % 1_000_000));
@@ -535,8 +474,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
                             Thread.currentThread().interrupt();
                         }
                     }
-                } else {
-                    Thread.yield();
                 }
             }
         }
@@ -552,22 +489,30 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
     // Renderable abs class -----------------------------------------------------
 
+    public enum PanelRegion {
+        BACKGROUND, CENTER, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    }
+
     /**
      * Abstract base class for UI elements.
      */
     public static abstract class Renderable {
         private final AtomicBoolean visibility = new AtomicBoolean(true);
         private final List<String> tags = new ArrayList<>();
+        private PanelRegion region;
+        private int[] screenSize;
+        private double pxPerVh;
         private int zIndex;
 
-        public Renderable(int zIndex, String... initialTags) {
+        public Renderable(int zIndex, PanelRegion region, String... initialTags) {
             this.zIndex = zIndex;
+            this.region = region;
             if (initialTags != null) {
                 tags.addAll(Arrays.asList(initialTags));
             }
         }
 
-        public abstract void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor);
+        public abstract void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor);
 
         public int getZIndex() {
             return this.zIndex;
@@ -575,6 +520,34 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
         public void setZIndex(int zIndex) {
             this.zIndex = zIndex;
+        }
+
+        private void setScreenSize(int[] size) {
+            assert size.length == 2;
+            this.screenSize = size;
+        }
+
+        protected void drawBackground(Graphics2D g, Image image, Container focusCycleRootAncestor) {
+            if (image == null)
+                return;
+
+            double scaleX = (double) screenSize[0] / image.getWidth(null);
+            double scaleY = (double) screenSize[1] / image.getHeight(null);
+            double scale = Math.max(scaleX, scaleY);
+
+            int posX = (int) ((screenSize[0] - image.getWidth(null) * scale) / 2);
+            int posY = (int) ((screenSize[1] - image.getHeight(null) * scale) / 2);
+
+            AffineTransform originalTransform = g.getTransform();
+            g.translate(posX, posY);
+            g.scale(scale, scale);
+            g.drawImage(image, 0, 0, focusCycleRootAncestor);
+            g.setTransform(originalTransform);
+        }
+
+        protected void drawBackground(Graphics2D g, Color c) {
+            g.setColor(c);
+            g.fillRect(0, 0, screenSize[0], screenSize[1]);
         }
 
         public boolean isVisible() {
@@ -598,6 +571,19 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
                 this.tags.remove(tag);
             }
         }
+
+        public PanelRegion getRegion() {
+            return this.region;
+        }
+
+        public void setPxPerVh(double px) {
+            this.pxPerVh = px;
+        }
+
+        protected int px(double vh) {
+            return (int) (vh * pxPerVh);
+        }
+
     }
 
     // Widget input interfaces --------------------------------------------------
@@ -608,13 +594,9 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
      */
     public interface Interactable {
 
-        /**
-         * Checks, if the button was clicked with the target mouse event.
-         *
-         * @param e - target {@code MouseEvent}.
-         * @return {@code true} if interacted, and {@code false} if not.
-         */
-        public boolean interact(MouseEvent e);
+        public void interact();
+
+        public boolean wasInteracted(MouseEvent e);
 
     }
 

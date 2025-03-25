@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
 
 /**
  * Logger class for logging messages with different log levels. Supports logging
@@ -83,6 +84,18 @@ public class Logger {
         log(level, message, null);
     }
 
+    public static void logMemoryUsage(double intervalSeconds) {
+        long usedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024);
+        long maxMemory = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+        log(LogLevel.MEMORY, String.format("Mem: %d MB / %d MB", usedMemory, maxMemory));
+        new Timer().schedule(new java.util.TimerTask() {
+            @Override
+            public void run() {
+                Logger.logMemoryUsage(intervalSeconds);
+            }
+        }, (long) (intervalSeconds * 1000));
+    }
+
     // Log types -----------------------------------------------------------------
 
     public enum LogLevel {
@@ -91,7 +104,8 @@ public class Logger {
         ERROR(TermColors.RED), //
         DEBUG(TermColors.BLUE), //
         TRACE(TermColors.CYAN), //
-        FATAL(TermColors.PURPLE);
+        FATAL(TermColors.PURPLE), //
+        MEMORY(TermColors.WHITE);
 
         private final String color;
 
