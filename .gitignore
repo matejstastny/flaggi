@@ -3,15 +3,6 @@
 build/
 *bin
 
-# vscode
-.qodo
-
-# Java specific
-*.class
-*.jar
-*.war
-*.ear
-
 # macOS
 .DS_Store
 ._*
