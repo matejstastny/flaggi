@@ -26,11 +26,14 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -374,13 +377,13 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
         g2.setClip(bounds);
         g2.translate(bounds.x, bounds.y);
 
-        getComponentsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.viewportOffset, this.appFrame.getFocusCycleRootAncestor()));
+        getWidgetsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.viewportOffset, this.appFrame.getFocusCycleRootAncestor()));
 
         g2.translate(-bounds.x, -bounds.y);
         g2.setClip(null);
     }
 
-    private List<Renderable> getComponentsForRegion(PanelRegion region) {
+    private List<Renderable> getWidgetsForRegion(PanelRegion region) {
         return this.widgets.stream().filter(c -> c.getRegion() == region).collect(Collectors.toList());
     }
 
@@ -417,6 +420,39 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
             }
         }
         return low;
+    }
+
+    private Map<PanelRegion, MouseEvent> getRelativeMouseEvents(MouseEvent e) {
+        Map<PanelRegion, MouseEvent> relative = new HashMap<PanelRegion, MouseEvent>();
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+
+        for (Entry<PanelRegion, Rectangle> entry : regions.entrySet()) {
+            PanelRegion region = entry.getKey();
+            Rectangle bounds = entry.getValue();
+
+            int relativeX = mouseX - bounds.x;
+            int relativeY = mouseY - bounds.y;
+
+            relative.put(region, new MouseEvent(e.getComponent(), e.getID(), e.getWhen(), e.getModifiers(), relativeX, relativeY, e.getClickCount(), e.isPopupTrigger()));
+        }
+        return relative;
+    }
+
+    private Entry<Interactable, MouseEvent> getTopmostInteractable(MouseEvent e) {
+        Map<PanelRegion, MouseEvent> relative = getRelativeMouseEvents(e);
+
+        for (int i = widgets.size() - 1; i >= 0; i--) {
+            Renderable widget = widgets.get(i);
+            if (widget.isVisible() && widget instanceof Interactable) {
+                Interactable interactable = (Interactable) widget;
+                MouseEvent relativeEvent = relative.get(widget.getRegion());
+                if (relativeEvent != null && interactable.wasInteracted(relativeEvent)) {
+                    return new AbstractMap.SimpleEntry<>(interactable, relativeEvent);
+                }
+            }
+        }
+        return null;
     }
 
     // Render engine ------------------------------------------------------------
@@ -593,11 +629,9 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
      *
      */
     public interface Interactable {
+        void interact(MouseEvent e);
 
-        public void interact();
-
-        public boolean wasInteracted(MouseEvent e);
-
+        boolean wasInteracted(MouseEvent e);
     }
 
     /**
@@ -654,7 +688,10 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
     @Override
     public void mousePressed(MouseEvent e) {
-        forwardEvent(handler::mousePressed, e);
+        Entry<Interactable, MouseEvent> topmostInteractable = getTopmostInteractable(e);
+        if (topmostInteractable != null) {
+            topmostInteractable.getKey().interact(topmostInteractable.getValue());
+        }
     }
 
     @Override

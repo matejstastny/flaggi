@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -33,16 +34,13 @@ import flaggi.shared.util.ImageUtil;
 public class MenuScreen extends Renderable implements Interactable, Typable {
 
     private String usernameInput, ipInput, errorMessage;
-    private boolean isNameFieldFocused, isIpFieldFocused;
+    private boolean isNameFieldFocused, isIpFieldFocused, buttonActive;
     private Image logo, textField, button;
     private MenuHandler handler;
     private Font font;
 
     private static final int LOGO_Y_POSITION = 10;
     private static final int ERROR_Y_POSITION = 55;
-    private static final int TEXT_FIELD_Y_POSITION = 45;
-    private static final int IP_FIELD_Y_POSITION = 57;
-    private static final int START_BUTTON_Y_POSITION = 75;
 
     public MenuScreen(String initName, String initIp, MenuHandler handler) {
         super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MENU_ELEMENTS);
@@ -64,6 +62,11 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         renderErrorMessage(g);
         renderTextFields(g, fcra);
         renderStartButton(g, fcra);
+
+        g.setColor(Color.RED);
+        g.draw(getIpFieldBounds());
+        g.draw(getNameFieldBounds());
+        g.draw(getStartButtonBounds());
     }
 
     private void renderLogo(Graphics2D g, Container fcra) {
@@ -82,12 +85,15 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
     private void renderTextFields(Graphics2D g, Container fcra) {
         g.setFont(this.font.deriveFont(Font.PLAIN, px(3)));
-        Image scaledTextField = ImageUtil.scaleImage(this.textField, px(60), px(10), false);
-        g.drawImage(scaledTextField, px(20), px(TEXT_FIELD_Y_POSITION), fcra);
-        g.drawImage(scaledTextField, px(20), px(IP_FIELD_Y_POSITION), fcra);
+        Rectangle nameField = getNameFieldBounds();
+        Rectangle ipField = getIpFieldBounds();
 
-        renderTextField(g, "Name: " + usernameInput, isNameFieldFocused, px(23), px(TEXT_FIELD_Y_POSITION + 6));
-        renderTextField(g, "IP: " + ipInput, isIpFieldFocused, px(23), px(IP_FIELD_Y_POSITION + 6));
+        Image scaledTextField = ImageUtil.scaleImage(this.textField, nameField.width, nameField.height, false);
+        g.drawImage(scaledTextField, nameField.x, nameField.y, fcra);
+        g.drawImage(scaledTextField, ipField.x, ipField.y, fcra);
+
+        renderTextField(g, "Name: " + usernameInput, isNameFieldFocused, nameField.x + px(3), nameField.y + px(6));
+        renderTextField(g, "IP: " + ipInput, isIpFieldFocused, ipField.x + px(3), ipField.y + px(6));
     }
 
     private void renderTextField(Graphics2D g, String text, boolean isFocused, int x, int y) {
@@ -97,19 +103,51 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
     private void renderStartButton(Graphics2D g, Container fcra) {
         g.setFont(this.font.deriveFont(Font.PLAIN, px(3)));
-        Image scaledButton = ImageUtil.scaleImage(this.button, px(20), px(10), false);
-        g.drawImage(scaledButton, px(40), px(START_BUTTON_Y_POSITION), fcra);
+        Rectangle startButton = getStartButtonBounds();
+
+        Image scaledButton = ImageUtil.scaleImage(this.button, startButton.width, startButton.height, false);
+        g.drawImage(scaledButton, startButton.x, startButton.y, fcra);
         g.setColor(Color.WHITE);
-        int[] startButtonTextPos = FontUtil.calculateCenteredPosition(px(20), px(10), g.getFontMetrics(), "START");
-        g.drawString("START", px(40) + startButtonTextPos[0], px(START_BUTTON_Y_POSITION) + startButtonTextPos[1]);
+        int[] startButtonTextPos = FontUtil.calculateCenteredPosition(startButton.width, startButton.height, g.getFontMetrics(), "START");
+        if (!buttonActive) {
+            g.drawString("START", startButton.x + startButtonTextPos[0], startButton.y + startButtonTextPos[1]);
+        }
     }
 
     // -------------------- Interaction --------------------
 
     @Override
-    public boolean interact(MouseEvent e) {
-        handler.joinServer(usernameInput, ipInput);
-        return false;
+    public void interact(MouseEvent e) {
+        String interactedElement = getInteractedElement(e);
+        if ("start_button".equals(interactedElement) && !buttonActive) {
+            buttonActive = true;
+            this.handler.joinServer(usernameInput, ipInput);
+        } else if ("name_field".equals(interactedElement)) {
+            isIpFieldFocused = false;
+            isNameFieldFocused = true;
+        } else if ("ip_field".equals(interactedElement)) {
+            isIpFieldFocused = true;
+            isNameFieldFocused = false;
+        }
+    }
+
+    private String getInteractedElement(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+
+        if (getStartButtonBounds().contains(x, y))
+            return "start_button";
+        if (getNameFieldBounds().contains(x, y))
+            return "name_field";
+        if (getIpFieldBounds().contains(x, y))
+            return "ip_field";
+
+        return null;
+    }
+
+    @Override
+    public boolean wasInteracted(MouseEvent e) {
+        return getInteractedElement(e) != null;
     }
 
     @Override
@@ -192,6 +230,20 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
     public interface MenuHandler {
         String joinServer(String name, String ip);
+    }
+
+    // Dynamic Bounds Getters ------------------------------------------------
+
+    private Rectangle getStartButtonBounds() {
+        return new Rectangle(px(40), px(75), px(20), px(10));
+    }
+
+    private Rectangle getNameFieldBounds() {
+        return new Rectangle(px(20), px(45), px(60), px(10));
+    }
+
+    private Rectangle getIpFieldBounds() {
+        return new Rectangle(px(20), px(57), px(60), px(10));
     }
 
 }
