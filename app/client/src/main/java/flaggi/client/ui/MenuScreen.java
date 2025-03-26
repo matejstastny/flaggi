@@ -40,7 +40,8 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
     private Font font;
 
     private static final int LOGO_Y_POSITION = 10;
-    private static final int ERROR_Y_POSITION = 55;
+    private static final int FONT_SIZE = 3;
+    private static final double ERROR_Y_POSITION = 72;
 
     public MenuScreen(String initName, String initIp, MenuHandler handler) {
         super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MENU_ELEMENTS);
@@ -77,14 +78,14 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
     }
 
     private void renderErrorMessage(Graphics2D g) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(4)));
+        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
         g.setColor(Color.RED);
         int[] errorPos = FontUtil.calculateCenteredPosition(px(100), 0, g.getFontMetrics(), this.errorMessage);
         g.drawString(this.errorMessage, errorPos[0], px(ERROR_Y_POSITION));
     }
 
     private void renderTextFields(Graphics2D g, Container fcra) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(3)));
+        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
         Rectangle nameField = getNameFieldBounds();
         Rectangle ipField = getIpFieldBounds();
 
@@ -102,7 +103,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
     }
 
     private void renderStartButton(Graphics2D g, Container fcra) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(3)));
+        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
         Rectangle startButton = getStartButtonBounds();
 
         Image scaledButton = ImageUtil.scaleImage(this.button, startButton.width, startButton.height, false);
@@ -191,6 +192,8 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
             input.append(c);
         } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.length() > 0) {
             input.deleteCharAt(input.length() - 1);
+        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            this.errorMessage = "Cannot use spaces!";
         }
 
         if (isNameField) {

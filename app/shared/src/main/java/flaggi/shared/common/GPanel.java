@@ -339,13 +339,13 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
         addMouseMotionListener(this);
         addKeyListener(this);
         addMouseWheelListener(this);
-        requestFocusInWindow();
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 updateRegions();
             }
         });
+        requestFocusInWindow();
     }
 
     private void updateRegions() {
@@ -737,6 +737,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
     @Override
     public void keyReleased(KeyEvent e) {
         forwardEvent(InteractableHandler::keyReleased, e);
+        this.widgets.stream().filter(w -> w instanceof Typable).forEach(w -> ((Typable) w).type(e));
     }
 
 }
