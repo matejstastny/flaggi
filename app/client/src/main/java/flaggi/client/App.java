@@ -6,10 +6,6 @@
 
 package flaggi.client;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-
 import javax.swing.SwingUtilities;
 
 import flaggi.client.constants.Constants;
@@ -18,10 +14,10 @@ import flaggi.client.ui.MenuScreen;
 import flaggi.client.ui.MenuScreen.MenuHandler;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
-import flaggi.shared.common.GPanel.InteractableHandler;
+import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ScreenUtil;
 
-public class App implements InteractableHandler, MenuHandler {
+public class App implements MenuHandler {
 
     private final GPanel gpanel;
 
@@ -32,82 +28,49 @@ public class App implements InteractableHandler, MenuHandler {
     }
 
     public App() {
+        initializeLogger();
         this.gpanel = getDefaultGpanel();
         addDefaultWidgets();
+
         this.gpanel.toggleWidgetsVisibility(true); // TODO DEBUG
-        Logger.logMemoryUsage(5);
+    }
+
+    // Events -------------------------------------------------------------------
+
+    @Override
+    public String joinServer(String name, String ip) {
+        Logger.log(LogLevel.DEBUG, "Join server button pressed.");
+        Constants.CONFIG.setField("username", name);
+        Constants.CONFIG.setField("server.ip", ip);
+        return "Connecting...";
     }
 
     // Private ------------------------------------------------------------------
 
+    private void initializeLogger() {
+        Logger.setLogFile(Constants.LOG_FILE);
+        Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
+        Logger.log(LogLevel.INFO, "Application start.");
+        if (Constants.LOG_MEM_USAGE) {
+            Logger.logMemoryUsage(Constants.MEM_LOG_INTERVAL_SEC);
+        }
+    }
+
     private GPanel getDefaultGpanel() {
         int[] screenSize = ScreenUtil.getScreenDimensions();
-        GPanel gp = new GPanel(screenSize[0], screenSize[1], true, Constants.WINDOW_NAME, this);
+        GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
         if (Constants.FRAMERATE >= 0) {
             gp.setFpsCap(Constants.FRAMERATE);
         }
+        gp.setIconOSDependend(Constants.ICON_WIN, Constants.ICON_MAC, Constants.ICON_WIN, Constants.ICON_WIN);
         return gp;
     }
 
     private void addDefaultWidgets() {
         this.gpanel.add( //
-                new MenuScreen("nameinit", "ipinit", this), //
+                new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this), //
                 new MenuBackground() //
         );
-    }
-
-    // UI Handeling -------------------------------------------------------------
-
-    @Override
-    public String joinServer(String name, String ip) {
-        System.out.println("JoinButton:" + name + ":" + ip);
-        return "passed";
-    }
-
-    // Interaction --------------------------------------------------------------
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
     }
 
 }

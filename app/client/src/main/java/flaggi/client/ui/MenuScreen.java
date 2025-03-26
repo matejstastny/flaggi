@@ -121,7 +121,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         String interactedElement = getInteractedElement(e);
         if ("start_button".equals(interactedElement) && !buttonActive) {
             buttonActive = true;
-            this.handler.joinServer(usernameInput, ipInput);
+            this.errorMessage = this.handler.joinServer(usernameInput, ipInput);
         } else if ("name_field".equals(interactedElement)) {
             isIpFieldFocused = false;
             isNameFieldFocused = true;
@@ -229,6 +229,13 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
     // Interface -------------------------------------------------------------
 
     public interface MenuHandler {
+        /**
+         * This method is called when the user presses the join button.
+         *
+         * @param name - name field contents.
+         * @param ip   - ip field contents.
+         * @return - error message, return empty string if none.
+         */
         String joinServer(String name, String ip);
     }
 

@@ -151,7 +151,6 @@ public class ConfigManager {
 
     private void createDefaultConfigFile() throws IOException {
         createConfFile(this.configFilePath);
-        System.out.println("\n:" + defaultConfigFile);
         try (InputStream defaultConfigStream = getClass().getResourceAsStream(defaultConfigFile)) {
             if (defaultConfigStream == null) {
                 System.err.println("Default configuration file not found in JAR.");

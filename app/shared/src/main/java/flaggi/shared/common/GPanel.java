@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -66,7 +66,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
     private final Map<PanelRegion, Rectangle> regions;
     private final RenderingEngine renderingEngine;
     private final List<Renderable> widgets;
-    private final InteractableHandler handler;
+    private InteractableHandler handler;
     private int[] viewportOffset;
     private boolean isRendering;
     private JFrame appFrame;
@@ -84,13 +84,13 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
      * @param handeler     - {@code InteractableHandeler} object, that will handle
      *                     panel interaction.
      */
-    public GPanel(int windowWidth, int windowHeight, boolean resizable, String appTitle, InteractableHandler handler) {
+    public GPanel(int windowWidth, int windowHeight, boolean resizable, String appTitle) {
         this.renderingEngine = new RenderingEngine();
         this.widgets = new CopyOnWriteArrayList<Renderable>();
         this.regions = new EnumMap<>(PanelRegion.class);
         this.viewportOffset = new int[2];
         this.isRendering = false;
-        this.handler = handler;
+        this.handler = null;
         this.setPreferredSize(new Dimension(windowWidth, windowHeight));
         this.appFrame = getDefaultJFrame(resizable, appTitle);
 
@@ -234,7 +234,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
                 this.appFrame.setIconImage(icon);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(this.getClass().getName() + " [ERROR]: Could not set icon!");
         }
     }
 
@@ -282,6 +282,15 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
                 operation.run();
             }
         });
+    }
+
+    /**
+     * Sets an on object that will handle the user interaction externally.
+     *
+     * @param handler
+     */
+    public void setInteractionHandler(InteractableHandler handler) {
+        this.handler = handler;
     }
 
     // Widget visibility --------------------------------------------------------
@@ -665,29 +674,30 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
         // No need to manually define methods, as they are inherited
     }
 
-    private <T> void forwardEvent(Consumer<T> method, T event) {
-        if (handler != null) {
-            method.accept(event);
+    private <T> void forwardEvent(BiConsumer<InteractableHandler, T> method, T event) {
+        if (this.handler != null) {
+            method.accept(this.handler, event);
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        forwardEvent(handler::mouseDragged, e);
+        forwardEvent(InteractableHandler::mouseDragged, e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        forwardEvent(handler::mouseMoved, e);
+        forwardEvent(InteractableHandler::mouseMoved, e);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        forwardEvent(handler::mouseClicked, e);
+        forwardEvent(InteractableHandler::mouseClicked, e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        forwardEvent(InteractableHandler::mousePressed, e);
         Entry<Interactable, MouseEvent> topmostInteractable = getTopmostInteractable(e);
         if (topmostInteractable != null) {
             topmostInteractable.getKey().interact(topmostInteractable.getValue());
@@ -696,37 +706,37 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        forwardEvent(handler::mouseReleased, e);
+        forwardEvent(InteractableHandler::mouseReleased, e);
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        forwardEvent(handler::mouseEntered, e);
+        forwardEvent(InteractableHandler::mouseEntered, e);
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        forwardEvent(handler::mouseExited, e);
+        forwardEvent(InteractableHandler::mouseExited, e);
     }
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        forwardEvent(handler::mouseWheelMoved, e);
+        forwardEvent(InteractableHandler::mouseWheelMoved, e);
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        forwardEvent(handler::keyTyped, e);
+        forwardEvent(InteractableHandler::keyTyped, e);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        forwardEvent(handler::keyPressed, e);
+        forwardEvent(InteractableHandler::keyPressed, e);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        forwardEvent(handler::keyReleased, e);
+        forwardEvent(InteractableHandler::keyReleased, e);
     }
 
 }
