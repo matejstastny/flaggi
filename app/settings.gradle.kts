@@ -1,3 +1,3 @@
 rootProject.name = "Flaggi"
 
-include(":client", ":editor", ":server", ":shared")
+include(":client", ":server", ":editor", ":shared")

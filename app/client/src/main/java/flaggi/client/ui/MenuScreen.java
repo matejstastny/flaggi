@@ -63,11 +63,6 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         renderErrorMessage(g);
         renderTextFields(g, fcra);
         renderStartButton(g, fcra);
-
-        g.setColor(Color.RED);
-        g.draw(getIpFieldBounds());
-        g.draw(getNameFieldBounds());
-        g.draw(getStartButtonBounds());
     }
 
     private void renderLogo(Graphics2D g, Container fcra) {

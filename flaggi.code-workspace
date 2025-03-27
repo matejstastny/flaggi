@@ -1,4 +1,6 @@
 {
+  // Sections -----------------------------------------------------------------
+
   "folders": [
     {
       "name": "Flaggi",
@@ -21,17 +23,31 @@
       "path": "app/shared"
     }
   ],
+
+  // Settings ---------------------------------------------------------------------
+
   "settings": {
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.format.settings.url": "./.vscode/java-formatter.xml",
-    "java.compile.nullAnalysis.mode": "automatic",
+    "files.exclude": {
+      "app/client": true,
+      "app/server": true,
+      "app/editor": true,
+      "app/shared": true,
+
+      "app/gradle": true,
+      "app/.gradle": true,
+      "app/gradlew": true,
+      "app/gradlew.bat": true,
+      "app/shadowjar": true,
+
+      "**/build": true,
+      "**/bin": true
+    },
+    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
+
+    // Gradle
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.import.gradle.enabled": true,
-    "java.project.referencedLibraries": [
-      "${workspaceFolder}/app/shared/build/libs/*.jar"
-    ]
-  },
-  "extensions": {
-    "recommendations": ["vscjava.vscode-java-pack"]
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.import.gradle.enabled": true
   }
 }

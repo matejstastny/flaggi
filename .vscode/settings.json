@@ -1,11 +1,15 @@
 {
-  "java.format.settings.url": "./.vscode/java-formatter.xml",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.import.gradle.enabled": true,
-  "java.project.referencedLibraries": [
-    "${workspaceFolder}/app/shared/build/libs/*.jar"
-  ],
-  "extensions": {
-    "recommendations": ["vscjava.vscode-java-pack"]
-  }
+  // Global -------------------------------------------------------------------
+
+  "editor.defaultFormatter": "redhat.java",
+  "editor.formatOnSave": true,
+
+  // Fallback -----------------------------------------------------------------
+  // In case the folder is not opened using the workspace
+
+  "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
+  "java.configuration.updateBuildConfiguration": "automatic", // For gradle build files
+  "java.debug.settings.onBuildFailureProceed": true,
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.import.gradle.enabled": true
 }
