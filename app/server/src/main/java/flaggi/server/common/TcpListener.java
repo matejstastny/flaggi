@@ -8,27 +8,32 @@ package flaggi.server.common;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import flaggishared.common.Logger;
-import flaggishared.common.Logger.LogLevel;
-import flaggishared.flaggi.Message;
+import flaggi.proto.ClientMessages.ClientMessageWrapper;
+import flaggi.server.client.UserHandler;
+import flaggi.server.client.User;
+import flaggi.shared.common.Logger;
+import flaggi.shared.common.Logger.LogLevel;
 
 public class TcpListener implements Runnable {
 
     private final int port;
-    private final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ClientMessageWrapper> messageQueue;
+    private final Map<String, User> users;
 
     // Constructor --------------------------------------------------------------
 
-    public TcpListener(int port) {
+    public TcpListener(int port, BlockingQueue<ClientMessageWrapper> messageQueue, Map<String, User> users) {
         this.port = port;
+        this.messageQueue = messageQueue;
+        this.users = users;
     }
 
     // Accesors -----------------------------------------------------------------
 
-    public BlockingQueue<Message> getMessageQueue() {
+    public BlockingQueue<ClientMessageWrapper> getMessageQueue() {
         return messageQueue;
     }
 
@@ -39,11 +44,10 @@ public class TcpListener implements Runnable {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                new Thread(new ClientHandler(clientSocket, messageQueue), "Client Handeler Thread").start();
+                new Thread(new UserHandler(clientSocket, messageQueue, users), "Client Handler Thread").start();
             }
         } catch (Exception e) {
-            Logger.log(LogLevel.ERROR, "An error occured in the TCP listener.", e);
+            Logger.log(LogLevel.ERROR, "An error occurred in the TCP listener.", e);
         }
     }
-
 }

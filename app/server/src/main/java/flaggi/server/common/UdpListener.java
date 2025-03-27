@@ -12,48 +12,59 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import flaggi.proto.ClientMessages.ClientUpdate;
+import flaggi.shared.common.Logger;
+import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpListener implements Runnable {
 
     private final int port;
-    private final BlockingQueue<DatagramPacket> packetQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ClientUpdate> messageQueue;
     private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
 
     // Constructor --------------------------------------------------------------
 
-    public UdpListener(int port) {
+    public UdpListener(int port, BlockingQueue<ClientUpdate> messageQueue) {
         this.port = port;
+        this.messageQueue = messageQueue;
     }
 
     @Override
     public void run() {
-        startListener();
-    }
-
-    // Accesors -----------------------------------------------------------------
-
-    public BlockingQueue<DatagramPacket> getPacketQueue() {
-        return packetQueue;
-    }
-
-    // Private ------------------------------------------------------------------
-
-    private void startListener() {
         try (DatagramSocket socket = new DatagramSocket(port)) {
             byte[] buffer = new byte[1024];
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 if (rateLimiter.shouldProcessPacket(packet)) {
-                    packetQueue.offer(packet);
+                    processPacket(packet);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.log(LogLevel.ERROR, "An error occurred in UdpListener.", e);
         }
     }
+
+    // Private ------------------------------------------------------------------
+
+    private void processPacket(DatagramPacket packet) {
+        try {
+            ClientUpdate message = deserialize(packet.getData());
+            messageQueue.offer(message);
+        } catch (Exception e) {
+            Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
+        }
+    }
+
+    public static ClientUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
+        return ClientUpdate.parseFrom(data);
+    }
+
+    // Limiter ------------------------------------------------------------------
 
     /**
      * Limits the rate at what UDP packets from clients can be accepted.

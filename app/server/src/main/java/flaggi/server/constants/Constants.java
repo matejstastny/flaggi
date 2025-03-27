@@ -8,8 +8,8 @@ package flaggi.server.constants;
 
 import java.io.File;
 
-import flaggishared.common.ConfigManager;
-import flaggishared.util.FileUtil;
+import flaggi.shared.common.ConfigManager;
+import flaggi.shared.util.FileUtil;
 
 /**
  * A constants class storing all constants for this project.

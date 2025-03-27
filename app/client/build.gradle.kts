@@ -1,43 +1,45 @@
-// Plugins & depenencies ---------------------------------------------------------------------
+// =========================================================================
+// Plugins & Dependencies
+// =========================================================================
 
 plugins {
-    id("application")
+    application
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 dependencies {
-    implementation(project(":shared"))                              // Shared Flaggi library
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")     // JUnit for testing
+    implementation(project(":shared"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("com.google.protobuf:protobuf-java:3.25.1")      // TCP messages
+    implementation("com.google.protobuf:protobuf-java:3.25.1")
 }
 
-// Application config ------------------------------------------------------------------------
+// =========================================================================
+// Application Configuration
+// =========================================================================
 
 application {
     mainClass.set("flaggi.client.App")
 }
 
-// Tasks -------------------------------------------------------------------------------------
+
+// =========================================================================
+// ShadowJar Packaging Configuration for Client
+// =========================================================================
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    enabled = true
+    // Include output from the shared module into the client JAR
     from(project(":shared").sourceSets["main"].output)
+
     archiveBaseName.set("Flaggi-client")
     archiveVersion.set("1.0.0")
     archiveClassifier.set("")
-    destinationDirectory.set(file("$rootDir/shadowjar"))
+
+    // Output directory for the shadow JAR
+    destinationDirectory.set(rootProject.file("shadowjar"))
+
     doLast {
-        println("Client Shadow JAR has been created at: ${archiveFile.get().asFile.absolutePath}")
+        println("Client Shadow JAR created at: ${archiveFile.get().asFile.absolutePath}")
     }
 }
 
-tasks.named<JavaExec>("run") {
-    dependsOn(tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar"))
-    classpath = sourceSets["main"].runtimeClasspath + files(tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar").get().archiveFile)
-    mainClass.set(application.mainClass)
-}
-
-tasks.build {
-    dependsOn(tasks.shadowJar)
-}
