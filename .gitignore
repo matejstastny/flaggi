@@ -16,6 +16,3 @@ app/shadowjar
 
 # Include the wrapper jar
 !gradle-wrapper.jar
-
-# @kireiiiiiiii
-broken
