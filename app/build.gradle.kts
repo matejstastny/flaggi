@@ -1,12 +1,10 @@
-import java.io.File
-
 // =========================================================================
-// Global Plugins & Repositories
+// Global plugins & repos
 // =========================================================================
 
 plugins {
-    java
-    application
+    id("java")
+    id("application")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -17,38 +15,41 @@ allprojects {
 }
 
 // =========================================================================
-// Subprojects Configuration
+// Main
 // =========================================================================
 
 subprojects {
+    applyPlugins()
+    configureJava()
+    configureTesting()
+    disableJarTask()
 
-    // ----------------------------------
-    // Base Plugin Application
-    // ----------------------------------
-
-    // Apply the Java plugin to every subproject
-    plugins.apply("java")
-
-    // Ignore the shared library
-    if (name != "shared") {
-        plugins.apply("application")
-        plugins.apply("com.github.johnrengelman.shadow")
+    afterEvaluate {
+        configureShadowjar()
     }
+}
 
-    // ----------------------------------
-    // Java Toolchain & Compatibility
-    // ----------------------------------
+// =========================================================================
+// Configuration methods
+// =========================================================================
 
+fun Project.applyPlugins() {
+    apply(plugin = "java")
+    if (project.name != "shared") {
+        apply(plugin = "application")
+        apply(plugin = "com.github.johnrengelman.shadow")
+    }
+}
+
+fun Project.configureJava() {
     configure<JavaPluginExtension> {
         toolchain.languageVersion.set(JavaLanguageVersion.of(8))
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
 
-    // ----------------------------------
-    // Testing Configuration
-    // ----------------------------------
-
+fun Project.configureTesting() {
     tasks.withType<Test> {
         useJUnitPlatform()
         testLogging {
@@ -56,64 +57,63 @@ subprojects {
             showStandardStreams = true
         }
     }
+}
 
-    // ----------------------------------
-    // Packaging Configuration
-    // ----------------------------------
-
-    // Disable the default jar task, as ShadowJar is used for packaging
+fun Project.disableJarTask() {
     tasks.withType<Jar> {
         enabled = false
     }
+}
 
-    // ----------------------------------
-    // ShadowJar Packaging
-    // ----------------------------------
+fun Project.configureShadowjar() {
+    if (project.name == "shared") return
 
-    afterEvaluate {
-        if (name != "shared") {
+    val mapsDir = File(rootProject.projectDir, "../maps")
+    val licensesDir = File(rootProject.projectDir, "../licenses")
 
-            // Utility function to resolve and validate required directories
-            fun requireDir(relativePath: String): File {
-                val dir = File(rootProject.projectDir, relativePath)
-                if (!dir.exists()) {
-                    throw GradleException("Required directory not found: ${dir.absolutePath}")
-                }
-                return dir
-            }
+    tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+        mergeServiceFiles()
+        archiveClassifier.set("")
+        destinationDirectory.set(file("$rootDir/shadowjar"))
+        doLast {
+            println("Shadow JAR has been created at: ${archiveFile.get().asFile.absolutePath}")
+        }
 
-            // Configure ShadowJar tasks provided by the shadow plugin
-            tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-                mergeServiceFiles()
-                archiveClassifier.set("")
-                destinationDirectory.set(file("$rootDir/shadowjar"))
-
-                if (name == "server") {
-                    from(requireDir("../assets/world-maps")) {
-                        into("maps")
-                    }
-                }
-
-                from(File("../assets/licenses").absolutePath) {
-                    into("licenses")
-                }
-
-                // Validate and copy the LICENSE file into licenses/LICENSE
-                val licenseFile = File(rootProject.projectDir, "../LICENSE")
-                if (!licenseFile.exists()) {
-                    throw GradleException("Required LICENSE file not found: ${licenseFile.absolutePath}")
-                }
-
-                from(licenseFile) {
-                    into("licenses")
-                    rename { "LICENSE" }
-                }
-            }
-
-            // Make the "build" task depend on the ShadowJar creation
-            tasks.named("build") {
-                dependsOn(tasks.named("shadowJar"))
+        if (name == "server") {
+            from(requireDir("../assets/world-maps")) {
+                into("maps")
             }
         }
+        from(File("../assets/licenses").absolutePath) {
+            into("licenses")
+        }
+        addLicenseFile()
     }
+
+    tasks.named("build") {
+        dependsOn(tasks.named("shadowJar"))
+    }
+}
+
+// =========================================================================
+// Private
+// =========================================================================
+
+fun com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.addLicenseFile() {
+    val licenseFile = File(rootProject.projectDir, "../LICENSE")
+    if (!licenseFile.exists()) {
+        throw GradleException("Required LICENSE file not found: ${licenseFile.absolutePath}")
+    }
+    from(licenseFile) {
+        into("licenses")
+        rename { "LICENSE" }
+    }
+}
+
+fun requireDir(relativePath: String): File {
+    val dir = File(rootProject.projectDir, relativePath)
+    if (!dir.exists()) {
+        throw GradleException("Required directory not found: ${dir.absolutePath}")
+    }
+    return dir
 }

@@ -2,11 +2,6 @@
 // Plugins & Dependencies
 // =========================================================================
 
-plugins {
-    application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-}
-
 dependencies {
     implementation(project(":shared"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
@@ -27,19 +22,12 @@ application {
 // ShadowJar Packaging Configuration for Client
 // =========================================================================
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    // Include output from the shared module into the client JAR
-    from(project(":shared").sourceSets["main"].output)
-
+tasks.shadowJar {
+    enabled = true
     archiveBaseName.set("Flaggi-client")
     archiveVersion.set("1.0.0")
-    archiveClassifier.set("")
-
-    // Output directory for the shadow JAR
-    destinationDirectory.set(rootProject.file("shadowjar"))
 
     doLast {
         println("Client Shadow JAR created at: ${archiveFile.get().asFile.absolutePath}")
     }
 }
-
