@@ -20,48 +20,48 @@ import flaggi.shared.util.ProtoUtil;
  */
 public class User {
 
-    private final String uuid;
-    private final String name;
-    private final Socket socket;
-    private final OutputStream out;
+	private final String uuid;
+	private final String name;
+	private final Socket socket;
+	private final OutputStream out;
 
-    // Constructor --------------------------------------------------------------
+	// Constructor --------------------------------------------------------------
 
-    public User(String uuid, String name, Socket socket, OutputStream out) {
-        this.uuid = uuid;
-        this.name = name;
-        this.socket = socket;
-        this.out = out;
-    }
+	public User(String uuid, String name, Socket socket, OutputStream out) {
+		this.uuid = uuid;
+		this.name = name;
+		this.socket = socket;
+		this.out = out;
+	}
 
-    // Accesors -----------------------------------------------------------------
+	// Accesors -----------------------------------------------------------------
 
-    public String getUuid() {
-        return uuid;
-    }
+	public String getUuid() {
+		return uuid;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public Socket getSocket() {
-        return socket;
-    }
+	public Socket getSocket() {
+		return socket;
+	}
 
-    public OutputStream getOutputStream() {
-        return out;
-    }
+	public OutputStream getOutputStream() {
+		return out;
+	}
 
-    // Util ---------------------------------------------------------------------
+	// Util ---------------------------------------------------------------------
 
-    public void sendMessage(ServerMessageWrapper message) {
-        try {
-            byte[] messageBytes = message.toByteArray();
-            byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
-            this.out.write(sizeBytes);
-            this.out.write(messageBytes);
-        } catch (IOException e) {
-            Logger.log(LogLevel.ERROR, "IOException occured while sending message to user (" + this.name + ", " + this.uuid + ")", e);
-        }
-    }
+	public void sendMessage(ServerMessageWrapper message) {
+		try {
+			byte[] messageBytes = message.toByteArray();
+			byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
+			this.out.write(sizeBytes);
+			this.out.write(messageBytes);
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "IOException occured while sending message to user (" + this.name + ", " + this.uuid + ")", e);
+		}
+	}
 }

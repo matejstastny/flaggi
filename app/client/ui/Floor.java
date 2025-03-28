@@ -23,26 +23,26 @@ import flaggi.shared.util.ImageUtil;
  */
 public class Floor extends Renderable {
 
-    private BufferedImage texture;
+	private BufferedImage texture;
 
-    public Floor(int[] size) {
-        super(ZIndex.FLOOR, UiTags.GAME_ELEMENTS);
-        try {
-            this.texture = ImageUtil.createRepeatedImage("sprites/floor-tile.png", size[0], size[1]);
-        } catch (IOException e) {
-            System.out.println("There was an error while converting the floor texture.");
-        }
-    }
+	public Floor(int[] size) {
+		super(ZIndex.FLOOR, UiTags.GAME_ELEMENTS);
+		try {
+			this.texture = ImageUtil.createRepeatedImage("sprites/floor-tile.png", size[0], size[1]);
+		} catch (IOException e) {
+			System.out.println("There was an error while converting the floor texture.");
+		}
+	}
 
-    @Override
-    public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
-        // Floor texture
-        g.drawImage(this.texture, viewportOffset[0], viewportOffset[1], focusCycleRootAncestor);
+	@Override
+	public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
+		// Floor texture
+		g.drawImage(this.texture, viewportOffset[0], viewportOffset[1], focusCycleRootAncestor);
 
-        // Border
-        g.setStroke(new BasicStroke(5));
-        g.setColor(Color.BLACK);
-        g.drawRect(viewportOffset[0], viewportOffset[1], this.texture.getWidth(), this.texture.getHeight());
-    }
+		// Border
+		g.setStroke(new BasicStroke(5));
+		g.setColor(Color.BLACK);
+		g.drawRect(viewportOffset[0], viewportOffset[1], this.texture.getWidth(), this.texture.getHeight());
+	}
 
 }

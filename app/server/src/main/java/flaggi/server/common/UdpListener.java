@@ -22,73 +22,73 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpListener implements Runnable {
 
-    private final int port;
-    private final BlockingQueue<ClientUpdate> messageQueue;
-    private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
+	private final int port;
+	private final BlockingQueue<ClientUpdate> messageQueue;
+	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
 
-    // Constructor --------------------------------------------------------------
+	// Constructor --------------------------------------------------------------
 
-    public UdpListener(int port, BlockingQueue<ClientUpdate> messageQueue) {
-        this.port = port;
-        this.messageQueue = messageQueue;
-    }
+	public UdpListener(int port, BlockingQueue<ClientUpdate> messageQueue) {
+		this.port = port;
+		this.messageQueue = messageQueue;
+	}
 
-    @Override
-    public void run() {
-        try (DatagramSocket socket = new DatagramSocket(port)) {
-            byte[] buffer = new byte[1024];
-            while (true) {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-                if (rateLimiter.shouldProcessPacket(packet)) {
-                    processPacket(packet);
-                }
-            }
-        } catch (Exception e) {
-            Logger.log(LogLevel.ERROR, "An error occurred in UdpListener.", e);
-        }
-    }
+	@Override
+	public void run() {
+		try (DatagramSocket socket = new DatagramSocket(port)) {
+			byte[] buffer = new byte[1024];
+			while (true) {
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				socket.receive(packet);
+				if (rateLimiter.shouldProcessPacket(packet)) {
+					processPacket(packet);
+				}
+			}
+		} catch (Exception e) {
+			Logger.log(LogLevel.ERROR, "An error occurred in UdpListener.", e);
+		}
+	}
 
-    // Private ------------------------------------------------------------------
+	// Private ------------------------------------------------------------------
 
-    private void processPacket(DatagramPacket packet) {
-        try {
-            ClientUpdate message = deserialize(packet.getData());
-            messageQueue.offer(message);
-        } catch (Exception e) {
-            Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
-        }
-    }
+	private void processPacket(DatagramPacket packet) {
+		try {
+			ClientUpdate message = deserialize(packet.getData());
+			messageQueue.offer(message);
+		} catch (Exception e) {
+			Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
+		}
+	}
 
-    public static ClientUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
-        return ClientUpdate.parseFrom(data);
-    }
+	public static ClientUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
+		return ClientUpdate.parseFrom(data);
+	}
 
-    // Limiter ------------------------------------------------------------------
+	// Limiter ------------------------------------------------------------------
 
-    /**
-     * Limits the rate at what UDP packets from clients can be accepted.
-     */
-    private static class PacketRateLimiter {
-        private final Map<InetAddress, Long> lastPacketTimes = new ConcurrentHashMap<>();
-        private final long minIntervalMillis;
+	/**
+	 * Limits the rate at what UDP packets from clients can be accepted.
+	 */
+	private static class PacketRateLimiter {
+		private final Map<InetAddress, Long> lastPacketTimes = new ConcurrentHashMap<>();
+		private final long minIntervalMillis;
 
-        public PacketRateLimiter(long minIntervalMillis) {
-            this.minIntervalMillis = minIntervalMillis;
-        }
+		public PacketRateLimiter(long minIntervalMillis) {
+			this.minIntervalMillis = minIntervalMillis;
+		}
 
-        public boolean shouldProcessPacket(DatagramPacket packet) {
-            InetAddress address = packet.getAddress();
-            long currentTime = System.currentTimeMillis();
-            long lastTime = lastPacketTimes.getOrDefault(address, 0L);
+		public boolean shouldProcessPacket(DatagramPacket packet) {
+			InetAddress address = packet.getAddress();
+			long currentTime = System.currentTimeMillis();
+			long lastTime = lastPacketTimes.getOrDefault(address, 0L);
 
-            if (currentTime - lastTime > minIntervalMillis) {
-                lastPacketTimes.put(address, currentTime);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+			if (currentTime - lastTime > minIntervalMillis) {
+				lastPacketTimes.put(address, currentTime);
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 
 }

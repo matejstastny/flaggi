@@ -39,33 +39,33 @@ import flaggi.shared.common.MapData.ObjectData;
  */
 public class GameObject extends Renderable {
 
-    /////////////////
-    // Variables
-    ////////////////
+	/////////////////
+	// Variables
+	////////////////
 
-    private ObjectData data;
+	private ObjectData data;
 
-    /////////////////
-    // Contructor
-    ////////////////
+	/////////////////
+	// Contructor
+	////////////////
 
-    /**
-     * Default constructor.
-     *
-     * @param data - data of the game object.
-     */
-    public GameObject(ObjectData data) {
-        super(2);
-        this.data = data;
-    }
+	/**
+	 * Default constructor.
+	 *
+	 * @param data - data of the game object.
+	 */
+	public GameObject(ObjectData data) {
+		super(2);
+		this.data = data;
+	}
 
-    /////////////////
-    // Rendering
-    ////////////////
+	/////////////////
+	// Rendering
+	////////////////
 
-    @Override
-    public void render(Graphics2D g, int[] size, int[] origin, Container focusCycleRootAncestor) {
-        // TODO rendering logic
-    }
+	@Override
+	public void render(Graphics2D g, int[] size, int[] origin, Container focusCycleRootAncestor) {
+		// TODO rendering logic
+	}
 
 }

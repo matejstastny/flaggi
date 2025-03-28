@@ -20,16 +20,16 @@ import flaggi.client.constants.UiTags;
  */
 public class ConnectionWidget extends Renderable {
 
-    private static final int RADIUS = 5;
+	private static final int RADIUS = 5;
 
-    public ConnectionWidget() {
-        super(ZIndex.CONNECTION, UiTags.GAME_ELEMENTS, UiTags.MENU_ELEMENTS);
-    }
+	public ConnectionWidget() {
+		super(ZIndex.CONNECTION, UiTags.GAME_ELEMENTS, UiTags.MENU_ELEMENTS);
+	}
 
-    @Override
-    public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
-        g.setColor(Color.GREEN);
-        g.fillOval(size[0] - RADIUS * 3, RADIUS, RADIUS * 2, RADIUS * 2);
-    }
+	@Override
+	public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
+		g.setColor(Color.GREEN);
+		g.fillOval(size[0] - RADIUS * 3, RADIUS, RADIUS * 2, RADIUS * 2);
+	}
 
 }

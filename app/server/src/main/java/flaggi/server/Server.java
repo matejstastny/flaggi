@@ -29,106 +29,106 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class Server implements Updatable {
 
-    private final ExecutorService threads;
-    private final TcpListener tcpListener;
-    private final UdpListener udpListener;
-    private final UpdateLoop updateLoop;
-    private final Map<String, User> users = new ConcurrentHashMap<>();
-    private final BlockingQueue<ClientMessageWrapper> tcpMessageQueue = new LinkedBlockingQueue<>();
-    private final BlockingQueue<ClientUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
+	private final ExecutorService threads;
+	private final TcpListener tcpListener;
+	private final UdpListener udpListener;
+	private final UpdateLoop updateLoop;
+	private final Map<String, User> users = new ConcurrentHashMap<>();
+	private final BlockingQueue<ClientMessageWrapper> tcpMessageQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<ClientUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
 
-    // Main ---------------------------------------------------------------------
+	// Main ---------------------------------------------------------------------
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
-    }
+	public static void main(String[] args) {
+		Server server = new Server();
+		Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
+	}
 
-    public Server() {
-        initializeLogger();
-        this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
-        this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
-        this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL, this);
-        this.threads = Executors.newFixedThreadPool(4); // Increased thread pool size
-        initializeThreads();
-    }
+	public Server() {
+		initializeLogger();
+		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
+		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
+		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL, this);
+		this.threads = Executors.newFixedThreadPool(4); // Increased thread pool size
+		initializeThreads();
+	}
 
-    // Update -------------------------------------------------------------------
+	// Update -------------------------------------------------------------------
 
-    @Override
-    public void update() {
-        processTcpMessages();
-        processUdpPackets();
-    }
+	@Override
+	public void update() {
+		processTcpMessages();
+		processUdpPackets();
+	}
 
-    // Initialization -----------------------------------------------------------
+	// Initialization -----------------------------------------------------------
 
-    private void initializeLogger() {
-        Logger.setLogFile(Constants.LOG_FILE);
-        Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
-        Logger.log(LogLevel.INFO, "Application start.");
-    }
+	private void initializeLogger() {
+		Logger.setLogFile(Constants.LOG_FILE);
+		Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
+		Logger.log(LogLevel.INFO, "Application start.");
+	}
 
-    private void initializeThreads() {
-        threads.execute(this.tcpListener);
-        threads.execute(this.udpListener);
-        threads.execute(this.updateLoop);
-    }
+	private void initializeThreads() {
+		threads.execute(this.tcpListener);
+		threads.execute(this.udpListener);
+		threads.execute(this.updateLoop);
+	}
 
-    // Private ------------------------------------------------------------------
+	// Private ------------------------------------------------------------------
 
-    private void shutdown() {
-        Logger.log(LogLevel.INFO, "Shutting down server...");
-        threads.shutdown();
-        try {
-            if (!threads.awaitTermination(5, TimeUnit.SECONDS)) {
-                threads.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            threads.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-        Logger.log(LogLevel.INFO, "Server shut down.");
-    }
+	private void shutdown() {
+		Logger.log(LogLevel.INFO, "Shutting down server...");
+		threads.shutdown();
+		try {
+			if (!threads.awaitTermination(5, TimeUnit.SECONDS)) {
+				threads.shutdownNow();
+			}
+		} catch (InterruptedException e) {
+			threads.shutdownNow();
+			Thread.currentThread().interrupt();
+		}
+		Logger.log(LogLevel.INFO, "Server shut down.");
+	}
 
-    // Network ------------------------------------------------------------------
+	// Network ------------------------------------------------------------------
 
-    private void processUdpPackets() {
-        ClientMessageWrapper message;
-        while ((message = udpPacketQueue.poll()) != null) {
+	private void processUdpPackets() {
+		ClientMessageWrapper message;
+		while ((message = udpPacketQueue.poll()) != null) {
 
-        }
-    }
+		}
+	}
 
-    private void processTcpMessages() {
-        ClientMessageWrapper message;
-        while ((message = tcpMessageQueue.poll()) != null) {
-            if (message.hasInitial()) {
-                handleNewUser(message);
-            } else if (message.hasRequest()) {
-                System.out.println("request");
-            }
-        }
-    }
+	private void processTcpMessages() {
+		ClientMessageWrapper message;
+		while ((message = tcpMessageQueue.poll()) != null) {
+			if (message.hasInitial()) {
+				handleNewUser(message);
+			} else if (message.hasRequest()) {
+				System.out.println("request");
+			}
+		}
+	}
 
-    // Message handeling --------------------------------------------------------
+	// Message handeling --------------------------------------------------------
 
-    private void handleNewUser(WrapperMessage message) {
-        Logger.log(LogLevel.INFO, "New user connected.");
-        String uuid = UUID.randomUUID().toString();
-        User user = new User(uuid, message.getInitial().getUsername(), null, null); // Update as needed
-        users.put(user.getUuid(), user);
+	private void handleNewUser(WrapperMessage message) {
+		Logger.log(LogLevel.INFO, "New user connected.");
+		String uuid = UUID.randomUUID().toString();
+		User user = new User(uuid, message.getInitial().getUsername(), null, null); // Update as needed
+		users.put(user.getUuid(), user);
 
-        InitialResponse response = InitialResponse.newBuilder().setUuid(uuid).build();
-        user.sendMessage(WrapperMessage.newBuilder().setInitialResponse(response).build());
-    }
+		InitialResponse response = InitialResponse.newBuilder().setUuid(uuid).build();
+		user.sendMessage(WrapperMessage.newBuilder().setInitialResponse(response).build());
+	}
 
-    // Utility ------------------------------------------------------------------
+	// Utility ------------------------------------------------------------------
 
-    public void sendMessageToUser(String uuid, WrapperMessage message) throws Exception {
-        User user = users.get(uuid);
-        if (user != null) {
-            user.sendMessage(message);
-        }
-    }
+	public void sendMessageToUser(String uuid, WrapperMessage message) throws Exception {
+		User user = users.get(uuid);
+		if (user != null) {
+			user.sendMessage(message);
+		}
+	}
 }

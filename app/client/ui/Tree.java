@@ -20,20 +20,20 @@ import flaggi.shared.common.GPanel.Renderable;
  */
 public class Tree extends Renderable {
 
-    private int[] position;
-    private Sprite sprite;
+	private int[] position;
+	private Sprite sprite;
 
-    public Tree(int[] position) {
-        super(ZIndex.ENVIRONMENT_BOTTOM, UiTags.GAME_ELEMENTS, UiTags.ENVIRONMENT);
-        this.position = position;
-        this.sprite = new Sprite();
-        this.sprite.addAnimation("tree", Arrays.asList("tree"));
-        this.sprite.setAnimation("tree");
-    }
+	public Tree(int[] position) {
+		super(ZIndex.ENVIRONMENT_BOTTOM, UiTags.GAME_ELEMENTS, UiTags.ENVIRONMENT);
+		this.position = position;
+		this.sprite = new Sprite();
+		this.sprite.addAnimation("tree", Arrays.asList("tree"));
+		this.sprite.setAnimation("tree");
+	}
 
-    @Override
-    public void render(Graphics2D g, int[] size, int[] origin, Container focusCycleRootAncestor) {
-        this.sprite.render(g, this.position[0] + origin[0], this.position[1] + origin[1], focusCycleRootAncestor);
-    }
+	@Override
+	public void render(Graphics2D g, int[] size, int[] origin, Container focusCycleRootAncestor) {
+		this.sprite.render(g, this.position[0] + origin[0], this.position[1] + origin[1], focusCycleRootAncestor);
+	}
 
 }

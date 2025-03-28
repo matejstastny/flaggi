@@ -45,128 +45,128 @@ import java.util.Properties;
  */
 public class ConfigManager {
 
-    private final Properties properties;
-    private final String configFilePath;
-    private final String defaultConfigFile;
+	private final Properties properties;
+	private final String configFilePath;
+	private final String defaultConfigFile;
 
-    // Constructor -------------------------------------------------------------
+	// Constructor -------------------------------------------------------------
 
-    public ConfigManager(String configFilePath, String defaultConfigFile) {
-        this.configFilePath = configFilePath;
-        this.defaultConfigFile = defaultConfigFile;
-        properties = new Properties();
-        try {
-            loadOrInitializeConfigFile();
-        } catch (IOException e) {
-            System.err.println("Error handling configuration file: " + e.getMessage());
-        }
-    }
+	public ConfigManager(String configFilePath, String defaultConfigFile) {
+		this.configFilePath = configFilePath;
+		this.defaultConfigFile = defaultConfigFile;
+		properties = new Properties();
+		try {
+			loadOrInitializeConfigFile();
+		} catch (IOException e) {
+			System.err.println("Error handling configuration file: " + e.getMessage());
+		}
+	}
 
-    // Nested Exception Class -------------------------------------------------
+	// Nested Exception Class -------------------------------------------------
 
-    public static class NonexistentFieldException extends RuntimeException {
-        public NonexistentFieldException(String message) {
-            super(message);
-        }
-    }
+	public static class NonexistentFieldException extends RuntimeException {
+		public NonexistentFieldException(String message) {
+			super(message);
+		}
+	}
 
-    // Accessors --------------------------------------------------------------
+	// Accessors --------------------------------------------------------------
 
-    public int getIntValue(String key) {
-        String value = properties.getProperty(key);
-        if (value == null) {
-            throw new NonexistentFieldException("Field not found: " + key);
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new NonexistentFieldException("Invalid integer format for key: " + key);
-        }
-    }
+	public int getIntValue(String key) {
+		String value = properties.getProperty(key);
+		if (value == null) {
+			throw new NonexistentFieldException("Field not found: " + key);
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			throw new NonexistentFieldException("Invalid integer format for key: " + key);
+		}
+	}
 
-    public boolean getBooleanValue(String key) {
-        String value = properties.getProperty(key);
-        if (value == null) {
-            throw new NonexistentFieldException("Field not found: " + key);
-        }
-        return Boolean.parseBoolean(value);
-    }
+	public boolean getBooleanValue(String key) {
+		String value = properties.getProperty(key);
+		if (value == null) {
+			throw new NonexistentFieldException("Field not found: " + key);
+		}
+		return Boolean.parseBoolean(value);
+	}
 
-    public String getStringValue(String key) {
-        String value = properties.getProperty(key);
-        if (value == null) {
-            throw new NonexistentFieldException("Field not found: " + key);
-        }
-        return value;
-    }
+	public String getStringValue(String key) {
+		String value = properties.getProperty(key);
+		if (value == null) {
+			throw new NonexistentFieldException("Field not found: " + key);
+		}
+		return value;
+	}
 
-    public double getDoubleValue(String key) {
-        String value = properties.getProperty(key);
-        if (value == null) {
-            throw new NonexistentFieldException("Field not found: " + key);
-        }
-        try {
-            return Double.parseDouble(value);
-        } catch (NumberFormatException e) {
-            throw new NonexistentFieldException("Invalid double format for key: " + key);
-        }
-    }
+	public double getDoubleValue(String key) {
+		String value = properties.getProperty(key);
+		if (value == null) {
+			throw new NonexistentFieldException("Field not found: " + key);
+		}
+		try {
+			return Double.parseDouble(value);
+		} catch (NumberFormatException e) {
+			throw new NonexistentFieldException("Invalid double format for key: " + key);
+		}
+	}
 
-    // Mutators ---------------------------------------------------------------
+	// Mutators ---------------------------------------------------------------
 
-    public void setField(String key, String value) {
-        properties.setProperty(key, value);
-        try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
-            properties.store(output, null);
-        } catch (IOException e) {
-            System.err.println("Error saving configuration file: " + e.getMessage());
-        }
-    }
+	public void setField(String key, String value) {
+		properties.setProperty(key, value);
+		try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
+			properties.store(output, null);
+		} catch (IOException e) {
+			System.err.println("Error saving configuration file: " + e.getMessage());
+		}
+	}
 
-    // Private Methods --------------------------------------------------------
+	// Private Methods --------------------------------------------------------
 
-    private void loadOrInitializeConfigFile() throws IOException {
-        if (!loadConfigFile()) {
-            createDefaultConfigFile();
-        }
-    }
+	private void loadOrInitializeConfigFile() throws IOException {
+		if (!loadConfigFile()) {
+			createDefaultConfigFile();
+		}
+	}
 
-    private boolean loadConfigFile() throws IOException {
-        try (FileInputStream input = new FileInputStream(this.configFilePath)) {
-            properties.load(input);
-            return true;
-        } catch (IOException e) {
-            System.err.println("Configuration file not found, creating default configuration.");
-            return false;
-        }
-    }
+	private boolean loadConfigFile() throws IOException {
+		try (FileInputStream input = new FileInputStream(this.configFilePath)) {
+			properties.load(input);
+			return true;
+		} catch (IOException e) {
+			System.err.println("Configuration file not found, creating default configuration.");
+			return false;
+		}
+	}
 
-    private static void createConfFile(String path) throws IOException {
-        File confFile = new File(path);
-        if (!confFile.exists()) {
-            new File(confFile.getParent()).mkdirs();
-            confFile.createNewFile();
-        }
-    }
+	private static void createConfFile(String path) throws IOException {
+		File confFile = new File(path);
+		if (!confFile.exists()) {
+			new File(confFile.getParent()).mkdirs();
+			confFile.createNewFile();
+		}
+	}
 
-    private void createDefaultConfigFile() throws IOException {
-        createConfFile(this.configFilePath);
-        try (InputStream defaultConfigStream = getClass().getResourceAsStream(defaultConfigFile)) {
-            if (defaultConfigStream == null) {
-                System.err.println("Default configuration file not found in JAR.");
-                return;
-            }
+	private void createDefaultConfigFile() throws IOException {
+		createConfFile(this.configFilePath);
+		try (InputStream defaultConfigStream = getClass().getResourceAsStream(defaultConfigFile)) {
+			if (defaultConfigStream == null) {
+				System.err.println("Default configuration file not found in JAR.");
+				return;
+			}
 
-            properties.load(defaultConfigStream);
+			properties.load(defaultConfigStream);
 
-            try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
-                properties.store(output, null);
-                System.out.println("Default configuration file created at " + this.configFilePath);
-            }
-        } catch (IOException e) {
-            System.err.println("Error creating default configuration file at " + this.configFilePath);
-            e.printStackTrace();
-        }
-    }
+			try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
+				properties.store(output, null);
+				System.out.println("Default configuration file created at " + this.configFilePath);
+			}
+		} catch (IOException e) {
+			System.err.println("Error creating default configuration file at " + this.configFilePath);
+			e.printStackTrace();
+		}
+	}
 
 }

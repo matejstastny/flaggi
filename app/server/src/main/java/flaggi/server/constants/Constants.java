@@ -16,24 +16,24 @@ import flaggi.shared.util.FileUtil;
  */
 public class Constants {
 
-    // Private constructor to prevent instantiation
-    private Constants() {
-        throw new UnsupportedOperationException("Constants is a constants class and cannot be instantiated.");
-    }
+	// Private constructor to prevent instantiation
+	private Constants() {
+		throw new UnsupportedOperationException("Constants is a constants class and cannot be instantiated.");
+	}
 
-    // Paths --------------------------------------------------------------------
+	// Paths --------------------------------------------------------------------
 
-    public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
-    public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
-    public static final ConfigManager CONFIG = new ConfigManager(String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "configs", "config.properties"), "/configs/config.properties");
+	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
+	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
+	public static final ConfigManager CONFIG = new ConfigManager(String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "configs", "config.properties"), "/configs/config.properties");
 
-    // Network ------------------------------------------------------------------
+	// Network ------------------------------------------------------------------
 
-    public static final int TCP_PORT = CONFIG.getIntValue("tcp.port");
-    public static final int UDP_PORT = CONFIG.getIntValue("udp.port");
+	public static final int TCP_PORT = CONFIG.getIntValue("tcp.port");
+	public static final int UDP_PORT = CONFIG.getIntValue("udp.port");
 
-    // Update -------------------------------------------------------------------
+	// Update -------------------------------------------------------------------
 
-    public static final int UPDATE_INTERVAL = 16;
+	public static final int UPDATE_INTERVAL = 16;
 
 }

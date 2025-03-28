@@ -19,14 +19,14 @@ import flaggi.client.constants.UiTags;
  */
 public class Background extends Renderable {
 
-    public Background() {
-        super(ZIndex.BACKGROUND, UiTags.MENU_ELEMENTS, UiTags.GAME_ELEMENTS);
-    }
+	public Background() {
+		super(ZIndex.BACKGROUND, UiTags.MENU_ELEMENTS, UiTags.GAME_ELEMENTS);
+	}
 
-    @Override
-    public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
-        g.setColor(new Color(153, 192, 255));
-        g.fillRect(0, 0, size[0], size[1]);
-    }
+	@Override
+	public void render(Graphics2D g, int[] size, int[] viewportOffset, Container focusCycleRootAncestor) {
+		g.setColor(new Color(153, 192, 255));
+		g.fillRect(0, 0, size[0], size[1]);
+	}
 
 }

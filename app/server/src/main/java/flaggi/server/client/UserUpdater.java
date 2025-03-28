@@ -6,17 +6,17 @@ import flaggi.proto.ServerMessages.ServerUpdate;
 
 public class UserUpdater {
 
-    private final Map<String, User> users;
+	private final Map<String, User> users;
 
-    public UserUpdater(Map<String, User> users) {
-        this.users = users;
+	public UserUpdater(Map<String, User> users) {
+		this.users = users;
+	}
+
+	public void update() {
+
     }
 
-    public void update() {
-
-    }
-
-    private ServerUpdate getUpdateMessage()
+	private ServerUpdate getUpdateMessage()
 
 
     // get update message, filter out non-renderable stuff

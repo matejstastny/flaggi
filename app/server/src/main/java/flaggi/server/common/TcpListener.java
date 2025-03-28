@@ -19,35 +19,35 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class TcpListener implements Runnable {
 
-    private final int port;
-    private final BlockingQueue<ClientMessageWrapper> messageQueue;
-    private final Map<String, User> users;
+	private final int port;
+	private final BlockingQueue<ClientMessageWrapper> messageQueue;
+	private final Map<String, User> users;
 
-    // Constructor --------------------------------------------------------------
+	// Constructor --------------------------------------------------------------
 
-    public TcpListener(int port, BlockingQueue<ClientMessageWrapper> messageQueue, Map<String, User> users) {
-        this.port = port;
-        this.messageQueue = messageQueue;
-        this.users = users;
-    }
+	public TcpListener(int port, BlockingQueue<ClientMessageWrapper> messageQueue, Map<String, User> users) {
+		this.port = port;
+		this.messageQueue = messageQueue;
+		this.users = users;
+	}
 
-    // Accesors -----------------------------------------------------------------
+	// Accesors -----------------------------------------------------------------
 
-    public BlockingQueue<ClientMessageWrapper> getMessageQueue() {
-        return messageQueue;
-    }
+	public BlockingQueue<ClientMessageWrapper> getMessageQueue() {
+		return messageQueue;
+	}
 
-    // Update -------------------------------------------------------------------
+	// Update -------------------------------------------------------------------
 
-    @Override
-    public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                new Thread(new UserHandler(clientSocket, messageQueue, users), "Client Handler Thread").start();
-            }
-        } catch (Exception e) {
-            Logger.log(LogLevel.ERROR, "An error occurred in the TCP listener.", e);
-        }
-    }
+	@Override
+	public void run() {
+		try (ServerSocket serverSocket = new ServerSocket(port)) {
+			while (true) {
+				Socket clientSocket = serverSocket.accept();
+				new Thread(new UserHandler(clientSocket, messageQueue, users), "Client Handler Thread").start();
+			}
+		} catch (Exception e) {
+			Logger.log(LogLevel.ERROR, "An error occurred in the TCP listener.", e);
+		}
+	}
 }

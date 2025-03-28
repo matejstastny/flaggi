@@ -18,57 +18,57 @@ import flaggi.shared.util.ScreenUtil;
 
 public class App {
 
-    private final GPanel gpanel;
+	private final GPanel gpanel;
 
-    // Main ---------------------------------------------------------------------
+	// Main ---------------------------------------------------------------------
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(App::new);
-    }
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(App::new);
+	}
 
-    public App() {
-        initializeLogger();
-        this.gpanel = getDefaultGpanel();
-        addDefaultWidgets();
+	public App() {
+		initializeLogger();
+		this.gpanel = getDefaultGpanel();
+		addDefaultWidgets();
 
-        this.gpanel.toggleWidgetsVisibility(true); // TODO DEBUG
-    }
+		this.gpanel.toggleWidgetsVisibility(true); // TODO DEBUG
+	}
 
-    // Events -------------------------------------------------------------------
+	// Events -------------------------------------------------------------------
 
-    public String joinServer(String name, String ip) {
-        Logger.log(LogLevel.DEBUG, "Join server button pressed.");
-        Constants.CONFIG.setField("username", name);
-        Constants.CONFIG.setField("server.ip", ip);
-        return "Connecting...";
-    }
+	public String joinServer(String name, String ip) {
+		Logger.log(LogLevel.DEBUG, "Join server button pressed.");
+		Constants.CONFIG.setField("username", name);
+		Constants.CONFIG.setField("server.ip", ip);
+		return "Connecting...";
+	}
 
-    // Private ------------------------------------------------------------------
+	// Private ------------------------------------------------------------------
 
-    private void initializeLogger() {
-        Logger.setLogFile(Constants.LOG_FILE);
-        Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
-        Logger.log(LogLevel.INFO, "Application start.");
-        if (Constants.LOG_MEM_USAGE) {
-            Logger.logMemoryUsage(Constants.MEM_LOG_INTERVAL_SEC);
-        }
-    }
+	private void initializeLogger() {
+		Logger.setLogFile(Constants.LOG_FILE);
+		Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
+		Logger.log(LogLevel.INFO, "Application start.");
+		if (Constants.LOG_MEM_USAGE) {
+			Logger.logMemoryUsage(Constants.MEM_LOG_INTERVAL_SEC);
+		}
+	}
 
-    private GPanel getDefaultGpanel() {
-        int[] screenSize = ScreenUtil.getScreenDimensions();
-        GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
-        if (Constants.FRAMERATE >= 0) {
-            gp.setFpsCap(Constants.FRAMERATE);
-        }
-        gp.setIconOSDependend(Constants.ICON_WIN, Constants.ICON_MAC, Constants.ICON_WIN, Constants.ICON_WIN);
-        return gp;
-    }
+	private GPanel getDefaultGpanel() {
+		int[] screenSize = ScreenUtil.getScreenDimensions();
+		GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
+		if (Constants.FRAMERATE >= 0) {
+			gp.setFpsCap(Constants.FRAMERATE);
+		}
+		gp.setIconOSDependend(Constants.ICON_WIN, Constants.ICON_MAC, Constants.ICON_WIN, Constants.ICON_WIN);
+		return gp;
+	}
 
-    private void addDefaultWidgets() {
-        this.gpanel.add( //
-                new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
-                new MenuBackground() //
-        );
-    }
+	private void addDefaultWidgets() {
+		this.gpanel.add( //
+				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
+				new MenuBackground() //
+		);
+	}
 
 }
