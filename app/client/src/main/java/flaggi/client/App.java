@@ -11,13 +11,12 @@ import javax.swing.SwingUtilities;
 import flaggi.client.constants.Constants;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
-import flaggi.client.ui.MenuScreen.MenuHandler;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ScreenUtil;
 
-public class App implements MenuHandler {
+public class App {
 
     private final GPanel gpanel;
 
@@ -37,7 +36,6 @@ public class App implements MenuHandler {
 
     // Events -------------------------------------------------------------------
 
-    @Override
     public String joinServer(String name, String ip) {
         Logger.log(LogLevel.DEBUG, "Join server button pressed.");
         Constants.CONFIG.setField("username", name);
@@ -68,7 +66,7 @@ public class App implements MenuHandler {
 
     private void addDefaultWidgets() {
         this.gpanel.add( //
-                new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this), //
+                new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
                 new MenuBackground() //
         );
     }

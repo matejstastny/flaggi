@@ -16,6 +16,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.function.BiFunction;
 
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
@@ -35,20 +36,20 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
     private String usernameInput, ipInput, errorMessage;
     private boolean isNameFieldFocused, isIpFieldFocused, buttonActive;
+    private BiFunction<String, String, String> buttonPressAction;
     private Image logo, textField, button;
-    private MenuHandler handler;
     private Font font;
 
     private static final int LOGO_Y_POSITION = 10;
     private static final int FONT_SIZE = 3;
     private static final double ERROR_Y_POSITION = 72;
 
-    public MenuScreen(String initName, String initIp, MenuHandler handler) {
+    public MenuScreen(String initName, String initIp, BiFunction<String, String, String> buttonPressAction) {
         super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MENU_ELEMENTS);
 
         this.usernameInput = initName != null ? initName : "";
         this.ipInput = initIp != null ? initIp : "";
-        this.handler = handler;
+        this.buttonPressAction = buttonPressAction;
 
         loadResources();
 
@@ -117,7 +118,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         String interactedElement = getInteractedElement(e);
         if ("start_button".equals(interactedElement) && !buttonActive) {
             buttonActive = true;
-            this.errorMessage = this.handler.joinServer(usernameInput, ipInput);
+            this.errorMessage = this.buttonPressAction.apply(this.usernameInput, this.ipInput);
         } else if ("name_field".equals(interactedElement)) {
             isIpFieldFocused = false;
             isNameFieldFocused = true;
@@ -222,19 +223,6 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
         } catch (IOException e) {
             Logger.log(LogLevel.WARN, "Couldn't load " + getClass().getSimpleName() + " textures.", e);
         }
-    }
-
-    // Interface -------------------------------------------------------------
-
-    public interface MenuHandler {
-        /**
-         * This method is called when the user presses the join button.
-         *
-         * @param name - name field contents.
-         * @param ip   - ip field contents.
-         * @return - error message, return empty string if none.
-         */
-        String joinServer(String name, String ip);
     }
 
     // Dynamic Bounds Getters ------------------------------------------------
