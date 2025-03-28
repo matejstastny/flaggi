@@ -26,8 +26,4 @@ tasks.shadowJar {
     enabled = true
     archiveBaseName.set("Flaggi-client")
     archiveVersion.set("1.0.0")
-
-    doLast {
-        println("Client Shadow JAR created at: ${archiveFile.get().asFile.absolutePath}")
-    }
 }

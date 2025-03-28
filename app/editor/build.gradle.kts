@@ -26,8 +26,4 @@ tasks.shadowJar {
     enabled = true
     archiveBaseName.set("Flaggi-editor")
     archiveVersion.set("1.0.0")
-
-    doLast {
-        println("Editor Shadow JAR created at: ${archiveFile.get().asFile.absolutePath}")
-    }
 }

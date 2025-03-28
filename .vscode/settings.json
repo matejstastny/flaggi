@@ -3,6 +3,9 @@
 
   "editor.defaultFormatter": "redhat.java",
   "editor.formatOnSave": true,
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
 
   // Fallback -----------------------------------------------------------------
   // In case the folder is not opened using the workspace
