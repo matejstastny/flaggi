@@ -31,6 +31,7 @@ usage() {
 }
 
 log_info() { echo "$(date +'%Y-%m-%d %H:%M:%S') 📦  $1"; }
+log_warn() { echo "$(date +'%Y-%m-%d %H:%M:%S') ⚠️  $1"; }
 log_success() { echo "$(date +'%Y-%m-%d %H:%M:%S') ✅  $1"; }
 log_error() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') ❌  $1" >&2
@@ -95,6 +96,10 @@ if [[ -z "$TARGET_MODULE" ]]; then
     log_error "No module specified! Use 'client', 'server' or 'editor'."
 fi
 
+if [[ "$TARGET_MODULE" != "server" && "$REBUILD" == "true" ]]; then
+    log_warn "The -r flag will not have any effect when not running the server."
+fi
+
 log_info "Building module: $TARGET_MODULE"
 
 # ─── Dependencies ──────────────────────────────────────────────────────────────
@@ -125,7 +130,7 @@ check_file_exists "$JAR_FILE"
 
 log_success "Shadow JAR task finished"
 
-# ─── JAR execution ─────────────────────────────────────────────────────────────
+# ─── Server dir ────────────────────────────────────────────────────────────────
 
 if [[ "$TARGET_MODULE" == "server" ]]; then
     log_info "Setting up server temporary directory..."
@@ -152,6 +157,8 @@ if [[ "$TARGET_MODULE" == "server" ]]; then
         exit 1
     fi
 fi
+
+# ─── JAR execution ─────────────────────────────────────────────────────────────
 
 printf "%$(tput cols)s" '' | tr ' ' -
 java -jar "$JAR_FILE"
