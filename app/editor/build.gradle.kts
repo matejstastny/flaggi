@@ -27,3 +27,9 @@ tasks.shadowJar {
     archiveBaseName.set("Flaggi-editor")
     archiveVersion.set("1.0.0")
 }
+
+//! DISABLED THIS MODULE
+//! REMOVE TO ENABLE
+tasks.configureEach {
+    enabled = false
+}
