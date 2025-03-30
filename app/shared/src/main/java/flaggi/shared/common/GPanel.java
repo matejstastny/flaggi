@@ -536,7 +536,18 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	// Renderable abs class -----------------------------------------------------
 
 	public enum PanelRegion {
-		BACKGROUND, CENTER, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+		/**
+		 * 
+		 */
+		BACKGROUND,
+		/**
+		 * HEADER 2
+		 */
+		CENTER,
+		/**
+		 * Top left corner, overlays with the center if window is a perfect square.
+		 */
+		TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
 	}
 
 	/**

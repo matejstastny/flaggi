@@ -14,10 +14,11 @@ public class UserUpdater {
 
 	public void update() {
 
-    }
+	}
 
-	private ServerUpdate getUpdateMessage()
+	private ServerUpdate getUpdateMessage() {
+		return null;
+	}
 
-
-    // get update message, filter out non-renderable stuff
+	// get update message, filter out non-renderable stuff
 }

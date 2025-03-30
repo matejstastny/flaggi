@@ -9,10 +9,11 @@ set -e
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
 
-PROJECT_ROOT=".."    # Location of the root of the project relative to this script
-JAVA_VER="8"         # Java version needed to build
-APP_NAME="Flaggi"    # Name of the app (In the dmg name)
-JAR_TASK="shadowjar" # Task name called on Gradle to build a fat JAR
+PROJECT_ROOT=".."               # Location of the root of the project relative to this script
+JAVA_VER="8"                    # Java version needed to build
+APP_NAME="Flaggi"               # Name of the app (In the dmg name)
+SERVER_DIR="flaggi-server-temp" # Name of the server directory (needs to be moved, because the JAR generates other files)
+JAR_TASK="shadowjar"            # Task name called on Gradle to build a fat JAR
 
 # Prefix for JAR task output:
 # MAKE SURE THE ABOVE CONFIGURED JAR_TASK OUTPUTS THE
@@ -25,6 +26,7 @@ usage() {
     echo "Usage: $0 <client|server|editor> [OPTIONS]"
     echo "Options:"
     echo " -h, --help            Display this help message"
+    echo " -r, --rebuild         Deletes all files in the server temp directory."
     exit 0
 }
 
@@ -64,10 +66,14 @@ check_file_exists() {
 # ─── Parse flags ───────────────────────────────────────────────────────────────
 
 TARGET_MODULE=""
+REBUILD="false"
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
     -h | --help)
         usage
+        ;;
+    -r | --rebuld)
+        REBUILD="true"
         ;;
     client)
         TARGET_MODULE="client"
@@ -120,6 +126,32 @@ check_file_exists "$JAR_FILE"
 log_success "Shadow JAR task finished"
 
 # ─── JAR execution ─────────────────────────────────────────────────────────────
+
+if [[ "$TARGET_MODULE" == "server" ]]; then
+    log_info "Setting up server temporary directory..."
+    SERVER_DIR="$PROJECT_ROOT/$SERVER_DIR"
+
+    if [[ "$REBUILD" == "true" ]]; then
+        if [[ -d "$SERVER_DIR" ]]; then
+            log_info "Rebuilding: Removing existing server directory..."
+            rm -rf "$SERVER_DIR"
+        else
+            log_info "Server directory doesn't exist. No need to remove."
+        fi
+    fi
+
+    log_info "Creating server directory..."
+    mkdir -p "$SERVER_DIR"
+    if [[ -f "$JAR_FILE" ]]; then
+        log_info "Moving server JAR file..."
+        mv "$JAR_FILE" "$SERVER_DIR"
+        JAR_FILE="$SERVER_DIR/$(basename "$JAR_FILE")"
+        log_success "Server JAR moved successfully to $SERVER_DIR"
+    else
+        log_error "JAR file does not exist: $JAR_FILE"
+        exit 1
+    fi
+fi
 
 printf "%$(tput cols)s" '' | tr ' ' -
 java -jar "$JAR_FILE"

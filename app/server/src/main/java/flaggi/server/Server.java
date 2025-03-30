@@ -6,8 +6,9 @@
 
 package flaggi.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import flaggi.proto.ClientMessages.ClientMessageWrapper;
-import flaggi.proto.ClientMessages.ClientPlayerUpdate;
 import flaggi.proto.ClientMessages.ClientUpdate;
 import flaggi.server.client.User;
 import flaggi.server.common.TcpListener;
@@ -26,6 +26,7 @@ import flaggi.server.common.UpdateLoop.Updatable;
 import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.util.FileUtil;
 
 public class Server implements Updatable {
 
@@ -46,10 +47,11 @@ public class Server implements Updatable {
 
 	public Server() {
 		initializeLogger();
+		buildInitFiles();
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL, this);
-		this.threads = Executors.newFixedThreadPool(4); // Increased thread pool size
+		this.threads = Executors.newFixedThreadPool(4);
 		initializeThreads();
 	}
 
@@ -57,15 +59,15 @@ public class Server implements Updatable {
 
 	@Override
 	public void update() {
-		processTcpMessages();
-		processUdpPackets();
+		// processTcpMessages();
+		// processUdpPackets();
 	}
 
 	// Initialization -----------------------------------------------------------
 
 	private void initializeLogger() {
 		Logger.setLogFile(Constants.LOG_FILE);
-		Logger.setLogLevelsToIgnore(LogLevel.DEBUG, LogLevel.TRACE);
+		Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
 		Logger.log(LogLevel.INFO, "Application start.");
 	}
 
@@ -75,13 +77,26 @@ public class Server implements Updatable {
 		threads.execute(this.updateLoop);
 	}
 
+	private void buildInitFiles() {
+		String dir = FileUtil.getJarExecDirectory() + File.separator;
+		initializeFile("/licenses/LICENSE", System.getProperty("os.name").toLowerCase().contains("win") ? dir + "LICENSE.txt" : dir + "LICENSE");
+		initializeFile("/docker/Dockerfile", dir + "Dockerfile");
+	}
+
+	// Static -------------------------------------------------------------------
+
+	public static void handleFatalError() {
+		Logger.log(LogLevel.ERROR, "FATAL ERROR DETECTED! SHUTTING DOWN...");
+		System.exit(1);
+	}
+
 	// Private ------------------------------------------------------------------
 
 	private void shutdown() {
 		Logger.log(LogLevel.INFO, "Shutting down server...");
 		threads.shutdown();
 		try {
-			if (!threads.awaitTermination(5, TimeUnit.SECONDS)) {
+			if (!threads.awaitTermination(Constants.SERVER_SHUTDOWN_TIMEOUT_SEC, TimeUnit.SECONDS)) {
 				threads.shutdownNow();
 			}
 		} catch (InterruptedException e) {
@@ -91,44 +106,55 @@ public class Server implements Updatable {
 		Logger.log(LogLevel.INFO, "Server shut down.");
 	}
 
+	private void initializeFile(String resourcePath, String targetPath) {
+		try {
+			FileUtil.copyResource(resourcePath, targetPath);
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "Initialization failed for: " + resourcePath, e);
+		}
+	}
+
 	// Network ------------------------------------------------------------------
 
-	private void processUdpPackets() {
-		ClientMessageWrapper message;
-		while ((message = udpPacketQueue.poll()) != null) {
+	// private void processUdpPackets() {
+	// ClientMessageWrapper message;
+	// while ((message = udpPacketQueue.poll()) != null) {
 
-		}
-	}
+	// }
+	// }
 
-	private void processTcpMessages() {
-		ClientMessageWrapper message;
-		while ((message = tcpMessageQueue.poll()) != null) {
-			if (message.hasInitial()) {
-				handleNewUser(message);
-			} else if (message.hasRequest()) {
-				System.out.println("request");
-			}
-		}
-	}
+	// private void processTcpMessages() {
+	// ClientMessageWrapper message;
+	// while ((message = tcpMessageQueue.poll()) != null) {
+	// if (message.hasInitial()) {
+	// handleNewUser(message);
+	// } else if (message.hasRequest()) {
+	// System.out.println("request");
+	// }
+	// }
+	// }
 
-	// Message handeling --------------------------------------------------------
+	// // Message handeling --------------------------------------------------------
 
-	private void handleNewUser(WrapperMessage message) {
-		Logger.log(LogLevel.INFO, "New user connected.");
-		String uuid = UUID.randomUUID().toString();
-		User user = new User(uuid, message.getInitial().getUsername(), null, null); // Update as needed
-		users.put(user.getUuid(), user);
+	// private void handleNewUser(WrapperMessage message) {
+	// Logger.log(LogLevel.INFO, "New user connected.");
+	// String uuid = UUID.randomUUID().toString();
+	// User user = new User(uuid, message.getInitial().getUsername(), null, null);
+	// // Update as needed
+	// users.put(user.getUuid(), user);
 
-		InitialResponse response = InitialResponse.newBuilder().setUuid(uuid).build();
-		user.sendMessage(WrapperMessage.newBuilder().setInitialResponse(response).build());
-	}
+	// InitialResponse response =
+	// InitialResponse.newBuilder().setUuid(uuid).build();
+	// user.sendMessage(WrapperMessage.newBuilder().setInitialResponse(response).build());
+	// }
 
-	// Utility ------------------------------------------------------------------
+	// // Utility ------------------------------------------------------------------
 
-	public void sendMessageToUser(String uuid, WrapperMessage message) throws Exception {
-		User user = users.get(uuid);
-		if (user != null) {
-			user.sendMessage(message);
-		}
-	}
+	// public void sendMessageToUser(String uuid, WrapperMessage message) throws
+	// Exception {
+	// User user = users.get(uuid);
+	// if (user != null) {
+	// user.sendMessage(message);
+	// }
+	// }
 }

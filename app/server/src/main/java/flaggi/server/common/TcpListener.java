@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 
 import flaggi.proto.ClientMessages.ClientMessageWrapper;
 import flaggi.server.client.UserHandler;
+import flaggi.server.Server;
 import flaggi.server.client.User;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -42,12 +43,14 @@ public class TcpListener implements Runnable {
 	@Override
 	public void run() {
 		try (ServerSocket serverSocket = new ServerSocket(port)) {
+			Logger.log(LogLevel.INFO, "TCP listener started on port " + port);
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
 				new Thread(new UserHandler(clientSocket, messageQueue, users), "Client Handler Thread").start();
 			}
 		} catch (Exception e) {
 			Logger.log(LogLevel.ERROR, "An error occurred in the TCP listener.", e);
+			Server.handleFatalError();
 		}
 	}
 }

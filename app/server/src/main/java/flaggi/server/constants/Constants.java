@@ -7,8 +7,13 @@
 package flaggi.server.constants;
 
 import java.io.File;
+import java.io.IOException;
 
+import flaggi.server.Server;
 import flaggi.shared.common.ConfigManager;
+import flaggi.shared.common.Logger;
+import flaggi.shared.common.ConfigManager.FieldFormatException;
+import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.FileUtil;
 
 /**
@@ -25,15 +30,43 @@ public class Constants {
 
 	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
 	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
-	public static final ConfigManager CONFIG = new ConfigManager(String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "configs", "config.properties"), "/configs/config.properties");
+	public static final ConfigManager CONFIG = getConfigManager();
+
+	// Debug --------------------------------------------------------------------
+
+	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.DEBUG, LogLevel.TRACE };
 
 	// Network ------------------------------------------------------------------
 
-	public static final int TCP_PORT = CONFIG.getIntValue("tcp.port");
-	public static final int UDP_PORT = CONFIG.getIntValue("udp.port");
+	public static final int TCP_PORT = getConfigIntValue("tcp.port");
+	public static final int UDP_PORT = getConfigIntValue("udp.port");
 
-	// Update -------------------------------------------------------------------
+	// Other --------------------------------------------------------------------
 
 	public static final int UPDATE_INTERVAL = 16;
+	public static final int SERVER_SHUTDOWN_TIMEOUT_SEC = 5;
+
+	// Internal -----------------------------------------------------------------
+
+	private static ConfigManager getConfigManager() {
+		try {
+			return new ConfigManager(String.join(File.separator, FileUtil.getJarExecDirectory(), "config.properties"), "/configs/config.properties");
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "An IOException occured when initializing the ConfigManager", e);
+			Server.handleFatalError();
+			return null;
+		}
+	}
+
+	private static int getConfigIntValue(String key) {
+		int val = -1;
+		try {
+			val = CONFIG.getIntValue(key);
+		} catch (FieldFormatException e) {
+			Logger.log(LogLevel.ERROR, "Configuration error: The field \"" + key + "\" is assigned a value of the wrong type. Expected: Integer.");
+			Server.handleFatalError();
+		}
+		return val;
+	}
 
 }

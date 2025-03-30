@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import flaggi.proto.ClientMessages.ClientUpdate;
+import flaggi.server.Server;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 
@@ -36,6 +37,7 @@ public class UdpListener implements Runnable {
 	@Override
 	public void run() {
 		try (DatagramSocket socket = new DatagramSocket(port)) {
+			Logger.log(LogLevel.INFO, "UDP listener started on port " + port);
 			byte[] buffer = new byte[1024];
 			while (true) {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -46,6 +48,7 @@ public class UdpListener implements Runnable {
 			}
 		} catch (Exception e) {
 			Logger.log(LogLevel.ERROR, "An error occurred in UdpListener.", e);
+			Server.handleFatalError();
 		}
 	}
 

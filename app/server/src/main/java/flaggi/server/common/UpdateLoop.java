@@ -6,6 +6,9 @@
 
 package flaggi.server.common;
 
+import flaggi.shared.common.Logger;
+import flaggi.shared.common.Logger.LogLevel;
+
 public class UpdateLoop implements Runnable {
 
 	private final int updateInterval;
@@ -18,6 +21,7 @@ public class UpdateLoop implements Runnable {
 
 	@Override
 	public void run() {
+		Logger.log(LogLevel.INFO, "Main update loop started");
 		while (!Thread.currentThread().isInterrupted()) {
 			this.update.update();
 			try {

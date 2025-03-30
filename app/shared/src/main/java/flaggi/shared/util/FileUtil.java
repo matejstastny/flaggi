@@ -7,12 +7,21 @@
 package flaggi.shared.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -23,10 +32,18 @@ public class FileUtil {
 
 	// Private constructor to prevent instantiation
 	private FileUtil() {
-		throw new UnsupportedOperationException("FontUtil is a utility class and cannot be instantiated.");
+		throw new UnsupportedOperationException("FileUtil is a utility class and cannot be instantiated.");
 	}
 
 	// Path fetchers -------------------------------------------------------------
+
+	public static String getJarExecDirectory() {
+		try {
+			return new File(FileUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getAbsolutePath();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to get JAR directory", e);
+		}
+	}
 
 	public static String getApplicationDataFolder() {
 		String os = System.getProperty("os.name").toLowerCase();
@@ -86,6 +103,44 @@ public class FileUtil {
 		}
 
 		return directories.toArray(new String[0]);
+	}
+
+	public static void copyResource(String resourcePath, String outputPath) throws IOException {
+		Path outputFile = Paths.get(outputPath);
+		if (Files.exists(outputFile)) {
+			return; // Do nothing if the file already exists
+		}
+
+		try (InputStream inputStream = FileUtil.class.getResourceAsStream(resourcePath)) {
+			if (inputStream == null) {
+				throw new FileNotFoundException("Resource not found: " + resourcePath);
+			}
+			Files.copy(inputStream, outputFile, StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
+
+	public static void copyResourceDirectory(String resourceDir, String outputDir) throws IOException, URISyntaxException {
+		File directory = new File(Objects.requireNonNull(FileUtil.class.getResource(resourceDir)).toURI());
+		if (!directory.isDirectory()) {
+			throw new IllegalArgumentException("Resource path is not a directory: " + resourceDir);
+		}
+
+		Files.walk(directory.toPath()).forEach(source -> {
+			Path destination = Paths.get(outputDir, directory.toPath().relativize(source).toString());
+			try {
+				if (Files.exists(destination)) {
+					return; // Do nothing if the file or directory already exists
+				}
+
+				if (Files.isDirectory(source)) {
+					Files.createDirectories(destination);
+				} else {
+					Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+				}
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
 	}
 
 	// Private methods -----------------------------------------------------------

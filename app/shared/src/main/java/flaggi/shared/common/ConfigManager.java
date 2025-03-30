@@ -51,21 +51,27 @@ public class ConfigManager {
 
 	// Constructor -------------------------------------------------------------
 
-	public ConfigManager(String configFilePath, String defaultConfigFile) {
+	public ConfigManager(String configFilePath, String defaultConfigFile) throws IOException {
 		this.configFilePath = configFilePath;
 		this.defaultConfigFile = defaultConfigFile;
 		properties = new Properties();
 		try {
 			loadOrInitializeConfigFile();
 		} catch (IOException e) {
-			System.err.println("Error handling configuration file: " + e.getMessage());
+			throw new IOException("Failed to handle configuration file: " + configFilePath, e);
 		}
 	}
 
 	// Nested Exception Class -------------------------------------------------
 
-	public static class NonexistentFieldException extends RuntimeException {
-		public NonexistentFieldException(String message) {
+	public static class UndefinedFieldException extends RuntimeException {
+		public UndefinedFieldException(String message) {
+			super(message);
+		}
+	}
+
+	public static class FieldFormatException extends RuntimeException {
+		public FieldFormatException(String message) {
 			super(message);
 		}
 	}
@@ -75,19 +81,37 @@ public class ConfigManager {
 	public int getIntValue(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
-			throw new NonexistentFieldException("Field not found: " + key);
+			value = loadFromDefaultConfig(key);
+			if (value != null) {
+				try {
+					setField(key, value);
+				} catch (IOException e) {
+					throw new UndefinedFieldException("Field not found: " + key);
+				}
+			} else {
+				throw new UndefinedFieldException("Field not found: " + key);
+			}
 		}
 		try {
 			return Integer.parseInt(value);
 		} catch (NumberFormatException e) {
-			throw new NonexistentFieldException("Invalid integer format for key: " + key);
+			throw new FieldFormatException("Invalid integer format for key: " + key);
 		}
 	}
 
 	public boolean getBooleanValue(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
-			throw new NonexistentFieldException("Field not found: " + key);
+			value = loadFromDefaultConfig(key);
+			if (value != null) {
+				try {
+					setField(key, value);
+				} catch (IOException e) {
+					throw new UndefinedFieldException("Field not found: " + key);
+				}
+			} else {
+				throw new UndefinedFieldException("Field not found: " + key);
+			}
 		}
 		return Boolean.parseBoolean(value);
 	}
@@ -95,7 +119,16 @@ public class ConfigManager {
 	public String getStringValue(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
-			throw new NonexistentFieldException("Field not found: " + key);
+			value = loadFromDefaultConfig(key);
+			if (value != null) {
+				try {
+					setField(key, value);
+				} catch (IOException e) {
+					throw new UndefinedFieldException("Field not found: " + key);
+				}
+			} else {
+				throw new UndefinedFieldException("Field not found: " + key);
+			}
 		}
 		return value;
 	}
@@ -103,23 +136,32 @@ public class ConfigManager {
 	public double getDoubleValue(String key) {
 		String value = properties.getProperty(key);
 		if (value == null) {
-			throw new NonexistentFieldException("Field not found: " + key);
+			value = loadFromDefaultConfig(key);
+			if (value != null) {
+				try {
+					setField(key, value);
+				} catch (IOException e) {
+					throw new UndefinedFieldException("Field not found: " + key);
+				}
+			} else {
+				throw new UndefinedFieldException("Field not found: " + key);
+			}
 		}
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			throw new NonexistentFieldException("Invalid double format for key: " + key);
+			throw new FieldFormatException("Invalid double format for key: " + key);
 		}
 	}
 
 	// Mutators ---------------------------------------------------------------
 
-	public void setField(String key, String value) {
+	public void setField(String key, String value) throws IOException {
 		properties.setProperty(key, value);
 		try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
 			properties.store(output, null);
 		} catch (IOException e) {
-			System.err.println("Error saving configuration file: " + e.getMessage());
+			throw new IOException("Error saving configuration file: " + configFilePath, e);
 		}
 	}
 
@@ -136,7 +178,6 @@ public class ConfigManager {
 			properties.load(input);
 			return true;
 		} catch (IOException e) {
-			System.err.println("Configuration file not found, creating default configuration.");
 			return false;
 		}
 	}
@@ -153,20 +194,29 @@ public class ConfigManager {
 		createConfFile(this.configFilePath);
 		try (InputStream defaultConfigStream = getClass().getResourceAsStream(defaultConfigFile)) {
 			if (defaultConfigStream == null) {
-				System.err.println("Default configuration file not found in JAR.");
-				return;
+				throw new IOException("Default configuration file not found in JAR: " + defaultConfigFile);
 			}
 
 			properties.load(defaultConfigStream);
 
 			try (FileOutputStream output = new FileOutputStream(this.configFilePath)) {
 				properties.store(output, null);
-				System.out.println("Default configuration file created at " + this.configFilePath);
 			}
 		} catch (IOException e) {
-			System.err.println("Error creating default configuration file at " + this.configFilePath);
-			e.printStackTrace();
+			throw new IOException("Error creating default configuration file at " + this.configFilePath, e);
 		}
 	}
 
+	private String loadFromDefaultConfig(String key) {
+		try (InputStream defaultConfigStream = getClass().getResourceAsStream(defaultConfigFile)) {
+			if (defaultConfigStream != null) {
+				Properties defaultProperties = new Properties();
+				defaultProperties.load(defaultConfigStream);
+				return defaultProperties.getProperty(key);
+			}
+		} catch (IOException ignored) {
+			// Ignored as we only attempt to use default if main config lacks a key
+		}
+		return null;
+	}
 }

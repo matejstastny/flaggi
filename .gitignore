@@ -16,3 +16,6 @@ app/shadowjar
 
 # Include the wrapper jar
 !gradle-wrapper.jar
+
+# Development server directory
+flaggi-server-temp
