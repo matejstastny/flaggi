@@ -18,6 +18,7 @@ allprojects {
 // Main
 // =========================================================================
 
+disableRootShadowjar()
 subprojects {
     applyPlugins()
     configureJava()
@@ -65,6 +66,12 @@ fun Project.disableJarTask() {
     }
 }
 
+fun disableRootShadowjar() {
+    tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>().configureEach {
+        enabled = false
+    }
+}
+
 fun Project.configureShadowjar() {
     if (project.name == "shared") return
 
@@ -75,6 +82,7 @@ fun Project.configureShadowjar() {
         mergeServiceFiles()
         archiveClassifier.set("")
         destinationDirectory.set(file("$rootDir/shadowjar"))
+        from(project(":shared").sourceSets["main"].output) // Include shared lib
         doLast {
             println("Shadow JAR has been created at: ${archiveFile.get().asFile.absolutePath}")
         }
