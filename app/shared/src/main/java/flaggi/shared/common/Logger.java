@@ -1,7 +1,7 @@
 /*
  * Author: Matěj Šťastný aka Kirei
- * Date created: 2/23/2025
- * Github link: https://github.com/kireiiiiiiii
+ * Date created:2/23/2025
+ * Github link: https://github.com/kireiiiiiiii/flaggi
  */
 
 package flaggi.shared.common;
@@ -96,6 +96,30 @@ public class Logger {
 		}, (long) (intervalSeconds * 1000));
 	}
 
+	public static void logMaxMemory(String unit) {
+		long maxMemoryBytes = Runtime.getRuntime().maxMemory();
+		double maxMemory;
+		String unitLabel;
+
+		switch (unit.toUpperCase()) {
+		case "GB":
+			maxMemory = maxMemoryBytes / (1024.0 * 1024 * 1024);
+			unitLabel = "GB";
+			break;
+		case "KB":
+			maxMemory = maxMemoryBytes / 1024.0;
+			unitLabel = "KB";
+			break;
+		case "MB":
+		default:
+			maxMemory = maxMemoryBytes / (1024.0 * 1024);
+			unitLabel = "MB";
+			break;
+		}
+
+		log(LogLevel.MEMORY, String.format("Max memory: %.2f %s", maxMemory, unitLabel));
+	}
+
 	// Log types -----------------------------------------------------------------
 
 	public enum LogLevel {
@@ -105,7 +129,7 @@ public class Logger {
 		DEBUG(TermColors.BLUE), //
 		TRACE(TermColors.CYAN), //
 		FATAL(TermColors.PURPLE), //
-		MEMORY(TermColors.WHITE);
+		MEMORY(TermColors.BLUE);
 
 		private final String color;
 
