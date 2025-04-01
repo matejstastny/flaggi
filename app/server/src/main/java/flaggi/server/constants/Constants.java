@@ -82,7 +82,7 @@ public class Constants {
 		resources.put("/licenses/LICENSE", System.getProperty("os.name").toLowerCase().contains("win") ? serverDir + "LICENSE.txt" : serverDir + "LICENSE");
 		resources.put("/docker/Dockerfile", serverDir + "Dockerfile");
 		resources.put("/scripts/run-docker.sh", serverDir + "run-docker.sh");
+		resources.put("/scripts/run.sh", serverDir + "run.sh");
 		return resources;
 	}
-
 }

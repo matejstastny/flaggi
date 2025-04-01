@@ -6,7 +6,6 @@
 
 package flaggi.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -69,6 +68,7 @@ public class Server implements Updatable {
 		Logger.setLogFile(Constants.LOG_FILE);
 		Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
 		Logger.log(LogLevel.INFO, "Application start.");
+		Logger.logMaxMemory("GB");
 	}
 
 	private void initializeThreads() {
