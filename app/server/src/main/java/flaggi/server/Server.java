@@ -78,9 +78,14 @@ public class Server implements Updatable {
 	}
 
 	private void buildInitFiles() {
-		String dir = FileUtil.getJarExecDirectory() + File.separator;
-		initializeFile("/licenses/LICENSE", System.getProperty("os.name").toLowerCase().contains("win") ? dir + "LICENSE.txt" : dir + "LICENSE");
-		initializeFile("/docker/Dockerfile", dir + "Dockerfile");
+		Map<String, String> resources = Constants.SERVER_RESOURCES;
+		for (String key : resources.keySet()) {
+			try {
+				FileUtil.copyResource(key, resources.get(key));
+			} catch (IOException e) {
+				Logger.log(LogLevel.ERROR, "Initialization failed for: " + key, e);
+			}
+		}
 	}
 
 	// Static -------------------------------------------------------------------
@@ -104,14 +109,6 @@ public class Server implements Updatable {
 			Thread.currentThread().interrupt();
 		}
 		Logger.log(LogLevel.INFO, "Server shut down.");
-	}
-
-	private void initializeFile(String resourcePath, String targetPath) {
-		try {
-			FileUtil.copyResource(resourcePath, targetPath);
-		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "Initialization failed for: " + resourcePath, e);
-		}
 	}
 
 	// Network ------------------------------------------------------------------

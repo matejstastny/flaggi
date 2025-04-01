@@ -8,6 +8,8 @@ package flaggi.server.constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import flaggi.server.Server;
 import flaggi.shared.common.ConfigManager;
@@ -31,6 +33,11 @@ public class Constants {
 	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
 	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
 	public static final ConfigManager CONFIG = getConfigManager();
+	/**
+	 * Resources that will be created at server start in the directory the sever
+	 * lives. The map is in "/resource/path" "new relative path"
+	 */
+	public static Map<String, String> SERVER_RESOURCES = getServerResources();
 
 	// Debug --------------------------------------------------------------------
 
@@ -67,6 +74,15 @@ public class Constants {
 			Server.handleFatalError();
 		}
 		return val;
+	}
+
+	public static Map<String, String> getServerResources() {
+		String serverDir = FileUtil.getJarExecDirectory() + File.separator;
+		Map<String, String> resources = new HashMap<String, String>();
+		resources.put("/licenses/LICENSE", System.getProperty("os.name").toLowerCase().contains("win") ? serverDir + "LICENSE.txt" : serverDir + "LICENSE");
+		resources.put("/docker/Dockerfile", serverDir + "Dockerfile");
+		resources.put("/scripts/run-docker.sh", serverDir + "run-docker.sh");
+		return resources;
 	}
 
 }
