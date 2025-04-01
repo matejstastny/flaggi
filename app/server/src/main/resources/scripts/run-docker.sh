@@ -83,6 +83,30 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
+# ─── Locate the latest JAR file ────────────────────────────────────────────────
+
+JAR_FILES=(*.jar)
+
+if [ ${#JAR_FILES[@]} -eq 0 ]; then
+    log_error "No JAR file found!"
+elif [ ${#JAR_FILES[@]} -eq 1 ]; then
+    JAR_FILE="${JAR_FILES[0]}"
+else
+    echo "⚠️  Multiple JAR files found. Please select one:"
+    for i in "${!JAR_FILES[@]}"; do
+        echo "    $((i + 1))) ${JAR_FILES[i]}"
+    done
+
+    read -p "🔢 Enter the number of the correct JAR file: " selection
+
+    if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -gt ${#JAR_FILES[@]} ]; then
+        log_error "Invalid selection!"
+    fi
+
+    JAR_FILE="${JAR_FILES[$((selection - 1))]}"
+fi
+echo "✅  Picked '$JAR_FILE' as the main server JAR"
+
 # ─── Docker check ──────────────────────────────────────────────────────────────
 
 if ! docker image inspect "$DOCKER_NAME" >/dev/null 2>&1; then
@@ -90,7 +114,7 @@ if ! docker image inspect "$DOCKER_NAME" >/dev/null 2>&1; then
     read -p "Do you want to build the Docker image? (y/n) " response
     if [ "$response" = "y" ]; then
         echo "🛠️  Building Docker image '$DOCKER_NAME'..."
-        docker build -t "$DOCKER_NAME" .
+        docker build --build-arg JAR_FILE="$JAR_FILE" -t "$DOCKER_NAME" .
     else
         exit 1
     fi
@@ -98,7 +122,7 @@ fi
 
 if [ "$REBUILD" == "true" ]; then
     echo "🛠️  Building Docker image '$DOCKER_NAME'..."
-    docker build -t "$DOCKER_NAME" .
+    docker build --build-arg JAR_FILE="$JAR_FILE" -t "$DOCKER_NAME" .
 fi
 
 if docker ps -a --format '{{.Names}}' | grep -q "^$DOCKER_NAME$"; then
