@@ -68,7 +68,7 @@ public class Logger {
 		if (e != null) {
 			System.out.println(level.getColor());
 			e.printStackTrace(System.out);
-			System.out.print(TermColors.WHITE);
+			System.out.print(TermColors.WHITE + "\n");
 		}
 
 		if (logFile != null) {
