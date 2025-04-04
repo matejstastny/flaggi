@@ -17,7 +17,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
 import flaggi.client.constants.Constants;
@@ -34,25 +33,28 @@ import flaggi.shared.util.FontUtil;
  */
 public class LobbyUi extends Renderable implements Scrollable, Interactable {
 
-	private static final int itemWidth = 98;
-	private static final int itemHeight = 8;
-	private static final int itemPadding = 2;
-	private static final int buttonWidth = 20;
-	private static final int buttonHeight = 6;
-	private static final int buttonPadding = 1;
-	private static final int itemsTopOffset = 15;
-	int cornerRadius = 2;
+	private static final int ITEM_WIDTH = 98;
+	private static final int ITEM_HEIGHT = 8;
+	private static final int ITEM_PADDING = 2;
+	private static final int BUTTON_WIDTH = 20;
+	private static final int BUTTON_HEIGHT = 6;
+	private static final int BUTTON_PADDING = 1;
+	private static final int ITEMS_TOP_OFFSET = 15;
+	private static final int SCROLL_STEP = 15;
+	private static final int HEADER_HEIGHT = 7;
+	private static final int HEADER_OFFSET = 3;
+	private static final int HEADER_CORNER_RADIUS = 3;
 
-	private BiConsumer<String, Integer> inviteAction;
-	private List<ClientItem> clientItems;
+	private final BiConsumer<String, Integer> inviteAction;
+	private final List<ClientItem> clientItems = new ArrayList<>();
 	private int scrollOffset = 0;
+	private final int cornerRadius = 2;
 
 	// Constructor --------------------------------------------------------------
 
 	public LobbyUi(BiConsumer<String, Integer> inviteAction) {
 		super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.LOBBY);
 		this.inviteAction = inviteAction;
-		this.clientItems = new ArrayList<>();
 	}
 
 	// Rendering ----------------------------------------------------------------
@@ -60,67 +62,68 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 	@Override
 	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
 		AffineTransform previousTransform = g.getTransform();
-		g.translate(0, this.scrollOffset);
+		g.translate(0, scrollOffset);
 
 		renderHeader(g);
-		int offsetY = px(itemsTopOffset);
+		int offsetY = px(ITEMS_TOP_OFFSET);
 		for (ClientItem clientItem : clientItems) {
 			renderClientItem(g, clientItem, offsetY);
-			offsetY += px(itemHeight) + px(itemPadding);
+			offsetY += px(ITEM_HEIGHT) + px(ITEM_PADDING);
 		}
 
 		g.setTransform(previousTransform);
-
 	}
 
 	private void renderHeader(Graphics2D g) {
 		g.setFont(Constants.FONT.deriveFont(Font.PLAIN, px(3)));
 		g.setColor(new Color(50, 50, 50));
 
-		int headerWidth = px(100);
-		int headerHeight = px(7);
-		int headerCornerRadius = px(3);
-		int[] headerBounds = { 0, px(3), headerWidth, headerHeight, headerCornerRadius };
+		int width = px(100);
+		int height = px(HEADER_HEIGHT);
+		int radius = px(HEADER_CORNER_RADIUS);
 
-		g.fillRoundRect(headerBounds[0], headerBounds[1], headerBounds[2], headerBounds[3], headerCornerRadius, headerCornerRadius);
+		g.fillRoundRect(0, px(HEADER_OFFSET), width, height, radius, radius);
 
-		String headerText = "ONLINE PLAYERS";
-		int[] textPosition = FontUtil.calculateCenteredPosition(headerWidth, headerHeight, g.getFontMetrics(), headerText);
+		String text = "ONLINE PLAYERS";
+		int[] pos = FontUtil.calculateCenteredPosition(width, height, g.getFontMetrics(), text);
 		g.setColor(Color.WHITE);
-		g.drawString(headerText, textPosition[0] + headerBounds[0], textPosition[1] + headerBounds[1]);
+		g.drawString(text, pos[0], px(HEADER_OFFSET) + pos[1]);
 	}
 
 	private void renderClientItem(Graphics2D g, ClientItem clientItem, int offsetY) {
 		g.setFont(Constants.FONT.deriveFont(Font.PLAIN, px(2)));
-		int itemWidth = px(98);
-		int itemHeight = px(8);
-		int paddingX = px(itemPadding);
+		int paddingX = px(ITEM_PADDING);
+		int width = px(100) - 2 * paddingX;
+		int height = px(ITEM_HEIGHT);
 
-		// Draw item background
 		g.setColor(new Color(45, 45, 60));
-		g.fillRoundRect(paddingX, offsetY, px(100) - 2 * paddingX, itemHeight, px(cornerRadius), px(cornerRadius));
+		g.fillRoundRect(paddingX, offsetY, width, height, px(cornerRadius), px(cornerRadius));
 
-		// Render client name
 		g.setColor(Color.WHITE);
-		int[] namePosition = FontUtil.calculateCenteredPosition(itemWidth, itemHeight, g.getFontMetrics(), clientItem.name);
-		g.drawString(clientItem.name, px(5), offsetY + namePosition[1]);
+		int[] namePos = FontUtil.calculateCenteredPosition(width, height, g.getFontMetrics(), clientItem.name);
+		g.drawString(clientItem.name, px(5), offsetY + namePos[1]);
 
-		// Render "Join" button
-		int buttonWidth = px(20);
-		int buttonHeight = px(6);
-		int buttonPadding = px(1);
-		g.setColor(new Color(70, 140, 70));
-		RoundRectangle2D joinButton = getJoinButtonShape(itemWidth, offsetY, buttonWidth, buttonHeight, buttonPadding, px(cornerRadius));
-		g.fill(joinButton);
-
-		// Center "Join" text inside the button
-		int[] buttonTextPosition = FontUtil.calculateCenteredPosition(buttonWidth, buttonHeight, g.getFontMetrics(), "Join");
-		g.setColor(Color.WHITE);
-		g.drawString("Join", itemWidth - buttonWidth + buttonTextPosition[0] - buttonPadding, offsetY + buttonTextPosition[1] + buttonPadding);
+		renderJoinButton(g, width, offsetY);
 	}
 
-	// Interaction --------------------------------------------------------------
+	private void renderJoinButton(Graphics2D g, int itemWidth, int offsetY) {
+		int buttonWidth = px(BUTTON_WIDTH);
+		int buttonHeight = px(BUTTON_HEIGHT);
+		int padding = px(BUTTON_PADDING);
+		int radius = px(cornerRadius);
 
+		g.setColor(new Color(70, 140, 70));
+		RoundRectangle2D button = new RoundRectangle2D.Float(itemWidth - buttonWidth - padding, offsetY + padding, buttonWidth, buttonHeight, radius, radius);
+		g.fill(button);
+
+		int[] textPos = FontUtil.calculateCenteredPosition(buttonWidth, buttonHeight, g.getFontMetrics(), "Join");
+		g.setColor(Color.WHITE);
+		g.drawString("Join", itemWidth - buttonWidth + textPos[0] - padding, offsetY + textPos[1] + padding);
+	}
+
+	// Interactions -------------------------------------------------------------
+
+	@Override
 	public boolean wasInteracted(MouseEvent e) {
 		return getInteractedClientItem(e) != null;
 	}
@@ -135,80 +138,48 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 
 	@Override
 	public synchronized void scroll(MouseWheelEvent e) {
-		int scrollAmount = e.getWheelRotation() * 15;
-		int tempScrollOffset = -(this.scrollOffset - scrollAmount);
-		int maxScroll = getMaxScroll();
-
-		if (tempScrollOffset < 0) {
-			scrollOffset = 0;
-		} else if (tempScrollOffset > maxScroll) {
-			scrollOffset = -maxScroll;
-		} else {
-			scrollOffset -= scrollAmount;
-		}
+		int tempScrollOffset = Math.max(-getMaxScroll(), Math.min(0, scrollOffset - e.getWheelRotation() * SCROLL_STEP));
+		scrollOffset = tempScrollOffset;
 	}
 
-	// Modifiers ----------------------------------------------------------------
+	// Public -------------------------------------------------------------------
 
 	public void setClients(Map<Integer, String> clients) {
-		if (clients == null) {
-			return;
-		}
-
-		clientItems.clear();
-
-		for (Entry<Integer, String> entry : clients.entrySet()) {
-			int clientId = entry.getKey();
-			String name = entry.getValue();
-			clientItems.add(new ClientItem(name, clientId));
-		}
-
-		if (scrollOffset < -getMaxScroll()) {
-			scrollOffset = -getMaxScroll();
+		if (clients != null) {
+			clientItems.clear();
+			clients.forEach((id, name) -> clientItems.add(new ClientItem(name, id)));
+			scrollOffset = Math.max(scrollOffset, -getMaxScroll());
 		}
 	}
 
 	// Private ------------------------------------------------------------------
 
 	private int getMaxScroll() {
-		int totalHeight = clientItems.size() * (px(itemHeight) + px(itemPadding)) - px(80);
-		return Math.max(0, totalHeight);
+		return Math.max(0, clientItems.size() * (px(ITEM_HEIGHT) + px(ITEM_PADDING)) - px(80));
 	}
 
 	private ClientItem getInteractedClientItem(MouseEvent e) {
-
 		int mouseX = e.getX();
 		int mouseY = e.getY() - scrollOffset;
 
-		int offsetY = px(itemsTopOffset);
+		int offsetY = px(ITEMS_TOP_OFFSET);
 		for (ClientItem item : clientItems) {
-			RoundRectangle2D r = getJoinButtonShape(px(itemWidth), offsetY, px(buttonWidth), px(buttonHeight), px(buttonPadding), px(cornerRadius));
-			if (r.contains(mouseX, mouseY)) {
+			RoundRectangle2D button = new RoundRectangle2D.Float(px(ITEM_WIDTH) - px(BUTTON_WIDTH) - px(BUTTON_PADDING), offsetY + px(BUTTON_PADDING), px(BUTTON_WIDTH), px(BUTTON_HEIGHT), px(cornerRadius), px(cornerRadius));
+			if (button.contains(mouseX, mouseY)) {
 				return item;
 			}
-			offsetY += px(itemHeight) + px(itemPadding);
+			offsetY += px(ITEM_HEIGHT) + px(ITEM_PADDING);
 		}
 		return null;
 	}
 
-	// Nested -------------------------------------------------------------------
-
-	public interface LobbyHandler {
-		void invitePlayer(String playerName, int playerID);
-	}
-
 	private static class ClientItem {
-		public String name;
-		public int playerID;
+		private final String name;
+		private final int playerID;
 
-		public ClientItem(String name, int playerID) {
+		private ClientItem(String name, int playerID) {
 			this.name = name;
 			this.playerID = playerID;
 		}
 	}
-
-	private RoundRectangle2D getJoinButtonShape(int itemWidth, int offsetY, int buttonWidth, int buttonHeight, int buttonPadding, int cornerRadius) {
-		return new RoundRectangle2D.Float(itemWidth - buttonWidth - buttonPadding, offsetY + buttonPadding, buttonWidth, buttonHeight, cornerRadius, cornerRadius);
-	}
-
 }
