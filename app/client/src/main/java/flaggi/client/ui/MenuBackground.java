@@ -24,20 +24,20 @@ import flaggi.shared.util.ImageUtil;
  */
 public class MenuBackground extends Renderable {
 
-	public Image background;
+    public Image background;
 
-	public MenuBackground() {
-		super(ZIndex.BACKGROUND, PanelRegion.BACKGROUND, UiTags.MENU_ELEMENTS);
-		try {
-			this.background = ImageUtil.getImageFromFile("ui/menu_screen.png");
-		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "Failed to load background texture.");
-		}
-	}
+    public MenuBackground() {
+        super(ZIndex.BACKGROUND, PanelRegion.BACKGROUND, UiTags.MAIN_MENU);
+        try {
+            this.background = ImageUtil.getImageFromFile("ui/menu_screen.png");
+        } catch (IOException e) {
+            Logger.log(LogLevel.ERROR, "Failed to load background texture.");
+        }
+    }
 
-	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
-		drawBackground(g, background, focusCycleRootAncestor);
-	}
+    @Override
+    public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+        drawBackground(g, background, focusCycleRootAncestor);
+    }
 
 }
