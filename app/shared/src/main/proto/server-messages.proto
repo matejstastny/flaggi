@@ -13,43 +13,43 @@ option java_outer_classname = "ServerMessages";
 
 // Wrapper -------------------------------------------------------------------
 
-message ServerMessageWrapper {
+message ServerMessage {
     oneof message_type {
-        ServerInitialMessage serverInitialMessage = 1;
-        ServerJoinGame serverJoinGame = 2;
-        ServerRequest serverRequest = 3;
-        ServerIdleClientListData serverIdleClientListData = 4;
+        ServerHello serverHello = 1;
+        ServerGameJoin serverGameJoin = 2;
+        ServerCommand serverCommand = 3;
+        IdleClientList idleClientList = 4;
     }
 }
 
 // Enums ---------------------------------------------------------------------
 
-enum ServerRequestType {
-    SERVER_REQUEST_TEST = 0;
+enum ServerCommandType {
+    SERVER_COMMAND_TEST = 0;
 }
 
 // TCP Messages --------------------------------------------------------------
 
-message ServerInitialMessage {
+message ServerHello {
     string uuid = 1;
     int64 udpPort = 2;
 }
 
-message ServerJoinGame {
+message ServerGameJoin {
     string jsonMap = 1;
     bool primary = 2;
 }
 
-message ServerRequest {
-    ServerRequestType requestType = 1;
+message ServerCommand {
+    ServerCommandType requestType = 1;
 }
 
-message ServerIdleClientListData {
+message IdleClientList {
     map<string, int32> clientList = 1;
 }
 
 // UDP Messages --------------------------------------------------------------
 
-message ServerUpdate {
+message ServerStateUpdate {
     int64 objectId = 1;
 }

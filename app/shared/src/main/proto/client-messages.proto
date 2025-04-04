@@ -13,41 +13,41 @@ option java_outer_classname = "ClientMessages";
 
 // Wrapper -------------------------------------------------------------------
 
-message ClientMessageWrapper {
+message ClientMessage {
     oneof message_type {
-        ClientInitialMessage clientInitialMessage = 1;
-        ClientRequest clientRequest = 2;
-        ClientUpdate clientUpdate = 3;
+        ClientHello clientHello = 1;
+        ClientCommand clientCommand = 2;
+        ClientStateUpdate clientStateUpdate = 3;
     }
 }
 
 // Enums ---------------------------------------------------------------------
 
-enum ClientRequestType {
+enum ClientCommandType {
     GET_IDLE_CLIENT_LIST = 0;
 }
 
 // TCP Messages --------------------------------------------------------------
 
-message ClientInitialMessage {
+message ClientHello {
     string username = 1;
 }
 
-message ClientRequest {
+message ClientCommand {
     string uuid = 1;
-    ClientRequestType requestType = 2;
+    ClientCommandType requestType = 2;
 }
 
 // UDP Messages --------------------------------------------------------------
 
-message ClientUpdate {
+message ClientStateUpdate {
     oneof update_type {
-        ClientPlayerUpdate clientPlayerUpdate = 1;
-        ClientNewGameObject clientNewGameObject = 2;
+        PlayerState playerState = 1;
+        SpawnObject spawnObject = 2;
     }
 }
 
-message ClientPlayerUpdate {
+message PlayerState {
     string uuid = 1;
     int64 x = 2;
     int64 y = 3;
@@ -55,7 +55,7 @@ message ClientPlayerUpdate {
     int64 animationFrame = 5;
 }
 
-message ClientNewGameObject {
+message SpawnObject {
     string objectType = 1;
     int64 x = 2;
     int64 y = 3;
