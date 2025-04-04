@@ -1,3 +1,9 @@
+/*
+ * Author: Matěj Šťastný aka Kirei
+ * Github link: https://github.com/kireiiiiiiii/flaggi
+ * Desc: Messages constructed by the CLIENT and processed by the SERVER.
+ */
+
 syntax = "proto3";
 
 package flaggi;
@@ -18,7 +24,7 @@ message ClientMessageWrapper {
 // Enums ---------------------------------------------------------------------
 
 enum ClientRequestType {
-    CLIENT_REQUEST_GET_IDLE_CLIENT_LIST = 0;
+    GET_IDLE_CLIENT_LIST = 0;
 }
 
 // TCP Messages --------------------------------------------------------------

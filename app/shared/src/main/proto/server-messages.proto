@@ -1,3 +1,9 @@
+/*
+ * Author: Matěj Šťastný aka Kirei
+ * Github link: https://github.com/kireiiiiiiii/flaggi
+ * Desc: Messages constructed by the SERVER and processed by the CLIENT.
+ */
+
 syntax = "proto3";
 
 package flaggi;
@@ -5,7 +11,8 @@ package flaggi;
 option java_package = "flaggi.proto";
 option java_outer_classname = "ServerMessages";
 
-// Wrapper for server messages
+// Wrapper -------------------------------------------------------------------
+
 message ServerMessageWrapper {
     oneof message_type {
         ServerInitialMessage serverInitialMessage = 1;
@@ -15,12 +22,14 @@ message ServerMessageWrapper {
     }
 }
 
-// Enums
+// Enums ---------------------------------------------------------------------
+
 enum ServerRequestType {
     SERVER_REQUEST_TEST = 0;
 }
 
-// TCP Messages
+// TCP Messages --------------------------------------------------------------
+
 message ServerInitialMessage {
     string uuid = 1;
     int64 udpPort = 2;
@@ -39,7 +48,8 @@ message ServerIdleClientListData {
     map<string, int32> clientList = 1;
 }
 
-// UDP Messages
+// UDP Messages --------------------------------------------------------------
+
 message ServerUpdate {
     int64 objectId = 1;
 }
