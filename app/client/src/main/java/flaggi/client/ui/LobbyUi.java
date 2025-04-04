@@ -32,7 +32,7 @@ import flaggi.shared.util.FontUtil;
 /**
  * Lobby screen where other players can be invited into the game.
  */
-public class LobbyInviteScreen extends Renderable implements Scrollable, Interactable {
+public class LobbyUi extends Renderable implements Scrollable, Interactable {
 
 	private static final int itemWidth = 98;
 	private static final int itemHeight = 8;
@@ -49,7 +49,7 @@ public class LobbyInviteScreen extends Renderable implements Scrollable, Interac
 
 	// Constructor --------------------------------------------------------------
 
-	public LobbyInviteScreen(BiConsumer<String, Integer> inviteAction) {
+	public LobbyUi(BiConsumer<String, Integer> inviteAction) {
 		super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.LOBBY);
 		this.inviteAction = inviteAction;
 		this.clientItems = new ArrayList<>();
