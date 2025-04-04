@@ -537,7 +537,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
 	public enum PanelRegion {
 		/**
-		 * 
+		 *
 		 */
 		BACKGROUND,
 		/**
@@ -734,6 +734,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		forwardEvent(InteractableHandler::mouseWheelMoved, e);
+		this.widgets.stream().filter(w -> w instanceof Scrollable).forEach(w -> ((Scrollable) w).scroll(e));
 	}
 
 	@Override
