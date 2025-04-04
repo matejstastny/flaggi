@@ -6,14 +6,18 @@
 
 package flaggi.client.constants;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 
+import flaggi.client.App;
 import flaggi.shared.common.ConfigManager;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.FileUtil;
+import flaggi.shared.util.FontUtil;
 import flaggi.shared.util.ImageUtil;
 
 public class Constants {
@@ -27,7 +31,7 @@ public class Constants {
 
 	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.client";
 	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
-	public static final ConfigManager CONFIG = new ConfigManager(String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "configs", "config.properties"), "/configs/config.properties");
+	public static final ConfigManager CONFIG = getConfigManager();
 
 	public static final String ICONS_RES_DIR = "icons";
 	public static final String SPRITES_RES_DIR = "sprites";
@@ -50,11 +54,16 @@ public class Constants {
 	public static final Image ICON_MAC = getImage(ICONS_RES_DIR + "/icon_mac.png");
 	public static final Image ICON_WIN = getImage(ICONS_RES_DIR + "/icon_win.png");
 
+	// Fonts -----------------------------------------------------------------
+
+	public static final Font FONT = getFont(FONTS_RES_DIR + "/PixelifySans-VariableFont_wght.ttf");
+
 	// Debug --------------------------------------------------------------------
 
-	public static boolean HITBOXES_ENABLED = false;
-	public static boolean LOG_MEM_USAGE = true;
+	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TRACE };
+	public static boolean LOG_MEM_USAGE = false;
 	public static int MEM_LOG_INTERVAL_SEC = 3;
+	public static boolean HITBOXES_ENABLED = false;
 
 	// Game ---------------------------------------------------------------------
 
@@ -64,6 +73,16 @@ public class Constants {
 
 	// Internal -----------------------------------------------------------------
 
+	private static ConfigManager getConfigManager() {
+		try {
+			return new ConfigManager(String.join(File.separator, FileUtil.getJarExecDirectory(), "config.properties"), "/configs/config.properties");
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "An IOException occured when initializing the ConfigManager", e);
+			App.handleFatalError();
+			return null;
+		}
+	}
+
 	private static Image getImage(String path) {
 		Image img = null;
 		try {
@@ -72,6 +91,18 @@ public class Constants {
 			Logger.log(LogLevel.ERROR, "Texture not found: '" + path + "'!");
 		}
 		return img;
+	}
+
+	private static Font getFont(String path) {
+		Font font = Font.getFont("Arial");
+		try {
+			font = FontUtil.createFontFromResource(path);
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "Font not found: '" + path + "'!");
+		} catch (FontFormatException e) {
+			Logger.log(LogLevel.ERROR, "Font format exception for: '" + path + "'!");
+		}
+		return font;
 	}
 
 }
