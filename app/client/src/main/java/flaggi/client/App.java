@@ -14,17 +14,20 @@ import javax.swing.SwingUtilities;
 
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
+import flaggi.client.network.TcpManager;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.util.NetUtil;
 import flaggi.shared.util.ScreenUtil;
 
 public class App {
 
 	private final GPanel gpanel;
+	private TcpManager tcpManager;
 
 	// Main ---------------------------------------------------------------------
 
@@ -70,6 +73,12 @@ public class App {
 		Logger.log(LogLevel.DEBUG, "Join server button pressed.");
 		setConfigField("username", name);
 		setConfigField("server.ip", ip);
+		if (!NetUtil.isValidAddress(ip)) {
+			return "Invalid IP address fotmat!";
+		} else if (!TcpManager.isFlaggiServer(ip.split(":")[0], Integer.parseInt(ip.split(":")[1]))) {
+			return "Flaggi server not running here!";
+		}
+
 		gotoLobby();
 		return "Connecting...";
 	}

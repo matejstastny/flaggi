@@ -34,209 +34,207 @@ import flaggi.shared.util.ImageUtil;
  */
 public class MenuScreen extends Renderable implements Interactable, Typable {
 
-    private String usernameInput, ipInput, errorMessage;
-    private boolean isNameFieldFocused, isIpFieldFocused, buttonActive;
-    private BiFunction<String, String, String> buttonPressAction;
-    private Image logo, textField, button;
-    private Font font;
+	private String usernameInput, ipInput, errorMessage;
+	private boolean isNameFieldFocused, isIpFieldFocused, buttonActive;
+	private BiFunction<String, String, String> buttonPressAction;
+	private Image logo, textField, button;
+	private Font font;
 
-    private static final int LOGO_Y_POSITION = 10;
-    private static final int FONT_SIZE = 3;
-    private static final double ERROR_Y_POSITION = 72;
+	private static final int LOGO_Y_POSITION = 10;
+	private static final int FONT_SIZE = 3;
+	private static final double ERROR_Y_POSITION = 72;
 
-    public MenuScreen(String initName, String initIp, BiFunction<String, String, String> buttonPressAction) {
-        super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MAIN_MENU);
+	public MenuScreen(String initName, String initIp, BiFunction<String, String, String> buttonPressAction) {
+		super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MAIN_MENU);
+		this.usernameInput = initName != null ? initName : "";
+		this.ipInput = initIp != null ? initIp : "";
+		this.buttonPressAction = buttonPressAction;
+		loadResources();
+		clearErrorMessage();
+	}
 
-        this.usernameInput = initName != null ? initName : "";
-        this.ipInput = initIp != null ? initIp : "";
-        this.buttonPressAction = buttonPressAction;
+	// -------------------- Rendering --------------------
 
-        loadResources();
+	@Override
+	public void render(Graphics2D g, int[] origin, Container fcra) {
+		renderLogo(g, fcra);
+		renderErrorMessage(g);
+		renderTextFields(g, fcra);
+		renderStartButton(g, fcra);
+	}
 
-        clearErrorMessage();
-    }
+	private void renderLogo(Graphics2D g, Container fcra) {
+		int width = px(80);
+		Image scaledLogo = ImageUtil.scaleToWidth(this.logo, width, false);
+		int x = (px(100) - scaledLogo.getWidth(null)) / 2;
+		g.drawImage(scaledLogo, x, px(LOGO_Y_POSITION), fcra);
+	}
 
-    // -------------------- Rendering --------------------
+	private void renderErrorMessage(Graphics2D g) {
+		g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
+		g.setColor(Color.RED);
+		int[] errorPos = FontUtil.calculateCenteredPosition(px(100), 0, g.getFontMetrics(), this.errorMessage);
+		g.drawString(this.errorMessage, errorPos[0], px(ERROR_Y_POSITION));
+	}
 
-    @Override
-    public void render(Graphics2D g, int[] origin, Container fcra) {
-        renderLogo(g, fcra);
-        renderErrorMessage(g);
-        renderTextFields(g, fcra);
-        renderStartButton(g, fcra);
-    }
+	private void renderTextFields(Graphics2D g, Container fcra) {
+		g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
+		Rectangle nameField = getNameFieldBounds();
+		Rectangle ipField = getIpFieldBounds();
 
-    private void renderLogo(Graphics2D g, Container fcra) {
-        int width = px(80);
-        Image scaledLogo = ImageUtil.scaleToWidth(this.logo, width, false);
-        int x = (px(100) - scaledLogo.getWidth(null)) / 2;
-        g.drawImage(scaledLogo, x, px(LOGO_Y_POSITION), fcra);
-    }
+		Image scaledTextField = ImageUtil.scaleImage(this.textField, nameField.width, nameField.height, false);
+		g.drawImage(scaledTextField, nameField.x, nameField.y, fcra);
+		g.drawImage(scaledTextField, ipField.x, ipField.y, fcra);
 
-    private void renderErrorMessage(Graphics2D g) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
-        g.setColor(Color.RED);
-        int[] errorPos = FontUtil.calculateCenteredPosition(px(100), 0, g.getFontMetrics(), this.errorMessage);
-        g.drawString(this.errorMessage, errorPos[0], px(ERROR_Y_POSITION));
-    }
+		renderTextField(g, "Name: " + usernameInput, isNameFieldFocused, nameField.x + px(3), nameField.y + px(6));
+		renderTextField(g, "IP: " + ipInput, isIpFieldFocused, ipField.x + px(3), ipField.y + px(6));
+	}
 
-    private void renderTextFields(Graphics2D g, Container fcra) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
-        Rectangle nameField = getNameFieldBounds();
-        Rectangle ipField = getIpFieldBounds();
+	private void renderTextField(Graphics2D g, String text, boolean isFocused, int x, int y) {
+		g.setColor(isFocused ? Color.BLUE : Color.WHITE);
+		g.drawString(text, x, y);
+	}
 
-        Image scaledTextField = ImageUtil.scaleImage(this.textField, nameField.width, nameField.height, false);
-        g.drawImage(scaledTextField, nameField.x, nameField.y, fcra);
-        g.drawImage(scaledTextField, ipField.x, ipField.y, fcra);
+	private void renderStartButton(Graphics2D g, Container fcra) {
+		g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
+		Rectangle startButton = getStartButtonBounds();
 
-        renderTextField(g, "Name: " + usernameInput, isNameFieldFocused, nameField.x + px(3), nameField.y + px(6));
-        renderTextField(g, "IP: " + ipInput, isIpFieldFocused, ipField.x + px(3), ipField.y + px(6));
-    }
+		Image scaledButton = ImageUtil.scaleImage(this.button, startButton.width, startButton.height, false);
+		g.drawImage(scaledButton, startButton.x, startButton.y, fcra);
+		g.setColor(Color.WHITE);
+		int[] startButtonTextPos = FontUtil.calculateCenteredPosition(startButton.width, startButton.height, g.getFontMetrics(), "START");
+		if (!buttonActive) {
+			g.drawString("START", startButton.x + startButtonTextPos[0], startButton.y + startButtonTextPos[1]);
+		}
+	}
 
-    private void renderTextField(Graphics2D g, String text, boolean isFocused, int x, int y) {
-        g.setColor(isFocused ? Color.BLUE : Color.WHITE);
-        g.drawString(text, x, y);
-    }
+	// -------------------- Interaction --------------------
 
-    private void renderStartButton(Graphics2D g, Container fcra) {
-        g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
-        Rectangle startButton = getStartButtonBounds();
+	@Override
+	public void interact(MouseEvent e) {
+		String interactedElement = getInteractedElement(e);
+		if ("start_button".equals(interactedElement) && !buttonActive) {
+			buttonActive = true;
+			this.errorMessage = this.buttonPressAction.apply(this.usernameInput, this.ipInput);
+		} else if ("name_field".equals(interactedElement)) {
+			isIpFieldFocused = false;
+			isNameFieldFocused = true;
+		} else if ("ip_field".equals(interactedElement)) {
+			isIpFieldFocused = true;
+			isNameFieldFocused = false;
+		}
+	}
 
-        Image scaledButton = ImageUtil.scaleImage(this.button, startButton.width, startButton.height, false);
-        g.drawImage(scaledButton, startButton.x, startButton.y, fcra);
-        g.setColor(Color.WHITE);
-        int[] startButtonTextPos = FontUtil.calculateCenteredPosition(startButton.width, startButton.height, g.getFontMetrics(), "START");
-        if (!buttonActive) {
-            g.drawString("START", startButton.x + startButtonTextPos[0], startButton.y + startButtonTextPos[1]);
-        }
-    }
+	private String getInteractedElement(MouseEvent e) {
+		int x = e.getX();
+		int y = e.getY();
 
-    // -------------------- Interaction --------------------
+		if (getStartButtonBounds().contains(x, y))
+			return "start_button";
+		if (getNameFieldBounds().contains(x, y))
+			return "name_field";
+		if (getIpFieldBounds().contains(x, y))
+			return "ip_field";
 
-    @Override
-    public void interact(MouseEvent e) {
-        String interactedElement = getInteractedElement(e);
-        if ("start_button".equals(interactedElement) && !buttonActive) {
-            buttonActive = true;
-            this.errorMessage = this.buttonPressAction.apply(this.usernameInput, this.ipInput);
-        } else if ("name_field".equals(interactedElement)) {
-            isIpFieldFocused = false;
-            isNameFieldFocused = true;
-        } else if ("ip_field".equals(interactedElement)) {
-            isIpFieldFocused = true;
-            isNameFieldFocused = false;
-        }
-    }
+		return null;
+	}
 
-    private String getInteractedElement(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
+	@Override
+	public boolean wasInteracted(MouseEvent e) {
+		return getInteractedElement(e) != null;
+	}
 
-        if (getStartButtonBounds().contains(x, y))
-            return "start_button";
-        if (getNameFieldBounds().contains(x, y))
-            return "name_field";
-        if (getIpFieldBounds().contains(x, y))
-            return "ip_field";
+	@Override
+	public void type(KeyEvent e) {
+		if (!this.isVisible())
+			return;
 
-        return null;
-    }
+		if (isNameFieldFocused)
+			handleTyping(e, true);
+		else if (isIpFieldFocused)
+			handleTyping(e, false);
+	}
 
-    @Override
-    public boolean wasInteracted(MouseEvent e) {
-        return getInteractedElement(e) != null;
-    }
+	// Modifiers --------------------------------------------------------------
 
-    @Override
-    public void type(KeyEvent e) {
-        if (!this.isVisible())
-            return;
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage != null ? errorMessage : "";
+	}
 
-        if (isNameFieldFocused)
-            handleTyping(e, true);
-        else if (isIpFieldFocused)
-            handleTyping(e, false);
-    }
+	public void clearErrorMessage() {
+		this.errorMessage = "";
+	}
 
-    // Modifiers --------------------------------------------------------------
+	// Accesors --------------------------------------------------------------
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage != null ? errorMessage : "";
-    }
+	public String getUsernameFieldContent() {
+		return usernameInput == null ? "" : usernameInput;
+	}
 
-    public void clearErrorMessage() {
-        this.errorMessage = "";
-    }
+	public String getIpFieldContent() {
+		return ipInput == null ? "" : ipInput;
+	}
 
-    // Accesors --------------------------------------------------------------
+	// Private ---------------------------------------------------------------
 
-    public String getUsernameFieldContent() {
-        return usernameInput == null ? "" : usernameInput;
-    }
+	private void handleTyping(KeyEvent e, boolean isNameField) {
+		char c = e.getKeyChar();
+		StringBuilder input = new StringBuilder(isNameField ? usernameInput : ipInput);
 
-    public String getIpFieldContent() {
-        return ipInput == null ? "" : ipInput;
-    }
+		if ((isNameField && (Character.isLetterOrDigit(c) || Character.isWhitespace(c))) || (!isNameField && (Character.isDigit(c) || c == '.' || c == ':'))) {
+			input.append(c);
+		} else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.length() > 0) {
+			input.deleteCharAt(input.length() - 1);
+		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			this.errorMessage = "Cannot use spaces!";
+			return;
+		}
 
-    // Private ---------------------------------------------------------------
+		if (isNameField) {
+			usernameInput = input.toString();
+		} else {
+			ipInput = input.toString();
+		}
+	}
 
-    private void handleTyping(KeyEvent e, boolean isNameField) {
-        char c = e.getKeyChar();
-        StringBuilder input = new StringBuilder(isNameField ? usernameInput : ipInput);
+	// Resource Loading ------------------------------------------------------
 
-        if ((isNameField && (Character.isLetterOrDigit(c) || Character.isWhitespace(c))) || (!isNameField && (Character.isDigit(c) || c == '.'))) {
-            input.append(c);
-        } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.length() > 0) {
-            input.deleteCharAt(input.length() - 1);
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            this.errorMessage = "Cannot use spaces!";
-        }
+	private void loadResources() {
+		loadImages();
+		loadFont();
+	}
 
-        if (isNameField) {
-            usernameInput = input.toString();
-        } else {
-            ipInput = input.toString();
-        }
-    }
+	private void loadFont() {
+		try {
+			this.font = FontUtil.createFontFromResource("fonts/PixelifySans-VariableFont_wght.ttf").deriveFont(Font.PLAIN, 25);
+		} catch (IOException | FontFormatException e) {
+			Logger.log(LogLevel.WARN, "MenuScreen: Font cannot be loaded.", e);
+			this.font = new Font("Arial", Font.PLAIN, 25);
+		}
+	}
 
-    // Resource Loading ------------------------------------------------------
+	private void loadImages() {
+		try {
+			this.logo = ImageUtil.getImageFromFile("ui/logo.png");
+			this.button = ImageUtil.getImageFromFile("ui/button.png");
+			this.textField = ImageUtil.getImageFromFile("ui/text_field.png");
+		} catch (IOException e) {
+			Logger.log(LogLevel.WARN, "Couldn't load " + getClass().getSimpleName() + " textures.", e);
+		}
+	}
 
-    private void loadResources() {
-        loadImages();
-        loadFont();
-    }
+	// Dynamic Bounds Getters ------------------------------------------------
 
-    private void loadFont() {
-        try {
-            this.font = FontUtil.createFontFromResource("fonts/PixelifySans-VariableFont_wght.ttf").deriveFont(Font.PLAIN, 25);
-        } catch (IOException | FontFormatException e) {
-            Logger.log(LogLevel.WARN, "MenuScreen: Font cannot be loaded.", e);
-            this.font = new Font("Arial", Font.PLAIN, 25);
-        }
-    }
+	private Rectangle getStartButtonBounds() {
+		return new Rectangle(px(40), px(75), px(20), px(10));
+	}
 
-    private void loadImages() {
-        try {
-            this.logo = ImageUtil.getImageFromFile("ui/logo.png");
-            this.button = ImageUtil.getImageFromFile("ui/button.png");
-            this.textField = ImageUtil.getImageFromFile("ui/text_field.png");
-        } catch (IOException e) {
-            Logger.log(LogLevel.WARN, "Couldn't load " + getClass().getSimpleName() + " textures.", e);
-        }
-    }
+	private Rectangle getNameFieldBounds() {
+		return new Rectangle(px(20), px(45), px(60), px(10));
+	}
 
-    // Dynamic Bounds Getters ------------------------------------------------
-
-    private Rectangle getStartButtonBounds() {
-        return new Rectangle(px(40), px(75), px(20), px(10));
-    }
-
-    private Rectangle getNameFieldBounds() {
-        return new Rectangle(px(20), px(45), px(60), px(10));
-    }
-
-    private Rectangle getIpFieldBounds() {
-        return new Rectangle(px(20), px(57), px(60), px(10));
-    }
+	private Rectangle getIpFieldBounds() {
+		return new Rectangle(px(20), px(57), px(60), px(10));
+	}
 
 }
