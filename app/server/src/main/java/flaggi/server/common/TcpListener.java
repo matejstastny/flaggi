@@ -11,8 +11,8 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
-import flaggi.proto.ClientMessages.ClientMessageWrapper;
 import flaggi.server.client.UserHandler;
+import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.server.Server;
 import flaggi.server.client.User;
 import flaggi.shared.common.Logger;
@@ -21,12 +21,12 @@ import flaggi.shared.common.Logger.LogLevel;
 public class TcpListener implements Runnable {
 
 	private final int port;
-	private final BlockingQueue<ClientMessageWrapper> messageQueue;
+	private final BlockingQueue<ClientMessage> messageQueue;
 	private final Map<String, User> users;
 
 	// Constructor --------------------------------------------------------------
 
-	public TcpListener(int port, BlockingQueue<ClientMessageWrapper> messageQueue, Map<String, User> users) {
+	public TcpListener(int port, BlockingQueue<ClientMessage> messageQueue, Map<String, User> users) {
 		this.port = port;
 		this.messageQueue = messageQueue;
 		this.users = users;
@@ -34,7 +34,7 @@ public class TcpListener implements Runnable {
 
 	// Accesors -----------------------------------------------------------------
 
-	public BlockingQueue<ClientMessageWrapper> getMessageQueue() {
+	public BlockingQueue<ClientMessage> getMessageQueue() {
 		return messageQueue;
 	}
 

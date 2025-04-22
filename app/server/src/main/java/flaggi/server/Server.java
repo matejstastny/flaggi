@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import flaggi.proto.ClientMessages.ClientMessageWrapper;
-import flaggi.proto.ClientMessages.ClientUpdate;
+import flaggi.proto.ClientMessages.ClientMessage;
+import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.server.client.User;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpListener;
@@ -26,6 +26,7 @@ import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.FileUtil;
+import flaggi.shared.util.NetUtil;
 
 public class Server implements Updatable {
 
@@ -34,8 +35,8 @@ public class Server implements Updatable {
 	private final UdpListener udpListener;
 	private final UpdateLoop updateLoop;
 	private final Map<String, User> users = new ConcurrentHashMap<>();
-	private final BlockingQueue<ClientMessageWrapper> tcpMessageQueue = new LinkedBlockingQueue<>();
-	private final BlockingQueue<ClientUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<ClientMessage> tcpMessageQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<ClientStateUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
 
 	// Main ---------------------------------------------------------------------
 
@@ -58,8 +59,8 @@ public class Server implements Updatable {
 
 	@Override
 	public void update() {
-		// processTcpMessages();
-		// processUdpPackets();
+		processTcpMessages();
+		processUdpPackets();
 	}
 
 	// Initialization -----------------------------------------------------------
@@ -68,6 +69,7 @@ public class Server implements Updatable {
 		Logger.setLogFile(Constants.LOG_FILE);
 		Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
 		Logger.log(LogLevel.INFO, "Application start.");
+		Logger.log(LogLevel.INFO, "Server IP: " + NetUtil.getLocalIPv4Address().getHostAddress());
 		Logger.logMaxMemory("GB");
 	}
 
@@ -113,45 +115,17 @@ public class Server implements Updatable {
 
 	// Network ------------------------------------------------------------------
 
-	// private void processUdpPackets() {
-	// ClientMessageWrapper message;
-	// while ((message = udpPacketQueue.poll()) != null) {
+	private void processUdpPackets() {
+		ClientStateUpdate message;
+		while ((message = udpPacketQueue.poll()) != null) {
 
-	// }
-	// }
+		}
+	}
 
-	// private void processTcpMessages() {
-	// ClientMessageWrapper message;
-	// while ((message = tcpMessageQueue.poll()) != null) {
-	// if (message.hasInitial()) {
-	// handleNewUser(message);
-	// } else if (message.hasRequest()) {
-	// System.out.println("request");
-	// }
-	// }
-	// }
+	private void processTcpMessages() {
+		ClientMessage message;
+		while ((message = tcpMessageQueue.poll()) != null) {
 
-	// // Message handeling --------------------------------------------------------
-
-	// private void handleNewUser(WrapperMessage message) {
-	// Logger.log(LogLevel.INFO, "New user connected.");
-	// String uuid = UUID.randomUUID().toString();
-	// User user = new User(uuid, message.getInitial().getUsername(), null, null);
-	// // Update as needed
-	// users.put(user.getUuid(), user);
-
-	// InitialResponse response =
-	// InitialResponse.newBuilder().setUuid(uuid).build();
-	// user.sendMessage(WrapperMessage.newBuilder().setInitialResponse(response).build());
-	// }
-
-	// // Utility ------------------------------------------------------------------
-
-	// public void sendMessageToUser(String uuid, WrapperMessage message) throws
-	// Exception {
-	// User user = users.get(uuid);
-	// if (user != null) {
-	// user.sendMessage(message);
-	// }
-	// }
+		}
+	}
 }

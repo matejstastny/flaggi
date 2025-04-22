@@ -15,10 +15,11 @@ option java_outer_classname = "ServerMessages";
 
 message ServerMessage {
     oneof message_type {
-        ServerHello serverHello = 1;
-        ServerGameJoin serverGameJoin = 2;
-        ServerCommand serverCommand = 3;
-        IdleClientList idleClientList = 4;
+        Pong pong = 1;
+        ServerHello serverHello = 2;
+        ServerGameJoin serverGameJoin = 3;
+        ServerCommand serverCommand = 4;
+        IdleClientList idleClientList = 5;
     }
 }
 
@@ -29,6 +30,10 @@ enum ServerCommandType {
 }
 
 // TCP Messages --------------------------------------------------------------
+
+message Pong {
+    string pong = 1;
+}
 
 message ServerHello {
     string uuid = 1;

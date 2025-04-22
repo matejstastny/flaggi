@@ -181,7 +181,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 		char c = e.getKeyChar();
 		StringBuilder input = new StringBuilder(isNameField ? usernameInput : ipInput);
 
-		if ((isNameField && (Character.isLetterOrDigit(c) || Character.isWhitespace(c))) || (!isNameField && (Character.isDigit(c) || c == '.' || c == ':'))) {
+		if ((isNameField && (Character.isLetterOrDigit(c) || Character.isWhitespace(c))) || (!isNameField && (Character.isLetterOrDigit(c) || c == '.' || c == ':'))) {
 			input.append(c);
 		} else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && input.length() > 0) {
 			input.deleteCharAt(input.length() - 1);

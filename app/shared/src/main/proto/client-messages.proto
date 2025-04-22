@@ -15,9 +15,9 @@ option java_outer_classname = "ClientMessages";
 
 message ClientMessage {
     oneof message_type {
-        ClientHello clientHello = 1;
-        ClientCommand clientCommand = 2;
-        ClientStateUpdate clientStateUpdate = 3;
+        Ping ping = 1;
+        ClientHello clientHello = 2;
+        ClientCommand clientCommand = 3;
     }
 }
 
@@ -29,6 +29,10 @@ enum ClientCommandType {
 
 // TCP Messages --------------------------------------------------------------
 
+message Ping {
+    string ping = 1;
+}
+
 message ClientHello {
     string username = 1;
 }
@@ -37,6 +41,7 @@ message ClientCommand {
     string uuid = 1;
     ClientCommandType requestType = 2;
 }
+
 
 // UDP Messages --------------------------------------------------------------
 

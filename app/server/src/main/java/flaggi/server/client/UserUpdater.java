@@ -2,7 +2,7 @@ package flaggi.server.client;
 
 import java.util.Map;
 
-import flaggi.proto.ServerMessages.ServerUpdate;
+import flaggi.proto.ServerMessages.ServerStateUpdate;
 
 public class UserUpdater {
 
@@ -16,7 +16,7 @@ public class UserUpdater {
 
 	}
 
-	private ServerUpdate getUpdateMessage() {
+	private ServerStateUpdate getUpdateMessage() {
 		return null;
 	}
 

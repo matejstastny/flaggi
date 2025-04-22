@@ -6,6 +6,10 @@
 
 package flaggi.shared.util;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+
 public class ProtoUtil {
 
 	// Private constructor to prevent instantiation
@@ -21,6 +25,19 @@ public class ProtoUtil {
 
 	public static int byteArrayToInt(byte[] bytes) {
 		return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3]);
+	}
+
+	public static byte[] readExactly(DataInputStream in, int len) throws IOException {
+		byte[] data = new byte[len];
+		int totalRead = 0;
+		while (totalRead < len) {
+			int bytesRead = in.read(data, totalRead, len - totalRead);
+			if (bytesRead == -1) {
+				throw new EOFException("Stream ended before reading enough bytes");
+			}
+			totalRead += bytesRead;
+		}
+		return data;
 	}
 
 }

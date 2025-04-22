@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import flaggi.proto.ClientMessages.ClientUpdate;
+import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.server.Server;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -24,12 +24,12 @@ import flaggi.shared.common.Logger.LogLevel;
 public class UdpListener implements Runnable {
 
 	private final int port;
-	private final BlockingQueue<ClientUpdate> messageQueue;
+	private final BlockingQueue<ClientStateUpdate> messageQueue;
 	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
 
 	// Constructor --------------------------------------------------------------
 
-	public UdpListener(int port, BlockingQueue<ClientUpdate> messageQueue) {
+	public UdpListener(int port, BlockingQueue<ClientStateUpdate> messageQueue) {
 		this.port = port;
 		this.messageQueue = messageQueue;
 	}
@@ -56,15 +56,15 @@ public class UdpListener implements Runnable {
 
 	private void processPacket(DatagramPacket packet) {
 		try {
-			ClientUpdate message = deserialize(packet.getData());
+			ClientStateUpdate message = deserialize(packet.getData());
 			messageQueue.offer(message);
 		} catch (Exception e) {
 			Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
 		}
 	}
 
-	public static ClientUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
-		return ClientUpdate.parseFrom(data);
+	public static ClientStateUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
+		return ClientStateUpdate.parseFrom(data);
 	}
 
 	// Limiter ------------------------------------------------------------------

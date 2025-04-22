@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import flaggi.proto.ServerMessages.ServerMessageWrapper;
+import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ProtoUtil;
@@ -54,7 +54,7 @@ public class User {
 
 	// Util ---------------------------------------------------------------------
 
-	public void sendMessage(ServerMessageWrapper message) {
+	public void sendMessage(ServerMessage message) {
 		try {
 			byte[] messageBytes = message.toByteArray();
 			byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);

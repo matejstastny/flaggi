@@ -6,6 +6,7 @@
 
 package flaggi.server.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -13,9 +14,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
-import flaggi.proto.ClientMessages.ClientMessageWrapper;
-import flaggi.proto.ServerMessages.ServerInitialMessage;
-import flaggi.proto.ServerMessages.ServerMessageWrapper;
+import flaggi.proto.ClientMessages.ClientMessage;
+import flaggi.proto.ServerMessages.Pong;
+import flaggi.proto.ServerMessages.ServerHello;
+import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -24,13 +26,13 @@ import flaggi.shared.util.ProtoUtil;
 public class UserHandler implements Runnable {
 
 	private final Socket clientSocket;
-	private final BlockingQueue<ClientMessageWrapper> messageQueue;
+	private final BlockingQueue<ClientMessage> messageQueue;
 	private final Map<String, User> users;
 	private User user;
 
 	// Constructor --------------------------------------------------------------
 
-	public UserHandler(Socket clientSocket, BlockingQueue<ClientMessageWrapper> messageQueue, Map<String, User> users) {
+	public UserHandler(Socket clientSocket, BlockingQueue<ClientMessage> messageQueue, Map<String, User> users) {
 		this.clientSocket = clientSocket;
 		this.messageQueue = messageQueue;
 		this.users = users;
@@ -41,18 +43,17 @@ public class UserHandler implements Runnable {
 	@Override
 	public void run() {
 		try (InputStream in = clientSocket.getInputStream(); OutputStream out = clientSocket.getOutputStream()) {
-
-			handleInitialMessage(in, out);
-
-			while (true) {
-				ClientMessageWrapper message = receiveMessage(in);
-				messageQueue.offer(message);
+			if (handleInitialMessage(in, out)) {
+				while (!clientSocket.isClosed()) {
+					ClientMessage message = receiveMessage(in);
+					messageQueue.offer(message);
+				}
 			}
-
-		} catch (Exception e) {
-			Logger.log(LogLevel.ERROR, "An exception occurred in ClientHandler.", e);
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler.", e);
 		} finally {
 			if (user != null) {
+				Logger.log(LogLevel.INFO, "Client disconnected: " + user.getName());
 				users.remove(user.getUuid());
 			}
 		}
@@ -60,33 +61,42 @@ public class UserHandler implements Runnable {
 
 	// Private ------------------------------------------------------------------
 
-	private void handleInitialMessage(InputStream in, OutputStream out) throws Exception {
-		ClientMessageWrapper message = receiveMessage(in);
-		if (!message.hasClientInitialMessage()) {
+	private boolean handleInitialMessage(InputStream in, OutputStream out) throws IOException {
+		ClientMessage message = receiveMessage(in);
+		if (message.hasPing()) {
+			Logger.log(LogLevel.INFO, "Received ping from client.");
+			ServerMessage response = ServerMessage.newBuilder().setPong(Pong.newBuilder().setPong("pong")).build();
+			sendMessage(out, response);
+			return false;
+		}
+		if (!message.hasClientHello()) {
 			clientSocket.close();
-			return;
+			Logger.log(LogLevel.WARN, "Invalid initial message from client. Closing connection.");
+			return false;
 		}
 
 		String uuid = UUID.randomUUID().toString();
-		user = new User(uuid, message.getClientInitialMessage().getUsername(), clientSocket, out);
+		user = new User(uuid, message.getClientHello().getUsername(), clientSocket, out);
 		users.put(uuid, user);
 
-		ServerMessageWrapper response = ServerMessageWrapper.newBuilder().setServerInitialMessage(ServerInitialMessage.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();
+		ServerMessage response = ServerMessage.newBuilder().setServerHello(ServerHello.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();
 		sendMessage(out, response);
 		messageQueue.offer(message);
+
+		return true;
 	}
 
-	private ClientMessageWrapper receiveMessage(InputStream in) throws Exception {
+	private ClientMessage receiveMessage(InputStream in) throws IOException {
 		byte[] sizeBytes = new byte[4];
 		in.read(sizeBytes);
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
 		in.read(messageBytes);
 
-		return ClientMessageWrapper.parseFrom(messageBytes);
+		return ClientMessage.parseFrom(messageBytes);
 	}
 
-	private void sendMessage(OutputStream out, ServerMessageWrapper message) throws Exception {
+	private void sendMessage(OutputStream out, ServerMessage message) throws IOException {
 		byte[] messageBytes = message.toByteArray();
 		byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
 		out.write(sizeBytes);
