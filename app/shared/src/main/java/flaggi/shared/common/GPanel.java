@@ -94,7 +94,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		this.setPreferredSize(new Dimension(windowWidth, windowHeight));
 		this.appFrame = getDefaultJFrame(resizable, appTitle);
 
-		System.out.println("hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3hauiiiii:3");
 		setupListeners();
 		startRendering();
 	}
