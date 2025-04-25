@@ -4,24 +4,24 @@
  * Github link: https://github.com/kireiiiiiiii/flaggi
  */
 
-package flaggi.server.common;
-
-import flaggi.shared.common.Logger;
-import flaggi.shared.common.Logger.LogLevel;
+package flaggi.shared.common;
 
 public class UpdateLoop implements Runnable {
 
 	private final int updateInterval;
 	private final Updatable update;
 
-	public UpdateLoop(int updateInterval, Updatable update) {
-		this.updateInterval = updateInterval;
+	/**
+	 * @param updateIntervalMs - the interval in milliseconds between updates.
+	 * @param update           - the object that will be updated.
+	 */
+	public UpdateLoop(int updateIntervalMs, Updatable update) {
+		this.updateInterval = updateIntervalMs;
 		this.update = update;
 	}
 
 	@Override
 	public void run() {
-		Logger.log(LogLevel.INFO, "Main update loop started");
 		while (!Thread.currentThread().isInterrupted()) {
 			this.update.update();
 			try {

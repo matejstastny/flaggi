@@ -20,11 +20,11 @@ import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.server.client.User;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpListener;
-import flaggi.server.common.UpdateLoop;
-import flaggi.server.common.UpdateLoop.Updatable;
 import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.common.UpdateLoop;
+import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FileUtil;
 import flaggi.shared.util.NetUtil;
 
@@ -50,7 +50,7 @@ public class Server implements Updatable {
 		buildInitFiles();
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
-		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL, this);
+		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS, this);
 		this.threads = Executors.newFixedThreadPool(4);
 		initializeThreads();
 	}
