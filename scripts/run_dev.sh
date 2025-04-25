@@ -14,6 +14,7 @@ JAVA_VER="8"                    # Java version needed to build
 APP_NAME="Flaggi"               # Name of the app (In the dmg name)
 SERVER_DIR="flaggi-server-temp" # Name of the server directory (needs to be moved, because the JAR generates other files)
 JAR_TASK="shadowjar"            # Task name called on Gradle to build a fat JAR
+RESERVED_CACHE_CODE_SIZE="256m" # Reserved code cache size for Java
 
 # Prefix for JAR task output:
 # MAKE SURE THE ABOVE CONFIGURED JAR_TASK OUTPUTS THE
@@ -161,4 +162,4 @@ fi
 # ─── JAR execution ─────────────────────────────────────────────────────────────
 
 printf "%$(tput cols)s" '' | tr ' ' -
-java -jar "$JAR_FILE"
+java "-XX:ReservedCodeCacheSize=$RESERVED_CACHE_CODE_SIZE" -XX:+UseCodeCacheFlushing -jar "$JAR_FILE"
