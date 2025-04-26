@@ -47,16 +47,25 @@ public class UserHandler implements Runnable {
 			if (handleInitialMessage(in, out)) {
 				while (!clientSocket.isClosed()) {
 					ClientMessage message = receiveMessage(in);
+					if (message == null) {
+						break;
+					}
 					messageQueue.offer(message);
 				}
 			}
 		} catch (SocketException e) {
+			Logger.log(LogLevel.WARN, "SocketException occurred in ClientHandler", e);
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler", e);
 		} finally {
 			if (user != null) {
 				Logger.log(LogLevel.INFO, "Client disconnected: " + user.getName());
 				users.remove(user.getUuid());
+			}
+			try {
+				clientSocket.close();
+			} catch (IOException e) {
+				Logger.log(LogLevel.WARN, "Failed to close client socket", e);
 			}
 		}
 	}
@@ -93,10 +102,26 @@ public class UserHandler implements Runnable {
 
 	private ClientMessage receiveMessage(InputStream in) throws IOException {
 		byte[] sizeBytes = new byte[4];
-		in.read(sizeBytes);
+		int readSize = in.read(sizeBytes);
+		if (readSize == -1) {
+			return null;
+		}
+		if (readSize < 4) {
+			throw new IOException("Failed to read message size: only read " + readSize + " bytes.");
+		}
+
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
-		in.read(messageBytes);
+
+		int totalRead = 0;
+		while (totalRead < messageSize) {
+			int bytesRead = in.read(messageBytes, totalRead, messageSize - totalRead);
+			if (bytesRead == -1) {
+				throw new IOException("Connection closed while reading message body");
+			}
+			totalRead += bytesRead;
+		}
+
 		ClientMessage msg = ClientMessage.parseFrom(messageBytes);
 		Logger.log(LogLevel.TCP, "Received message from client: \n\n" + msg);
 		return msg;

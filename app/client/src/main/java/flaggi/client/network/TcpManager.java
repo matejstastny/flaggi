@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -142,7 +143,12 @@ public class TcpManager implements Runnable {
 
 	private ServerMessage receiveMessage(InputStream in) throws IOException {
 		byte[] sizeBytes = new byte[4];
-		int readSize = in.read(sizeBytes);
+		int readSize = 0;
+		try {
+			readSize = in.read(sizeBytes);
+		} catch (SocketException e) {
+			return null;
+		}
 		if (readSize == -1) {
 			// Server closed the connection
 			return null;
