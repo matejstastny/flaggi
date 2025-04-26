@@ -56,8 +56,12 @@ public class TcpManager implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (!socket.isClosed()) { // while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
+			while (!socket.isClosed()) {
 				ServerMessage message = receiveMessage(this.in);
+				if (message == null) {
+					Logger.log(LogLevel.INFO, "Server closed connection. Ending TcpManager loop.");
+					break;
+				}
 				queue.add(message);
 			}
 		} catch (IOException e) {
@@ -65,6 +69,7 @@ public class TcpManager implements Runnable {
 			App.handleFatalError();
 		} finally {
 			Logger.log(LogLevel.DEBUG, "TcpManager thread interrupted");
+			close();
 		}
 	}
 
@@ -137,12 +142,29 @@ public class TcpManager implements Runnable {
 
 	private ServerMessage receiveMessage(InputStream in) throws IOException {
 		byte[] sizeBytes = new byte[4];
-		in.read(sizeBytes);
+		int readSize = in.read(sizeBytes);
+		if (readSize == -1) {
+			// Server closed the connection
+			return null;
+		}
+		if (readSize < 4) {
+			throw new IOException("Failed to read message size: only read " + readSize + " bytes.");
+		}
+
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
-		in.read(messageBytes);
+
+		int totalRead = 0;
+		while (totalRead < messageSize) {
+			int bytesRead = in.read(messageBytes, totalRead, messageSize - totalRead);
+			if (bytesRead == -1) {
+				throw new IOException("Connection closed while reading message data");
+			}
+			totalRead += bytesRead;
+		}
+
 		ServerMessage msg = ServerMessage.parseFrom(messageBytes);
-		Logger.log(LogLevel.TCP, "Recieved a message from the server: \n\n" + msg);
+		Logger.log(LogLevel.TCP, "Received a message from the server: \n\n" + msg);
 		return msg;
 	}
 }
