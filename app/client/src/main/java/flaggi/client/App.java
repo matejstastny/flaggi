@@ -7,8 +7,10 @@
 package flaggi.client;
 
 import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 
@@ -18,6 +20,7 @@ import flaggi.client.network.TcpManager;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
+import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -51,6 +54,14 @@ public class App {
 
 	// Events -------------------------------------------------------------------
 
+	public void shutdown() {
+		Logger.log(LogLevel.INFO, "Shutting down...");
+		if (this.tcpManager != null) {
+			this.tcpManager.close();
+		}
+		System.exit(0);
+	}
+
 	public void gotoMainMenu() {
 		toggleUi(UiTags.MAIN_MENU);
 	}
@@ -67,18 +78,25 @@ public class App {
 		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.LOBBY, true);
 	}
 
+	// Server commands ----------------------------------------------------------
+
+	public void refreshIdleClients() {
+		this.tcpManager.commandServer(ClientCommandType.GET_IDLE_CLIENT_LIST);
+	}
+
 	// External events ----------------------------------------------------------
 
-	public String joinServer(String name, String ip) {
+	public String joinServer(String name, String ipInput) {
 		Logger.log(LogLevel.DEBUG, "Join server button pressed.");
 		setConfigField("username", name);
-		setConfigField("server.ip", ip);
-		if (!NetUtil.isValidAddress(ip)) {
-			return "Invalid IP address fotmat!";
-		} else if (!TcpManager.isFlaggiServer(ip.split(":")[0], Integer.parseInt(ip.split(":")[1]))) {
-			return "Flaggi server not running here!";
+		setConfigField("server.ip", ipInput);
+		Entry<String, Integer> ip = verifyServerIp(ipInput);
+		if (ip.getValue() == null) {
+			Logger.log(LogLevel.ERROR, ip.getKey() + " for ip input '" + ipInput + "'");
+			return ip.getKey();
 		}
-
+		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue());
+		this.tcpManager.connect(name);
 		gotoLobby();
 		return "Connecting...";
 	}
@@ -116,6 +134,7 @@ public class App {
 			gp.setFpsCap(Constants.FRAMERATE);
 		}
 		gp.setIconOSDependend(Constants.ICON_WIN, Constants.ICON_MAC, Constants.ICON_WIN, Constants.ICON_WIN);
+		gp.setExitOperation(this::shutdown);
 		return gp;
 	}
 
@@ -132,6 +151,28 @@ public class App {
 		for (String tag : tags) {
 			this.gpanel.toggleTaggedWidgetsVisibility(tag, true);
 		}
+	}
+
+	private Entry<String, Integer> verifyServerIp(String ipInput) {
+		if (!NetUtil.isValidAddress(ipInput))
+			return new SimpleEntry<>("Invalid IP address format!", null);
+
+		String[] parts = ipInput.split(":");
+		if (parts.length != 2)
+			return new SimpleEntry<>("Invalid IP address format!", null);
+
+		String ip = parts[0].trim();
+		int port;
+		try {
+			port = Integer.parseInt(parts[1].trim());
+		} catch (NumberFormatException e) {
+			return new SimpleEntry<>("Invalid port number!", null);
+		}
+
+		if (!TcpManager.isFlaggiServer(ip, port))
+			return new SimpleEntry<>("Flaggi server not running at the specified address!", null);
+
+		return new SimpleEntry<>(ip, port);
 	}
 
 }

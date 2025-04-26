@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -49,12 +50,15 @@ public class UserHandler implements Runnable {
 					messageQueue.offer(message);
 				}
 			}
+		} catch (SocketException e) {
 		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler.", e);
+			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler", e);
 		} finally {
 			if (user != null) {
 				Logger.log(LogLevel.INFO, "Client disconnected: " + user.getName());
 				users.remove(user.getUuid());
+			} else {
+				Logger.log(LogLevel.ERROR, "Failed to handle client disconnection");
 			}
 		}
 	}
@@ -64,19 +68,21 @@ public class UserHandler implements Runnable {
 	private boolean handleInitialMessage(InputStream in, OutputStream out) throws IOException {
 		ClientMessage message = receiveMessage(in);
 		if (message.hasPing()) {
-			Logger.log(LogLevel.INFO, "Received ping from client.");
+			Logger.log(LogLevel.DEBUG, "Recieved valid ping from a client");
 			ServerMessage response = ServerMessage.newBuilder().setPong(Pong.newBuilder().setPong("pong")).build();
 			sendMessage(out, response);
 			return false;
 		}
 		if (!message.hasClientHello()) {
 			clientSocket.close();
-			Logger.log(LogLevel.WARN, "Invalid initial message from client. Closing connection.");
+			Logger.log(LogLevel.WARN, "Invalid initial message from client. Closing connection");
 			return false;
 		}
+		String username = message.getClientHello().getUsername();
+		Logger.log(LogLevel.INFO, "New client connected: " + username + " (" + clientSocket.getInetAddress().getHostAddress() + ")");
 
 		String uuid = UUID.randomUUID().toString();
-		user = new User(uuid, message.getClientHello().getUsername(), clientSocket, out);
+		user = new User(uuid, username, clientSocket, out);
 		users.put(uuid, user);
 
 		ServerMessage response = ServerMessage.newBuilder().setServerHello(ServerHello.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();

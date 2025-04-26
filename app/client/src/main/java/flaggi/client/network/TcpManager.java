@@ -15,6 +15,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.client.App;
+import flaggi.proto.ClientMessages.ClientCommand;
+import flaggi.proto.ClientMessages.ClientCommandType;
+import flaggi.proto.ClientMessages.ClientHello;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.proto.ClientMessages.Ping;
 import flaggi.proto.ServerMessages.ServerMessage;
@@ -64,6 +67,18 @@ public class TcpManager implements Runnable {
 	}
 
 	// Public --------------------------------------------------------------------
+
+	public void connect(String username) {
+		Logger.log(LogLevel.INFO, "Connecting to server");
+		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).build()).build();
+		send(message);
+	}
+
+	public void commandServer(ClientCommandType type) {
+		Logger.log(LogLevel.DEBUG, "Sending command to server: " + type);
+		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).build();
+		send(message);
+	}
 
 	public void close() {
 		try {

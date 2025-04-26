@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import flaggi.proto.ClientMessages.ClientCommand;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.server.client.User;
@@ -125,7 +126,27 @@ public class Server implements Updatable {
 	private void processTcpMessages() {
 		ClientMessage message;
 		while ((message = tcpMessageQueue.poll()) != null) {
-
+			if (message.hasClientHello() || message.hasPing()) {
+				continue;
+			} else if (message.hasClientCommand()) {
+				processClientCommand(message.getClientCommand());
+			} else {
+				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + message);
+			}
 		}
 	}
+
+	// TcpUpdate ----------------------------------------------------------------
+
+	private void processClientCommand(ClientCommand msg) {
+		switch (msg.getRequestType()) {
+		case GET_IDLE_CLIENT_LIST:
+			Logger.log(LogLevel.DEBUG, "Client requested idle client list.");
+			break;
+		default:
+			Logger.log(LogLevel.WARN, "Unknown command type: " + msg.getRequestType());
+			break;
+		}
+	}
+
 }
