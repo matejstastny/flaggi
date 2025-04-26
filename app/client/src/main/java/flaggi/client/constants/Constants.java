@@ -41,6 +41,7 @@ public class Constants {
 	// Network ------------------------------------------------------------------
 
 	public static final int TCP_PORT = CONFIG.getIntValue("tcp.port");
+	public static final int SERVER_TIMEOUT_MS = 5000;
 
 	// Window -------------------------------------------------------------------
 
@@ -60,13 +61,14 @@ public class Constants {
 
 	// Debug --------------------------------------------------------------------
 
-	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TRACE };
+	public static LogLevel[] IGNORED_LOG_LEVES = {};
 	public static boolean LOG_MEM_USAGE = false;
 	public static int MEM_LOG_INTERVAL_SEC = 3;
 	public static boolean HITBOXES_ENABLED = false;
 
 	// Game ---------------------------------------------------------------------
 
+	public static final int UPDATE_INTERVAL_MS = 16;
 	public static final String MENU_NAME_FIELD = CONFIG.getStringValue("username");
 	public static final String MENU_IP_FIELD = CONFIG.getStringValue("server.ip");
 	public static final int LOBBY_UPDATE_FETCH_INTERVAL_SEC = 3;

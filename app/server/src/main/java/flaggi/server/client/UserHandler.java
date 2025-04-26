@@ -57,8 +57,6 @@ public class UserHandler implements Runnable {
 			if (user != null) {
 				Logger.log(LogLevel.INFO, "Client disconnected: " + user.getName());
 				users.remove(user.getUuid());
-			} else {
-				Logger.log(LogLevel.ERROR, "Failed to handle client disconnection");
 			}
 		}
 	}
@@ -78,6 +76,7 @@ public class UserHandler implements Runnable {
 			Logger.log(LogLevel.WARN, "Invalid initial message from client. Closing connection");
 			return false;
 		}
+
 		String username = message.getClientHello().getUsername();
 		Logger.log(LogLevel.INFO, "New client connected: " + username + " (" + clientSocket.getInetAddress().getHostAddress() + ")");
 
@@ -98,8 +97,9 @@ public class UserHandler implements Runnable {
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
 		in.read(messageBytes);
-
-		return ClientMessage.parseFrom(messageBytes);
+		ClientMessage msg = ClientMessage.parseFrom(messageBytes);
+		Logger.log(LogLevel.TCP, "Received message from client: \n\n" + msg);
+		return msg;
 	}
 
 	private void sendMessage(OutputStream out, ServerMessage message) throws IOException {
@@ -107,5 +107,6 @@ public class UserHandler implements Runnable {
 		byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
 		out.write(sizeBytes);
 		out.write(messageBytes);
+		Logger.log(LogLevel.TCP, "Sent message to client: \n\n" + message);
 	}
 }

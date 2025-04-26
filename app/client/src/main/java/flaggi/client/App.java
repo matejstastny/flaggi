@@ -11,6 +11,9 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 
@@ -21,14 +24,20 @@ import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
 import flaggi.proto.ClientMessages.ClientCommandType;
+import flaggi.proto.ServerMessages.ServerHello;
+import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
+import flaggi.shared.common.UpdateLoop;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.NetUtil;
 import flaggi.shared.util.ScreenUtil;
 
-public class App {
+public class App implements Updatable {
 
+	private final ExecutorService threads;
+	private final UpdateLoop updateLoop;
 	private final GPanel gpanel;
 	private TcpManager tcpManager;
 
@@ -40,6 +49,9 @@ public class App {
 
 	public App() {
 		initializeLogger();
+		this.threads = Executors.newFixedThreadPool(3);
+		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS, this);
+		this.threads.execute(updateLoop);
 		this.gpanel = getDefaultGpanel();
 		addDefaultWidgets();
 		gotoMainMenu();
@@ -56,9 +68,10 @@ public class App {
 
 	public void shutdown() {
 		Logger.log(LogLevel.INFO, "Shutting down...");
-		if (this.tcpManager != null) {
-			this.tcpManager.close();
+		if (tcpManager != null) {
+			tcpManager.close();
 		}
+		Logger.log(LogLevel.INFO, "Shut down");
 		System.exit(0);
 	}
 
@@ -76,6 +89,15 @@ public class App {
 		this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(clients));
 		this.gpanel.toggleWidgetsVisibility(false);
 		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.LOBBY, true);
+	}
+
+	// Update -------------------------------------------------------------------
+
+	@Override
+	public void update() {
+		if (this.tcpManager != null) {
+			processTcpMessages();
+		}
 	}
 
 	// Server commands ----------------------------------------------------------
@@ -97,7 +119,7 @@ public class App {
 		}
 		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue());
 		this.tcpManager.connect(name);
-		gotoLobby();
+		this.threads.execute(tcpManager);
 		return "Connecting...";
 	}
 
@@ -113,6 +135,25 @@ public class App {
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "An error occured while setting property value", e);
 			handleFatalError();
+		}
+	}
+
+	// TCP proccesing -----------------------------------------------------------
+
+	private void processTcpMessages() {
+		ServerMessage message;
+		while ((message = this.tcpManager.poll()) != null) {
+			System.out.println("nice");
+			if (message.hasPong()) {
+				continue;
+			} else if (message.hasServerHello()) {
+				handleServerHello(message.getServerHello());
+			} else if (message.hasServerGameJoin()) {
+			} else if (message.hasServerCommand()) {
+			} else if (message.hasIdleClientList()) {
+			} else {
+				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + message);
+			}
 		}
 	}
 
@@ -175,4 +216,8 @@ public class App {
 		return new SimpleEntry<>(ip, port);
 	}
 
+	private void handleServerHello(ServerHello msg) {
+		System.out.println(msg.getUdpPort());
+		gotoLobby();
+	}
 }

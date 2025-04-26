@@ -127,9 +127,9 @@ public class Logger {
 		WARN(TermColors.YELLOW), //
 		ERROR(TermColors.RED), //
 		DEBUG(TermColors.BLUE), //
-		TRACE(TermColors.CYAN), //
-		FATAL(TermColors.PURPLE), //
-		MEMORY(TermColors.BLUE);
+		TCP(TermColors.PURPLE), //
+		UDP(TermColors.CYAN), //
+		MEMORY(TermColors.CYAN);
 
 		private final String color;
 

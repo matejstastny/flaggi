@@ -46,7 +46,7 @@ public class TcpManager implements Runnable {
 			this.out = socket.getOutputStream();
 			Logger.log(LogLevel.INFO, "Connected to server at " + address + ":" + port);
 		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "Failed to connect to server.", e);
+			Logger.log(LogLevel.ERROR, "Failed to connect to server", e);
 			App.handleFatalError();
 		}
 	}
@@ -56,20 +56,22 @@ public class TcpManager implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (!socket.isClosed()) {
+			while (!socket.isClosed()) { // while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
 				ServerMessage message = receiveMessage(this.in);
 				queue.add(message);
 			}
 		} catch (IOException e) {
-			Logger.log(LogLevel.WARN, "An error occurred while receiving message.", e);
+			Logger.log(LogLevel.ERROR, "An error occurred while receiving message.", e);
 			App.handleFatalError();
+		} finally {
+			Logger.log(LogLevel.DEBUG, "TcpManager thread interrupted");
 		}
 	}
 
 	// Public --------------------------------------------------------------------
 
 	public void connect(String username) {
-		Logger.log(LogLevel.INFO, "Connecting to server");
+		Logger.log(LogLevel.DEBUG, "Greeting server with username: " + username);
 		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).build()).build();
 		send(message);
 	}
@@ -98,8 +100,9 @@ public class TcpManager implements Runnable {
 		try {
 			byte[] messageBytes = message.toByteArray();
 			byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
-			this.out.write(sizeBytes);
-			this.out.write(messageBytes);
+			out.write(sizeBytes);
+			out.write(messageBytes);
+			Logger.log(LogLevel.TCP, "Sent a message to server: \n\n" + message);
 		} catch (IOException e) {
 			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server.", e);
 		}
@@ -138,6 +141,8 @@ public class TcpManager implements Runnable {
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
 		in.read(messageBytes);
-		return ServerMessage.parseFrom(messageBytes);
+		ServerMessage msg = ServerMessage.parseFrom(messageBytes);
+		Logger.log(LogLevel.TCP, "Recieved a message from the server: \n\n" + msg);
+		return msg;
 	}
 }
