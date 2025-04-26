@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 
+import flaggi.client.common.Global;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.network.TcpManager;
@@ -28,8 +28,8 @@ import flaggi.proto.ServerMessages.ServerHello;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.Logger;
-import flaggi.shared.common.UpdateLoop;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.common.UpdateLoop;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.NetUtil;
 import flaggi.shared.util.ScreenUtil;
@@ -103,7 +103,7 @@ public class App implements Updatable {
 	// Server commands ----------------------------------------------------------
 
 	public void refreshIdleClients() {
-		this.tcpManager.commandServer(ClientCommandType.GET_IDLE_CLIENT_LIST);
+		this.tcpManager.sendCommandToServer(ClientCommandType.GET_IDLE_CLIENT_LIST);
 	}
 
 	// External events ----------------------------------------------------------
@@ -143,7 +143,6 @@ public class App implements Updatable {
 	private void processTcpMessages() {
 		ServerMessage message;
 		while ((message = this.tcpManager.poll()) != null) {
-			System.out.println("nice");
 			if (message.hasPong()) {
 				continue;
 			} else if (message.hasServerHello()) {
@@ -210,7 +209,7 @@ public class App implements Updatable {
 			return new SimpleEntry<>("Invalid port number!", null);
 		}
 
-		if (!TcpManager.isFlaggiServer(ip, port))
+		if (!Global.isFlaggiServer(ip, port))
 			return new SimpleEntry<>("Flaggi server not running at the specified address!", null);
 
 		return new SimpleEntry<>(ip, port);

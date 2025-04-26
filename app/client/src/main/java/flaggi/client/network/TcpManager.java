@@ -9,7 +9,6 @@ package flaggi.client.network;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
@@ -20,7 +19,6 @@ import flaggi.proto.ClientMessages.ClientCommand;
 import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.proto.ClientMessages.ClientHello;
 import flaggi.proto.ClientMessages.ClientMessage;
-import flaggi.proto.ClientMessages.Ping;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -57,32 +55,32 @@ public class TcpManager implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (!socket.isClosed()) {
-				ServerMessage message = receiveMessage(this.in);
-				if (message == null) {
-					Logger.log(LogLevel.INFO, "Server closed connection. Ending TcpManager loop.");
-					break;
-				}
-				queue.add(message);
+			ServerMessage msg;
+			while ((msg = receiveMessage(this.in)) != null && !socket.isClosed()) {
+				queue.add(msg);
 			}
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "An error occurred while receiving message.", e);
 			App.handleFatalError();
 		} finally {
-			Logger.log(LogLevel.DEBUG, "TcpManager thread interrupted");
 			close();
+			Logger.log(LogLevel.DEBUG, "TcpManager stopped");
 		}
 	}
 
 	// Public --------------------------------------------------------------------
 
+	/**
+	 * Connects to the server with the given username. Sends a greeting message to
+	 * the server.
+	 */
 	public void connect(String username) {
 		Logger.log(LogLevel.DEBUG, "Greeting server with username: " + username);
 		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).build()).build();
 		send(message);
 	}
 
-	public void commandServer(ClientCommandType type) {
+	public void sendCommandToServer(ClientCommandType type) {
 		Logger.log(LogLevel.DEBUG, "Sending command to server: " + type);
 		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).build();
 		send(message);
@@ -98,6 +96,12 @@ public class TcpManager implements Runnable {
 		}
 	}
 
+	/**
+	 * Polls the queue for a message from the server. Returns null if no message is
+	 * available.
+	 *
+	 * @return The next message from the server, or null if no message is available.
+	 */
 	public ServerMessage poll() {
 		return queue.poll();
 	}
@@ -114,31 +118,6 @@ public class TcpManager implements Runnable {
 		}
 	}
 
-	public static boolean isFlaggiServer(String address, int port) {
-		try (Socket socket = new Socket()) {
-			socket.connect(new InetSocketAddress(address, port), 1000);
-			socket.setSoTimeout(2000);
-
-			InputStream in = socket.getInputStream();
-			OutputStream out = socket.getOutputStream();
-			ClientMessage ping = ClientMessage.newBuilder().setPing(Ping.newBuilder().setPing("ping")).build();
-
-			byte[] bytes = ping.toByteArray();
-			byte[] size = ProtoUtil.intToByteArray(bytes.length);
-			out.write(size);
-			out.write(bytes);
-
-			size = new byte[4];
-			in.read(size);
-			int messageSize = ProtoUtil.byteArrayToInt(size);
-			byte[] messageBytes = new byte[messageSize];
-			in.read(messageBytes);
-			return ServerMessage.parseFrom(messageBytes).hasPong();
-		} catch (IOException e) {
-			return false;
-		}
-	}
-
 	// Private -------------------------------------------------------------------
 
 	private ServerMessage receiveMessage(InputStream in) throws IOException {
@@ -147,19 +126,16 @@ public class TcpManager implements Runnable {
 		try {
 			readSize = in.read(sizeBytes);
 		} catch (SocketException e) {
-			return null;
+			return null; // If disconnected
 		}
-		if (readSize == -1) {
-			// Server closed the connection
+		if (readSize == -1) { // Server closed connection
 			return null;
-		}
-		if (readSize < 4) {
+		} else if (readSize < 4) {
 			throw new IOException("Failed to read message size: only read " + readSize + " bytes.");
 		}
 
 		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
 		byte[] messageBytes = new byte[messageSize];
-
 		int totalRead = 0;
 		while (totalRead < messageSize) {
 			int bytesRead = in.read(messageBytes, totalRead, messageSize - totalRead);
@@ -168,7 +144,6 @@ public class TcpManager implements Runnable {
 			}
 			totalRead += bytesRead;
 		}
-
 		ServerMessage msg = ServerMessage.parseFrom(messageBytes);
 		Logger.log(LogLevel.TCP, "Received a message from the server: \n\n" + msg);
 		return msg;
