@@ -41,7 +41,7 @@ public class Constants {
 
 	// Debug --------------------------------------------------------------------
 
-	public static LogLevel[] IGNORED_LOG_LEVES = {}; // LogLevel.DEBUG, LogLevel.TRACE
+	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TCP };
 
 	// Network ------------------------------------------------------------------
 

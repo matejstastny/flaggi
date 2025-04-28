@@ -31,14 +31,16 @@ import flaggi.shared.util.ProtoUtil;
 public class TcpManager implements Runnable {
 
 	private final BlockingQueue<ServerMessage> queue;
+	private final Runnable onDisconnect;
 	private Socket socket;
 	private InputStream in;
 	private OutputStream out;
 
 	// Constructor ---------------------------------------------------------------
 
-	public TcpManager(String address, int port) {
+	public TcpManager(String address, int port, Runnable onDisconnect) {
 		this.queue = new LinkedBlockingQueue<>();
+		this.onDisconnect = onDisconnect;
 		try {
 			this.socket = new Socket(address, port);
 			this.in = socket.getInputStream();
@@ -56,15 +58,17 @@ public class TcpManager implements Runnable {
 	public void run() {
 		try {
 			ServerMessage msg;
-			while ((msg = receiveMessage(this.in)) != null && !socket.isClosed()) {
+			while ((msg = receiveMessage(this.in)) != null) {
 				queue.add(msg);
 			}
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "An error occurred while receiving message.", e);
-			App.handleFatalError();
 		} finally {
 			close();
 			Logger.log(LogLevel.DEBUG, "TcpManager stopped");
+			if (onDisconnect != null) {
+				onDisconnect.run();
+			}
 		}
 	}
 

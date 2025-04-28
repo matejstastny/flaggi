@@ -49,6 +49,7 @@ public class Constants {
 	public static boolean WINDOW_RESIZABLE = true;
 	public static int[] BASE_WINDOW_SIZE = { 1200, 600 };
 	public static int FRAMERATE = 120;
+	public static final long TOAST_DISPLAY_DURATION_SEC = 5;
 
 	// Textures -----------------------------------------------------------------
 
@@ -61,7 +62,7 @@ public class Constants {
 
 	// Debug --------------------------------------------------------------------
 
-	public static LogLevel[] IGNORED_LOG_LEVES = {};
+	public static LogLevel[] IGNORED_LOG_LEVES = {LogLevel.TCP};
 	public static boolean LOG_MEM_USAGE = false;
 	public static int MEM_LOG_INTERVAL_SEC = 3;
 	public static boolean HITBOXES_ENABLED = false;

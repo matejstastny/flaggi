@@ -44,6 +44,8 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 	private static final int FONT_SIZE = 3;
 	private static final double ERROR_Y_POSITION = 72;
 
+	// Constructor --------------------------------------------------------------
+
 	public MenuScreen(String initName, String initIp, BiFunction<String, String, String> buttonPressAction) {
 		super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.MAIN_MENU);
 		this.usernameInput = initName != null ? initName : "";
@@ -53,7 +55,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 		clearErrorMessage();
 	}
 
-	// -------------------- Rendering --------------------
+	// Rendering ----------------------------------------------------------------
 
 	@Override
 	public void render(Graphics2D g, int[] origin, Container fcra) {
@@ -72,7 +74,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
 	private void renderErrorMessage(Graphics2D g) {
 		g.setFont(this.font.deriveFont(Font.PLAIN, px(FONT_SIZE)));
-		g.setColor(Color.RED);
+		g.setColor(this.errorMessage.contains("Connecting") ? Color.GREEN : Color.RED);
 		int[] errorPos = FontUtil.calculateCenteredPosition(px(100), 0, g.getFontMetrics(), this.errorMessage);
 		g.drawString(this.errorMessage, errorPos[0], px(ERROR_Y_POSITION));
 	}
@@ -108,7 +110,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 		}
 	}
 
-	// -------------------- Interaction --------------------
+	// Interaction --------------------------------------------------------------
 
 	@Override
 	public void interact(MouseEvent e) {
@@ -155,7 +157,16 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 			handleTyping(e, false);
 	}
 
-	// Modifiers --------------------------------------------------------------
+	// Public -------------------------------------------------------------------
+
+	/**
+	 * Resets the menu screen to its initial state. This method clears the error,
+	 * and resets the button state.
+	 */
+	public void reset() {
+		this.errorMessage = "";
+		this.buttonActive = false;
+	}
 
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage != null ? errorMessage : "";
@@ -164,8 +175,6 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 	public void clearErrorMessage() {
 		this.errorMessage = "";
 	}
-
-	// Accesors --------------------------------------------------------------
 
 	public String getUsernameFieldContent() {
 		return usernameInput == null ? "" : usernameInput;

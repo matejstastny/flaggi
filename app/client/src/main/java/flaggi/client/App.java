@@ -23,6 +23,8 @@ import flaggi.client.network.TcpManager;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
+import flaggi.client.ui.ToastManager;
+import flaggi.client.ui.ToastManager.ToastCategory;
 import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.proto.ServerMessages.ServerHello;
 import flaggi.proto.ServerMessages.ServerMessage;
@@ -39,6 +41,7 @@ public class App implements Updatable {
 	private final ExecutorService threads;
 	private final UpdateLoop updateLoop;
 	private final GPanel gpanel;
+	private final ToastManager toasts;
 	private TcpManager tcpManager;
 
 	// Main ---------------------------------------------------------------------
@@ -53,6 +56,7 @@ public class App implements Updatable {
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS, this);
 		this.threads.execute(updateLoop);
 		this.gpanel = getDefaultGpanel();
+		this.toasts = new ToastManager();
 		addDefaultWidgets();
 		gotoMainMenu();
 	}
@@ -117,10 +121,20 @@ public class App implements Updatable {
 			Logger.log(LogLevel.ERROR, ip.getKey() + " for ip input '" + ipInput + "'");
 			return ip.getKey();
 		}
-		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue());
+		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue(), this::disconnectFromServer);
 		this.tcpManager.connect(name);
 		this.threads.execute(tcpManager);
 		return "Connecting...";
+	}
+
+	public void disconnectFromServer() {
+		if (this.tcpManager != null) {
+			this.tcpManager.close();
+			this.tcpManager = null;
+		}
+		gotoMainMenu();
+		toasts.newToast(ToastCategory.ERROR, "Server shut down");
+		this.gpanel.getWidgetsOfClass(MenuScreen.class).forEach(x -> x.reset());
 	}
 
 	public void invitePlayer(String username, Integer id) {
@@ -182,7 +196,8 @@ public class App implements Updatable {
 		this.gpanel.add( //
 				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
 				new MenuBackground(), //
-				new LobbyUi(this::invitePlayer));
+				new LobbyUi(this::invitePlayer), //
+				this.toasts);
 		this.gpanel.toggleWidgetsVisibility(false);
 	}
 
@@ -191,6 +206,7 @@ public class App implements Updatable {
 		for (String tag : tags) {
 			this.gpanel.toggleTaggedWidgetsVisibility(tag, true);
 		}
+		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.ALWAYS_VISIBLE, true);
 	}
 
 	private Entry<String, Integer> verifyServerIp(String ipInput) {

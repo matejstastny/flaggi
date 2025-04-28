@@ -8,22 +8,25 @@ package flaggi.client.constants;
 
 public class UiTags {
 
-    // Private constructor to prevent instantiation
-    private UiTags() {
-        throw new UnsupportedOperationException("UiIndex is a constants class and cannot be instantiated.");
-    }
+	// Private constructor to prevent instantiation
+	private UiTags() {
+		throw new UnsupportedOperationException("UiIndex is a constants class and cannot be instantiated.");
+	}
 
-    // Constants ----------------------------------------------------------------
+	// Constants ----------------------------------------------------------------
 
-    public static final String DEBUG = "debug";
+	public static final String DEBUG = "debug";
+	public static final String ALWAYS_VISIBLE = "always";
 
-    public static final String MAIN_MENU = "menu";
-    public static final String GAME_ELEMENTS = "game";
-    public static final String ENEMY_PLAYER = "enemy";
-    public static final String PAUSE_MENU = "pause";
-    public static final String LOBBY = "lobby";
+	public static final String MAIN_MENU = "menu";
+	public static final String GAME_ELEMENTS = "game";
+	public static final String ENEMY_PLAYER = "enemy";
+	public static final String PAUSE_MENU = "pause";
+	public static final String LOBBY = "lobby";
 
-    public static final String ENVIRONMENT = "environment";
-    public static final String PROJECTILES = "projectiles";
+	public static final String ENVIRONMENT = "environment";
+	public static final String PROJECTILES = "projectiles";
+
+	public static final String TOASTS = "toasts";
 
 }
