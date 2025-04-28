@@ -14,10 +14,11 @@ option java_outer_classname = "ClientMessages";
 // Wrapper -------------------------------------------------------------------
 
 message ClientMessage {
+    string uuid = 1;
     oneof message_type {
-        Ping ping = 1;
-        ClientHello clientHello = 2;
-        ClientCommand clientCommand = 3;
+        Ping ping = 2;
+        ClientHello clientHello = 3;
+        ClientCommand clientCommand = 4;
     }
 }
 

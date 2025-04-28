@@ -26,12 +26,13 @@ import flaggi.shared.common.GPanel.Interactable;
 import flaggi.shared.common.GPanel.PanelRegion;
 import flaggi.shared.common.GPanel.Renderable;
 import flaggi.shared.common.GPanel.Scrollable;
+import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FontUtil;
 
 /**
  * Lobby screen where other players can be invited into the game.
  */
-public class LobbyUi extends Renderable implements Scrollable, Interactable {
+public class LobbyUi extends Renderable implements Scrollable, Interactable, Updatable {
 
 	private static final int ITEM_WIDTH = 98;
 	private static final int ITEM_HEIGHT = 8;
@@ -45,15 +46,18 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 	private static final int HEADER_OFFSET = 3;
 	private static final int HEADER_CORNER_RADIUS = 3;
 
-	private final BiConsumer<String, Integer> inviteAction;
+	private final BiConsumer<String, String> inviteAction;
+	private final Runnable refreshAction;
 	private final List<ClientItem> clientItems = new ArrayList<>();
 	private int scrollOffset = 0;
 	private final int cornerRadius = 2;
+	private long lastUpdateTime = 0;
 
 	// Constructor --------------------------------------------------------------
 
-	public LobbyUi(BiConsumer<String, Integer> inviteAction) {
+	public LobbyUi(BiConsumer<String, String> inviteAction, Runnable refreshAction) {
 		super(ZIndex.MENU_SCREEN, PanelRegion.CENTER, UiTags.LOBBY);
+		this.refreshAction = refreshAction;
 		this.inviteAction = inviteAction;
 	}
 
@@ -132,7 +136,7 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 	public void interact(MouseEvent e) {
 		ClientItem item = getInteractedClientItem(e);
 		if (item != null) {
-			inviteAction.accept(item.name, item.playerID);
+			inviteAction.accept(item.name, item.uuid);
 		}
 	}
 
@@ -144,7 +148,7 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 
 	// Public -------------------------------------------------------------------
 
-	public void setClients(Map<Integer, String> clients) {
+	public void setClients(Map<String, String> clients) {
 		if (clients != null) {
 			clientItems.clear();
 			clients.forEach((id, name) -> clientItems.add(new ClientItem(name, id)));
@@ -175,11 +179,24 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable {
 
 	private static class ClientItem {
 		private final String name;
-		private final int playerID;
+		private final String uuid;
 
-		private ClientItem(String name, int playerID) {
+		private ClientItem(String name, String uuid) {
 			this.name = name;
-			this.playerID = playerID;
+			this.uuid = uuid;
+		}
+	}
+
+	@Override
+	public void update() {
+		if (this.isVisible()) {
+			long currentTime = System.currentTimeMillis();
+			if (currentTime - lastUpdateTime > 5000) {
+				if (this.refreshAction != null) {
+					this.refreshAction.run();
+				}
+				lastUpdateTime = currentTime;
+			}
 		}
 	}
 }

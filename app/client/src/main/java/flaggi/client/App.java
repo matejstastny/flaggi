@@ -8,8 +8,8 @@ package flaggi.client;
 
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +29,7 @@ import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.proto.ServerMessages.ServerHello;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.GPanel;
+import flaggi.shared.common.GPanel.Renderable;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop;
@@ -53,7 +54,8 @@ public class App implements Updatable {
 	public App() {
 		initializeLogger();
 		this.threads = Executors.newFixedThreadPool(3);
-		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS, this);
+		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
+		this.updateLoop.add(this);
 		this.threads.execute(updateLoop);
 		this.gpanel = getDefaultGpanel();
 		this.toasts = new ToastManager();
@@ -85,14 +87,6 @@ public class App implements Updatable {
 
 	public void gotoLobby() {
 		toggleUi(UiTags.LOBBY);
-
-		Map<Integer, String> clients = new HashMap<Integer, String>();
-		for (int i = 0; i <= 40; i++) {
-			clients.put(i, "Client:" + i);
-		}
-		this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(clients));
-		this.gpanel.toggleWidgetsVisibility(false);
-		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.LOBBY, true);
 	}
 
 	// Update -------------------------------------------------------------------
@@ -137,8 +131,8 @@ public class App implements Updatable {
 		this.gpanel.getWidgetsOfClass(MenuScreen.class).forEach(x -> x.reset());
 	}
 
-	public void invitePlayer(String username, Integer id) {
-		Logger.log(LogLevel.DEBUG, username + " " + id);
+	public void invitePlayer(String username, String uuid) {
+		Logger.log(LogLevel.DEBUG, username + " " + uuid);
 	}
 
 	// Config handeling ---------------------------------------------------------
@@ -155,15 +149,18 @@ public class App implements Updatable {
 	// TCP proccesing -----------------------------------------------------------
 
 	private void processTcpMessages() {
-		ServerMessage message;
-		while ((message = this.tcpManager.poll()) != null) {
-			if (message.hasPong()) {
+		while (true) {
+			ServerMessage message = this.tcpManager.poll();
+			if (message == null) {
+				break;
+			} else if (message.hasPong()) {
 				continue;
 			} else if (message.hasServerHello()) {
 				handleServerHello(message.getServerHello());
 			} else if (message.hasServerGameJoin()) {
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasIdleClientList()) {
+				this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(message.getIdleClientList().getClientListMap()));
 			} else {
 				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + message);
 			}
@@ -193,11 +190,13 @@ public class App implements Updatable {
 	}
 
 	private void addDefaultWidgets() {
+		List<Updatable> updatableWidgets = Arrays.asList(new LobbyUi(this::invitePlayer, this::refreshIdleClients));
 		this.gpanel.add( //
 				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
 				new MenuBackground(), //
-				new LobbyUi(this::invitePlayer), //
 				this.toasts);
+		updatableWidgets.forEach(u -> this.gpanel.add((Renderable) u));
+		updatableWidgets.forEach(u -> updateLoop.add(u));
 		this.gpanel.toggleWidgetsVisibility(false);
 	}
 
@@ -232,7 +231,8 @@ public class App implements Updatable {
 	}
 
 	private void handleServerHello(ServerHello msg) {
-		System.out.println(msg.getUdpPort());
+		Logger.log(LogLevel.DEBUG, "Received server hello message with uuid: " + msg.getUuid() + " and UDP port: " + msg.getUdpPort());
+		this.tcpManager.setUuid(msg.getUuid());
 		gotoLobby();
 	}
 }

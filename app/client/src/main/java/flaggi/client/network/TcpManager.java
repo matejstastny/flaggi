@@ -35,6 +35,7 @@ public class TcpManager implements Runnable {
 	private Socket socket;
 	private InputStream in;
 	private OutputStream out;
+	private String uuid;
 
 	// Constructor ---------------------------------------------------------------
 
@@ -85,8 +86,12 @@ public class TcpManager implements Runnable {
 	}
 
 	public void sendCommandToServer(ClientCommandType type) {
+		if (uuid == null || uuid.isEmpty()) {
+			Logger.log(LogLevel.WARN, "UUID is not set. Cannot send command to server");
+			return;
+		}
 		Logger.log(LogLevel.DEBUG, "Sending command to server: " + type);
-		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).build();
+		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).setUuid(uuid).build();
 		send(message);
 	}
 
@@ -120,6 +125,10 @@ public class TcpManager implements Runnable {
 		} catch (IOException e) {
 			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server.", e);
 		}
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	// Private -------------------------------------------------------------------

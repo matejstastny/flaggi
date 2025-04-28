@@ -7,6 +7,7 @@
 package flaggi.server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import flaggi.proto.ClientMessages.ClientCommand;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
+import flaggi.proto.ServerMessages.IdleClientList;
+import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.client.User;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpListener;
@@ -51,7 +54,8 @@ public class Server implements Updatable {
 		buildInitFiles();
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
-		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS, this);
+		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
+		this.updateLoop.add(this);
 		this.threads = Executors.newFixedThreadPool(4);
 		initializeThreads();
 	}
@@ -114,6 +118,16 @@ public class Server implements Updatable {
 		Logger.log(LogLevel.INFO, "Server shut down.");
 	}
 
+	private Map<String, String> getIdleClients(String uuid) {
+		Map<String, String> idleClients = new HashMap<>();
+		for (User user : users.values()) {
+			if (!user.getUuid().equals(uuid)) {
+				idleClients.put(user.getUuid(), user.getName());
+			}
+		}
+		return idleClients;
+	}
+
 	// Network ------------------------------------------------------------------
 
 	private void processUdpPackets() {
@@ -124,24 +138,29 @@ public class Server implements Updatable {
 	}
 
 	private void processTcpMessages() {
-		ClientMessage message;
-		while ((message = tcpMessageQueue.poll()) != null) {
-			if (message.hasClientHello() || message.hasPing()) {
+		ClientMessage msg;
+		while ((msg = tcpMessageQueue.poll()) != null) {
+			if (msg.hasClientHello() || msg.hasPing()) {
 				continue;
-			} else if (message.hasClientCommand()) {
-				processClientCommand(message.getClientCommand());
+			} else if (msg.hasClientCommand()) {
+				processClientCommand(msg.getClientCommand(), msg.getUuid());
 			} else {
-				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + message);
+				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + msg);
 			}
 		}
 	}
 
 	// TcpUpdate ----------------------------------------------------------------
 
-	private void processClientCommand(ClientCommand msg) {
+	private void processClientCommand(ClientCommand msg, String uuid) {
 		switch (msg.getRequestType()) {
 		case GET_IDLE_CLIENT_LIST:
-			Logger.log(LogLevel.DEBUG, "Client requested idle client list.");
+			User user = users.get(uuid);
+			if (user == null) {
+				Logger.log(LogLevel.WARN, "User not found for UUID: '" + msg.getUuid() + "' Possible UUID's: " + users.keySet());
+				return;
+			}
+			user.sendMessage(ServerMessage.newBuilder().setIdleClientList(IdleClientList.newBuilder().putAllClientList(getIdleClients(uuid))).build());
 			break;
 		default:
 			Logger.log(LogLevel.WARN, "Unknown command type: " + msg.getRequestType());

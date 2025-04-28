@@ -50,7 +50,7 @@ message ServerCommand {
 }
 
 message IdleClientList {
-    map<string, int32> clientList = 1;
+    map<string, string> clientList = 1;
 }
 
 // UDP Messages --------------------------------------------------------------
