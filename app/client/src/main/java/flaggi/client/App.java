@@ -20,6 +20,7 @@ import flaggi.client.common.Global;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.network.TcpManager;
+import flaggi.client.ui.ConfirmationWindow;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
@@ -43,6 +44,7 @@ public class App implements Updatable {
 	private final UpdateLoop updateLoop;
 	private final GPanel gpanel;
 	private final ToastManager toasts;
+	private final ConfirmationWindow confirmationWindow;
 	private TcpManager tcpManager;
 
 	// Main ---------------------------------------------------------------------
@@ -59,6 +61,7 @@ public class App implements Updatable {
 		this.threads.execute(updateLoop);
 		this.gpanel = getDefaultGpanel();
 		this.toasts = new ToastManager();
+		this.confirmationWindow = new ConfirmationWindow();
 		addDefaultWidgets();
 		gotoMainMenu();
 	}
@@ -194,7 +197,8 @@ public class App implements Updatable {
 		this.gpanel.add( //
 				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
 				new MenuBackground(), //
-				this.toasts);
+				this.toasts, //
+				this.confirmationWindow);
 		updatableWidgets.forEach(u -> this.gpanel.add((Renderable) u));
 		updatableWidgets.forEach(u -> updateLoop.add(u));
 		this.gpanel.toggleWidgetsVisibility(false);

@@ -55,8 +55,8 @@ public class Server implements Updatable {
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
-		this.updateLoop.add(this);
 		this.threads = Executors.newFixedThreadPool(4);
+		this.updateLoop.add(this);
 		initializeThreads();
 	}
 
