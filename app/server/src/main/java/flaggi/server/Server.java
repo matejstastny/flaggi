@@ -16,10 +16,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import flaggi.proto.ServerMessages;
 import flaggi.proto.ClientMessages.ClientCommand;
+import flaggi.proto.ClientMessages.ClientInvite;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.IdleClientList;
+import flaggi.proto.ServerMessages.ServerInvite;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.client.User;
 import flaggi.server.common.TcpListener;
@@ -142,8 +145,13 @@ public class Server implements Updatable {
 		while ((msg = tcpMessageQueue.poll()) != null) {
 			if (msg.hasClientHello() || msg.hasPing()) {
 				continue;
+			} else if (msg.getUuid() == null || msg.getUuid().isEmpty() || !users.keySet().contains(msg.getUuid())) {
+				Logger.log(LogLevel.WARN, "Recieved message with invalid UUID: '" + msg.getUuid() + "'");
+				continue;
 			} else if (msg.hasClientCommand()) {
 				processClientCommand(msg.getClientCommand(), msg.getUuid());
+			} else if (msg.hasClientInvite()) {
+				processClientInvite(msg.getClientInvite(), msg.getUuid());
 			} else {
 				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + msg);
 			}
@@ -157,7 +165,7 @@ public class Server implements Updatable {
 		case GET_IDLE_CLIENT_LIST:
 			User user = users.get(uuid);
 			if (user == null) {
-				Logger.log(LogLevel.WARN, "User not found for UUID: '" + msg.getUuid() + "' Possible UUID's: " + users.keySet());
+				Logger.log(LogLevel.WARN, "User not found for UUID: '" + uuid + "' Possible UUID's: " + users.keySet());
 				return;
 			}
 			user.sendMessage(ServerMessage.newBuilder().setIdleClientList(IdleClientList.newBuilder().putAllClientList(getIdleClients(uuid))).build());
@@ -166,6 +174,12 @@ public class Server implements Updatable {
 			Logger.log(LogLevel.WARN, "Unknown command type: " + msg.getRequestType());
 			break;
 		}
+	}
+
+	private void processClientInvite(ClientInvite invite, String uuid) {
+		User user = users.get(invite.getInvitee());
+		String username = users.get(uuid).getName();
+		user.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInvitee(username)).build());
 	}
 
 }

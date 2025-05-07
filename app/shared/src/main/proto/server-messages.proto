@@ -19,7 +19,8 @@ message ServerMessage {
         ServerHello serverHello = 2;
         ServerGameJoin serverGameJoin = 3;
         ServerCommand serverCommand = 4;
-        IdleClientList idleClientList = 5;
+        ServerInvite serverInvite = 5;
+        IdleClientList idleClientList = 6;
     }
 }
 
@@ -43,6 +44,10 @@ message ServerHello {
 message ServerGameJoin {
     string jsonMap = 1;
     bool primary = 2;
+}
+
+message ServerInvite {
+    string invitee = 1;
 }
 
 message ServerCommand {

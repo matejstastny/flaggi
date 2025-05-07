@@ -19,6 +19,7 @@ message ClientMessage {
         Ping ping = 2;
         ClientHello clientHello = 3;
         ClientCommand clientCommand = 4;
+        ClientInvite clientInvite = 5;
     }
 }
 
@@ -39,8 +40,11 @@ message ClientHello {
 }
 
 message ClientCommand {
-    string uuid = 1;
     ClientCommandType requestType = 2;
+}
+
+message ClientInvite {
+    string invitee = 2;
 }
 
 

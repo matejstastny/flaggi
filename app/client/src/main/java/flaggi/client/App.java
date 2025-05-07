@@ -107,6 +107,10 @@ public class App implements Updatable {
 		this.tcpManager.sendCommandToServer(ClientCommandType.GET_IDLE_CLIENT_LIST);
 	}
 
+	public void invitePlayer(String otherUuid) {
+		this.tcpManager.invitePlayer(otherUuid);
+	}
+
 	// External events ----------------------------------------------------------
 
 	public String joinServer(String name, String ipInput) {
@@ -134,10 +138,6 @@ public class App implements Updatable {
 		this.gpanel.getWidgetsOfClass(MenuScreen.class).forEach(x -> x.reset());
 	}
 
-	public void invitePlayer(String username, String uuid) {
-		Logger.log(LogLevel.DEBUG, username + " " + uuid);
-	}
-
 	// Config handeling ---------------------------------------------------------
 
 	private void setConfigField(String key, String val) {
@@ -162,6 +162,8 @@ public class App implements Updatable {
 				handleServerHello(message.getServerHello());
 			} else if (message.hasServerGameJoin()) {
 			} else if (message.hasServerCommand()) {
+			} else if (message.hasServerInvite()) {
+				this.confirmationWindow.newConfirmation("Invite from " + message.getServerInvite().getInvitee(), null, null);
 			} else if (message.hasIdleClientList()) {
 				this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(message.getIdleClientList().getClientListMap()));
 			} else {
