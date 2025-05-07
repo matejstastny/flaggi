@@ -16,7 +16,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import flaggi.proto.ServerMessages;
 import flaggi.proto.ClientMessages.ClientCommand;
 import flaggi.proto.ClientMessages.ClientInvite;
 import flaggi.proto.ClientMessages.ClientMessage;
@@ -24,7 +23,7 @@ import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.IdleClientList;
 import flaggi.proto.ServerMessages.ServerInvite;
 import flaggi.proto.ServerMessages.ServerMessage;
-import flaggi.server.client.User;
+import flaggi.server.client.Client;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpListener;
 import flaggi.server.constants.Constants;
@@ -41,7 +40,7 @@ public class Server implements Updatable {
 	private final TcpListener tcpListener;
 	private final UdpListener udpListener;
 	private final UpdateLoop updateLoop;
-	private final Map<String, User> users = new ConcurrentHashMap<>();
+	private final Map<String, Client> clients = new ConcurrentHashMap<>();
 	private final BlockingQueue<ClientMessage> tcpMessageQueue = new LinkedBlockingQueue<>();
 	private final BlockingQueue<ClientStateUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
 
@@ -55,7 +54,7 @@ public class Server implements Updatable {
 	public Server() {
 		initializeLogger();
 		buildInitFiles();
-		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, users);
+		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, clients);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
 		this.threads = Executors.newFixedThreadPool(4);
@@ -123,9 +122,9 @@ public class Server implements Updatable {
 
 	private Map<String, String> getIdleClients(String uuid) {
 		Map<String, String> idleClients = new HashMap<>();
-		for (User user : users.values()) {
-			if (!user.getUuid().equals(uuid)) {
-				idleClients.put(user.getUuid(), user.getName());
+		for (Client client : clients.values()) {
+			if (!client.getUuid().equals(uuid)) {
+				idleClients.put(client.getUuid(), client.getName());
 			}
 		}
 		return idleClients;
@@ -145,7 +144,7 @@ public class Server implements Updatable {
 		while ((msg = tcpMessageQueue.poll()) != null) {
 			if (msg.hasClientHello() || msg.hasPing()) {
 				continue;
-			} else if (msg.getUuid() == null || msg.getUuid().isEmpty() || !users.keySet().contains(msg.getUuid())) {
+			} else if (msg.getUuid() == null || msg.getUuid().isEmpty() || !clients.keySet().contains(msg.getUuid())) {
 				Logger.log(LogLevel.WARN, "Recieved message with invalid UUID: '" + msg.getUuid() + "'");
 				continue;
 			} else if (msg.hasClientCommand()) {
@@ -163,12 +162,12 @@ public class Server implements Updatable {
 	private void processClientCommand(ClientCommand msg, String uuid) {
 		switch (msg.getRequestType()) {
 		case GET_IDLE_CLIENT_LIST:
-			User user = users.get(uuid);
-			if (user == null) {
-				Logger.log(LogLevel.WARN, "User not found for UUID: '" + uuid + "' Possible UUID's: " + users.keySet());
+			Client client = clients.get(uuid);
+			if (client == null) {
+				Logger.log(LogLevel.WARN, "Client not found for UUID: '" + uuid + "' Possible UUID's: " + clients.keySet());
 				return;
 			}
-			user.sendMessage(ServerMessage.newBuilder().setIdleClientList(IdleClientList.newBuilder().putAllClientList(getIdleClients(uuid))).build());
+			client.sendMessage(ServerMessage.newBuilder().setIdleClientList(IdleClientList.newBuilder().putAllClientList(getIdleClients(uuid))).build());
 			break;
 		default:
 			Logger.log(LogLevel.WARN, "Unknown command type: " + msg.getRequestType());
@@ -177,9 +176,9 @@ public class Server implements Updatable {
 	}
 
 	private void processClientInvite(ClientInvite invite, String uuid) {
-		User user = users.get(invite.getInvitee());
-		String username = users.get(uuid).getName();
-		user.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInvitee(username)).build());
+		Client client = clients.get(invite.getInvitee());
+		String username = clients.get(uuid).getName();
+		client.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInvitee(username)).build());
 	}
 
 }

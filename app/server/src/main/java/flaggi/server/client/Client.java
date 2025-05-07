@@ -16,9 +16,9 @@ import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ProtoUtil;
 
 /**
- * User data structure class.
+ * Client data structure class.
  */
-public class User {
+public class Client {
 
 	private final String uuid;
 	private final String name;
@@ -27,7 +27,7 @@ public class User {
 
 	// Constructor --------------------------------------------------------------
 
-	public User(String uuid, String name, Socket socket, OutputStream out) {
+	public Client(String uuid, String name, Socket socket, OutputStream out) {
 		this.uuid = uuid;
 		this.name = name;
 		this.socket = socket;
@@ -61,7 +61,7 @@ public class User {
 			this.out.write(sizeBytes);
 			this.out.write(messageBytes);
 		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "IOException occured while sending message to user (" + this.name + ", " + this.uuid + ")", e);
+			Logger.log(LogLevel.ERROR, "IOException occured while sending message to client (" + this.name + ", " + this.uuid + ")", e);
 		}
 	}
 }

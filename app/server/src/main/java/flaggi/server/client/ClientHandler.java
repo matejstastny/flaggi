@@ -24,19 +24,19 @@ import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ProtoUtil;
 
-public class UserHandler implements Runnable {
+public class ClientHandler implements Runnable {
 
 	private final Socket clientSocket;
 	private final BlockingQueue<ClientMessage> messageQueue;
-	private final Map<String, User> users;
-	private User user;
+	private final Map<String, Client> clients;
+	private Client client;
 
 	// Constructor --------------------------------------------------------------
 
-	public UserHandler(Socket clientSocket, BlockingQueue<ClientMessage> messageQueue, Map<String, User> users) {
+	public ClientHandler(Socket clientSocket, BlockingQueue<ClientMessage> messageQueue, Map<String, Client> clients) {
 		this.clientSocket = clientSocket;
 		this.messageQueue = messageQueue;
-		this.users = users;
+		this.clients = clients;
 	}
 
 	// Update -------------------------------------------------------------------
@@ -58,9 +58,9 @@ public class UserHandler implements Runnable {
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler", e);
 		} finally {
-			if (user != null) {
-				Logger.log(LogLevel.INFO, "Client disconnected: " + user.getName());
-				users.remove(user.getUuid());
+			if (client != null) {
+				Logger.log(LogLevel.INFO, "Client disconnected: " + client.getName());
+				clients.remove(client.getUuid());
 			}
 			try {
 				clientSocket.close();
@@ -90,8 +90,8 @@ public class UserHandler implements Runnable {
 		Logger.log(LogLevel.INFO, "New client connected: " + username + " (" + clientSocket.getInetAddress().getHostAddress() + ")");
 
 		String uuid = UUID.randomUUID().toString();
-		user = new User(uuid, username, clientSocket, out);
-		users.put(uuid, user);
+		client = new Client(uuid, username, clientSocket, out);
+		clients.put(uuid, client);
 
 		ServerMessage response = ServerMessage.newBuilder().setServerHello(ServerHello.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();
 		sendMessage(out, response);

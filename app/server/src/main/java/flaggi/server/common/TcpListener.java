@@ -11,10 +11,10 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
-import flaggi.server.client.UserHandler;
+import flaggi.server.client.ClientHandler;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.server.Server;
-import flaggi.server.client.User;
+import flaggi.server.client.Client;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 
@@ -22,14 +22,14 @@ public class TcpListener implements Runnable {
 
 	private final int port;
 	private final BlockingQueue<ClientMessage> messageQueue;
-	private final Map<String, User> users;
+	private final Map<String, Client> clients;
 
 	// Constructor --------------------------------------------------------------
 
-	public TcpListener(int port, BlockingQueue<ClientMessage> messageQueue, Map<String, User> users) {
+	public TcpListener(int port, BlockingQueue<ClientMessage> messageQueue, Map<String, Client> clients) {
 		this.port = port;
 		this.messageQueue = messageQueue;
-		this.users = users;
+		this.clients = clients;
 	}
 
 	// Accesors -----------------------------------------------------------------
@@ -46,7 +46,7 @@ public class TcpListener implements Runnable {
 			Logger.log(LogLevel.INFO, "TCP listener started on port " + port);
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
-				new Thread(new UserHandler(clientSocket, messageQueue, users), "Client Handler Thread").start();
+				new Thread(new ClientHandler(clientSocket, messageQueue, clients), "Client Handler Thread").start();
 			}
 		} catch (Exception e) {
 			Logger.log(LogLevel.ERROR, "An error occurred in the TCP listener.", e);

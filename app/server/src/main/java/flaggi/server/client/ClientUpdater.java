@@ -4,12 +4,12 @@ import java.util.Map;
 
 import flaggi.proto.ServerMessages.ServerStateUpdate;
 
-public class UserUpdater {
+public class ClientUpdater {
 
-	private final Map<String, User> users;
+	private final Map<String, Client> clients;
 
-	public UserUpdater(Map<String, User> users) {
-		this.users = users;
+	public ClientUpdater(Map<String, Client> clients) {
+		this.clients = clients;
 	}
 
 	public void update() {
