@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný ala Kirei
+ * Author: Matěj Šťastný aka matysta
  * Date created: 1/0/2024
  * GitHub link: https://github.com/matysta/flaggi
  */
