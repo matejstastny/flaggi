@@ -1,6 +1,6 @@
 /*
- * Author: Matěj Šťastný aka Kirei
- * Github link: https://github.com/kireiiiiiiii/flaggi
+ * Author: Matěj Šťastný aka matysta
+ * Github link: https://github.com/matysta/flaggi
  * Desc: Messages constructed by the CLIENT and processed by the SERVER.
  */
 
@@ -56,21 +56,22 @@ message ClientInviteResponse {
 // UDP Messages --------------------------------------------------------------
 
 message ClientStateUpdate {
+    string uuid = 1;
+    string gameUuid = 2;
     oneof update_type {
-        PlayerState playerState = 1;
-        SpawnObject spawnObject = 2;
+        NewPlayerState newPlayerState = 3;
+        NewObject newObject = 4;
     }
 }
 
-message PlayerState {
-    string uuid = 1;
+message NewPlayerState {
     int64 x = 2;
     int64 y = 3;
     string animationName = 4;
     int64 animationFrame = 5;
 }
 
-message SpawnObject {
+message NewObject {
     string objectType = 1;
     int64 x = 2;
     int64 y = 3;

@@ -1,6 +1,6 @@
 /*
- * Author: Matěj Šťastný aka Kirei
- * Github link: https://github.com/kireiiiiiiii/flaggi
+ * Author: Matěj Šťastný aka matysta
+ * Github link: https://github.com/matysta/flaggi
  * Desc: Messages constructed by the SERVER and processed by the CLIENT.
  */
 
@@ -42,11 +42,13 @@ message ServerHello {
 }
 
 message ServerJoinGame {
-    string mapJson = 1;
+    string gameUuid = 1;
+    string mapJson = 2;
 }
 
 message ServerInvite {
-    string invitee = 1;
+    string inviteeName = 1;
+    string inviteeUuid = 2;
 }
 
 message ServerCommand {

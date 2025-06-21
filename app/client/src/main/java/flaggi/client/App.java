@@ -175,9 +175,9 @@ public class App implements Updatable {
 				gotoGame();
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasServerInvite()) {
-				Runnable acceptAction = () -> respondToInvite(message.getServerInvite().getInvitee(), true);
-				Runnable denyAction = () -> respondToInvite(message.getServerInvite().getInvitee(), false);
-				this.confirmationWindow.newConfirmation("Invite from " + message.getServerInvite().getInvitee(), acceptAction, denyAction);
+				Runnable acceptAction = () -> respondToInvite(message.getServerInvite().getInviteeUuid(), true);
+				Runnable denyAction = () -> respondToInvite(message.getServerInvite().getInviteeUuid(), false);
+				this.confirmationWindow.newConfirmation("Invite from " + message.getServerInvite().getInviteeName(), acceptAction, denyAction);
 			} else if (message.hasIdleClientList()) {
 				this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(message.getIdleClientList().getClientListMap()));
 			} else {

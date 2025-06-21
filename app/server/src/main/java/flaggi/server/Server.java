@@ -9,6 +9,7 @@ package flaggi.server;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,7 @@ import flaggi.proto.ServerMessages.IdleClientList;
 import flaggi.proto.ServerMessages.ServerInvite;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.client.Client;
+import flaggi.server.common.GameManager;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpListener;
 import flaggi.server.constants.Constants;
@@ -42,6 +44,7 @@ public class Server implements Updatable {
 	private final UdpListener udpListener;
 	private final UpdateLoop updateLoop;
 	private final Map<String, Client> clients = new ConcurrentHashMap<>();
+	private final Map<String, GameManager> activeGames = new ConcurrentHashMap<>();
 	private final BlockingQueue<ClientMessage> tcpMessageQueue = new LinkedBlockingQueue<>();
 	private final BlockingQueue<ClientStateUpdate> udpPacketQueue = new LinkedBlockingQueue<>();
 
@@ -54,7 +57,7 @@ public class Server implements Updatable {
 
 	public Server() {
 		initializeLogger();
-		buildInitFiles();
+		buildServerFiles();
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, clients);
 		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
@@ -87,7 +90,7 @@ public class Server implements Updatable {
 		threads.execute(this.updateLoop);
 	}
 
-	private void buildInitFiles() {
+	private void buildServerFiles() {
 		Map<String, String> resources = Constants.SERVER_RESOURCES;
 		for (String key : resources.keySet()) {
 			try {
@@ -134,9 +137,13 @@ public class Server implements Updatable {
 	// Network ------------------------------------------------------------------
 
 	private void processUdpPackets() {
-		ClientStateUpdate message;
-		while ((message = udpPacketQueue.poll()) != null) {
-
+		ClientStateUpdate msg;
+		while ((msg = udpPacketQueue.poll()) != null) {
+			if (activeGames.containsKey(msg.getGameUuid())) {
+				activeGames.get(msg.getGameUuid()).addUpdate(msg);
+			} else {
+				Logger.log(LogLevel.WARN, "Received UDP packet for unknown game UUID: " + msg.getGameUuid());
+			}
 		}
 	}
 
@@ -179,19 +186,23 @@ public class Server implements Updatable {
 	}
 
 	private void processClientInvite(ClientInvite invite, String uuid) {
-		Client client = clients.get(invite.getInvitee());
-		String username = clients.get(uuid).getName();
-		client.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInvitee(username)).build());
+		Client targetClient = clients.get(invite.getInvitee());
+		targetClient.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInviteeUuid(uuid)).build());
 	}
 
 	private void processClientInviteResponse(ClientInviteResponse response, String uuid) {
-		Client client = clients.get(response.getInvitee());
-		if (client == null) {
-			Logger.log(LogLevel.WARN, "Client not found for UUID: '" + response.getInvitee() + "'");
-			return;
-		}
 		if (response.getAccepted()) {
 			Logger.log(LogLevel.DEBUG, "Client " + uuid + " accepted invite from " + response.getInvitee() + ". Entering game...");
+			Client[] gameClients = { clients.get(response.getInvitee()), clients.get(uuid) };
+			for (Client gameClient : gameClients) {
+				if (gameClient == null) {
+					Logger.log(LogLevel.ERROR, "One of the clients is null. Cannot create game.");
+					return;
+				}
+			}
+			String gameUuid = UUID.randomUUID().toString();
+			this.activeGames.put(gameUuid, new GameManager(gameUuid, gameClients, activeGames));
+			Logger.log(LogLevel.INFO, "Game created with clients: " + gameClients[0].getName() + " and " + gameClients[1].getName());
 		}
 	}
 }
