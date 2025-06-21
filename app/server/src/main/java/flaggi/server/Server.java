@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import flaggi.proto.ClientMessages.ClientCommand;
 import flaggi.proto.ClientMessages.ClientInvite;
+import flaggi.proto.ClientMessages.ClientInviteResponse;
 import flaggi.proto.ClientMessages.ClientMessage;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.IdleClientList;
@@ -151,6 +152,8 @@ public class Server implements Updatable {
 				processClientCommand(msg.getClientCommand(), msg.getUuid());
 			} else if (msg.hasClientInvite()) {
 				processClientInvite(msg.getClientInvite(), msg.getUuid());
+			} else if (msg.hasClientInviteResponse()) {
+				processClientInviteResponse(msg.getClientInviteResponse(), msg.getUuid());
 			} else {
 				Logger.log(LogLevel.WARN, "Polled an unknown message type: " + msg);
 			}
@@ -181,4 +184,14 @@ public class Server implements Updatable {
 		client.sendMessage(ServerMessage.newBuilder().setServerInvite(ServerInvite.newBuilder().setInvitee(username)).build());
 	}
 
+	private void processClientInviteResponse(ClientInviteResponse response, String uuid) {
+		Client client = clients.get(response.getInvitee());
+		if (client == null) {
+			Logger.log(LogLevel.WARN, "Client not found for UUID: '" + response.getInvitee() + "'");
+			return;
+		}
+		if (response.getAccepted()) {
+			Logger.log(LogLevel.DEBUG, "Client " + uuid + " accepted invite from " + response.getInvitee() + ". Entering game...");
+		}
+	}
 }

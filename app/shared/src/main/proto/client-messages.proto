@@ -20,6 +20,7 @@ message ClientMessage {
         ClientHello clientHello = 3;
         ClientCommand clientCommand = 4;
         ClientInvite clientInvite = 5;
+        ClientInviteResponse clientInviteResponse = 6;
     }
 }
 
@@ -44,9 +45,13 @@ message ClientCommand {
 }
 
 message ClientInvite {
-    string invitee = 2;
+    string invitee = 1;
 }
 
+message ClientInviteResponse {
+    string invitee = 1;
+    bool accepted = 2;
+}
 
 // UDP Messages --------------------------------------------------------------
 

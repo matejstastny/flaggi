@@ -17,7 +17,7 @@ message ServerMessage {
     oneof message_type {
         Pong pong = 1;
         ServerHello serverHello = 2;
-        ServerGameJoin serverGameJoin = 3;
+        ServerJoinGame serverJoinGame = 3;
         ServerCommand serverCommand = 4;
         ServerInvite serverInvite = 5;
         IdleClientList idleClientList = 6;
@@ -41,9 +41,8 @@ message ServerHello {
     int64 udpPort = 2;
 }
 
-message ServerGameJoin {
-    string jsonMap = 1;
-    bool primary = 2;
+message ServerJoinGame {
+    string mapJson = 1;
 }
 
 message ServerInvite {

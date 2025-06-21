@@ -21,6 +21,7 @@ import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.network.TcpManager;
 import flaggi.client.ui.ConfirmationWindow;
+import flaggi.client.ui.DebugGame;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
@@ -92,6 +93,10 @@ public class App implements Updatable {
 		toggleUi(UiTags.LOBBY);
 	}
 
+	public void gotoGame() {
+		toggleUi(UiTags.GAME);
+	}
+
 	// Update -------------------------------------------------------------------
 
 	@Override
@@ -108,7 +113,13 @@ public class App implements Updatable {
 	}
 
 	public void invitePlayer(String otherUuid) {
-		this.tcpManager.invitePlayer(otherUuid);
+		Logger.log(LogLevel.DEBUG, "Inviting player: " + otherUuid);
+		this.tcpManager.sendInvite(otherUuid);
+	}
+
+	public void respondToInvite(String otherUuid, boolean accept) {
+		Logger.log(LogLevel.DEBUG, "Responding to invite from " + otherUuid + " with " + (accept ? "accept" : "deny"));
+		this.tcpManager.respondToInvite(otherUuid, accept);
 	}
 
 	// External events ----------------------------------------------------------
@@ -161,9 +172,12 @@ public class App implements Updatable {
 			} else if (message.hasServerHello()) {
 				handleServerHello(message.getServerHello());
 			} else if (message.hasServerGameJoin()) {
+				gotoGame();
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasServerInvite()) {
-				this.confirmationWindow.newConfirmation("Invite from " + message.getServerInvite().getInvitee(), null, null);
+				Runnable acceptAction = () -> respondToInvite(message.getServerInvite().getInvitee(), true);
+				Runnable denyAction = () -> respondToInvite(message.getServerInvite().getInvitee(), false);
+				this.confirmationWindow.newConfirmation("Invite from " + message.getServerInvite().getInvitee(), acceptAction, denyAction);
 			} else if (message.hasIdleClientList()) {
 				this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(message.getIdleClientList().getClientListMap()));
 			} else {
@@ -200,7 +214,8 @@ public class App implements Updatable {
 				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
 				new MenuBackground(), //
 				this.toasts, //
-				this.confirmationWindow);
+				this.confirmationWindow, //
+				new DebugGame());
 		updatableWidgets.forEach(u -> this.gpanel.add((Renderable) u));
 		updatableWidgets.forEach(u -> updateLoop.add(u));
 		this.gpanel.toggleWidgetsVisibility(false);
