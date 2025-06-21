@@ -27,7 +27,7 @@ message ServerMessage {
 // Enums ---------------------------------------------------------------------
 
 enum ServerCommandType {
-    SERVER_COMMAND_TEST = 0;
+    DEBUG = 0;
 }
 
 // TCP Messages --------------------------------------------------------------
