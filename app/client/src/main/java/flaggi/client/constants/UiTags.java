@@ -23,6 +23,7 @@ public class UiTags {
 	public static final String ENEMY_PLAYER = "enemy";
 	public static final String PAUSE_MENU = "pause";
 	public static final String LOBBY = "lobby";
+	public static final String GAME = "game";
 
 	public static final String ENVIRONMENT = "environment";
 	public static final String PROJECTILES = "projectiles";
