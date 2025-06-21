@@ -1,7 +1,7 @@
 /*
  * Author: Matěj Šťastný
  * Date created: 12/1/2024
- * GitHub link: https://github.com/kireiiiiiiii/flaggi
+ * GitHub link: https://github.com/matysta/flaggi
  */
 
 package flaggi.shared.apiclients;

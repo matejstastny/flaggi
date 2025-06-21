@@ -1,7 +1,7 @@
 /*
  * Author: Matěj Šťastný
  * Date created: 2/2/2025
- * Github link: https://github.com/kireiiiiiiii/Flaggi
+ * GitHub link: https://github.com/matysta/flaggi
  *
  *
  *

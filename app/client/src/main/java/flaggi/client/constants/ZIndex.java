@@ -1,7 +1,7 @@
 /*
- * Author: Matěj Šťastný aka Kirei
+ * Author: Matěj Šťastný aka matysta
  * Date created: 7/25/2024
- * Github link: https://github.com/kireiiiiiiii/flaggi
+ * GitHub link: https://github.com/matysta/flaggi
  */
 
 package flaggi.client.constants;

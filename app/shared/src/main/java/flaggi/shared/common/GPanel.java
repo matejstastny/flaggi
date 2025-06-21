@@ -1,7 +1,7 @@
 /*
- * Author: Matěj Šťastný aka Kirei
+ * Author: Matěj Šťastný aka matysta
  * Date created: 7/23/2024
- * Github link: https://github.com/kireiiiiiiii
+ * GitHub link: https://github.com/matysta/flaggi
  */
 
 package flaggi.shared.common;
