@@ -171,7 +171,7 @@ public class App implements Updatable {
 				continue;
 			} else if (message.hasServerHello()) {
 				handleServerHello(message.getServerHello());
-			} else if (message.hasServerGameJoin()) {
+			} else if (message.hasServerJoinGame()) {
 				gotoGame();
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasServerInvite()) {
