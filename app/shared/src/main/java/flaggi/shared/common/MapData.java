@@ -1,32 +1,13 @@
 /*
- * Author: Matěj Šťastný
- * Date created: 3/2/2025
+ * Author: Matěj Šťastný aka matysta
+ * Date created: 6/21/2025
  * GitHub link: https://github.com/matysta/flaggi
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  */
 
 package flaggi.shared.common;
 
+import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,95 +18,78 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Data class to hold all the data of the world map.
- *
+ * A serializable data class to hold map data
  */
 public class MapData {
 
-	/////////////////
-	// Variables
-	////////////////
+	private static final ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+	private final List<ObjectData> gameObjects = new ArrayList<ObjectData>();
 
 	private int objectIdCounter;
 	private String name;
 	private int width, height;
 	private Spawnpoint spawnpoint;
-	private List<ObjectData> gameObjects = new ArrayList<ObjectData>();
 
-	/////////////////
-	// Constructors
-	////////////////
+	// Constructors -------------------------------------------------------------
 
-	/**
-	 * Default constructor.
-	 *
-	 * @param name   - display name of the map.
-	 * @param width  - width of the map.
-	 * @param height - height of the map.
-	 */
 	public MapData(String name, int width, int height) {
 		this.name = name;
 		this.width = width;
 		this.height = height;
-		this.gameObjects = new ArrayList<ObjectData>();
-		this.spawnpoint = new Spawnpoint();
 		this.objectIdCounter = 0;
+		this.spawnpoint = new Spawnpoint();
 	}
 
-	/**
-	 * Empty constructor for Jackson serialization.
-	 *
-	 */
+	// for JSON serialization
 	public MapData() {
 		this("Untitled Map", 1000, 1000);
 	}
 
-	/////////////////
-	// Events
-	////////////////
+	// Public -------------------------------------------------------------------
 
-	/**
-	 * Prints debug data about the map into the console.
-	 *
-	 */
-	public void printData() {
-		System.out.println("Map Name: " + this.name);
-		System.out.println("Map Width: " + this.width);
-		System.out.println("Map Height: " + this.height);
-		System.out.println("Spawnpoint: " + this.spawnpoint);
-		System.out.println("Game objects:");
-		for (ObjectData o : this.gameObjects) {
-			System.out.println("    " + o);
-		}
-	}
-
-	/**
-	 * Adds a new game object to the map.
-	 *
-	 * @param type - type of the game object.
-	 * @param x    - X position.
-	 * @param y    - Y position.
-	 */
 	public void newGameObject(ObjectType type, int x, int y) {
-		validateCoordinates(x, y);
+		isInBounds(x, y);
 		int id = this.objectIdCounter;
 		this.objectIdCounter++;
 		this.gameObjects.add(new ObjectData(type, id, x, y));
 	}
 
-	/////////////////
-	// Accesors
-	////////////////
+	public void logMapDetails() {
+		System.out.println("Map Name: " + this.name);
+		System.out.println("Map Width: " + this.width);
+		System.out.println("Map Height: " + this.height);
+		System.out.println("Spawnpoint: " + this.spawnpoint);
+		System.out.println("Game objects:");
+		this.gameObjects.forEach(o -> System.out.println("    " + o));
+	}
+
+	// JSON ---------------------------------------------------------------------
+
+	public String toJson() throws IOException {
+		return objectMapper.writeValueAsString(this);
+	}
+
+	public static MapData fromJson(String json) throws IOException {
+		return objectMapper.readValue(json, MapData.class);
+	}
+
+	public void saveToFile(File file) throws IOException {
+		objectMapper.writeValue(file, this);
+	}
+
+	public static MapData loadFromFile(File file) throws IOException {
+		return objectMapper.readValue(file, MapData.class);
+	}
+
+	// Accesors -----------------------------------------------------------------
 
 	public String getName() {
 		return name;
-	}
-
-	public List<ObjectData> getGameObjects() {
-		return gameObjects;
 	}
 
 	public int getWidth() {
@@ -136,25 +100,23 @@ public class MapData {
 		return height;
 	}
 
-	public Spawnpoint getSpawnpoint() {
+	public List<ObjectData> getGameObjects() {
+		return gameObjects;
+	}
+
+	public Spawnpoint getSpawnpoints() {
 		return this.spawnpoint;
 	}
 
-	/////////////////
-	// Modifiers
-	////////////////
+	// Modifiers ----------------------------------------------------------------
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setGameObjects(List<ObjectData> gameObjects) {
-		this.gameObjects = gameObjects;
-	}
-
-	public void setSpawn(int spawnpoint1X, int spawnpoint1Y, int spawnpoint2X, int spawnpoint2Y) {
-		validateCoordinates(spawnpoint1X, spawnpoint1Y);
-		validateCoordinates(spawnpoint2X, spawnpoint2Y);
+	public void setSpawnpoints(int spawnpoint1X, int spawnpoint1Y, int spawnpoint2X, int spawnpoint2Y) {
+		isInBounds(spawnpoint1X, spawnpoint1Y);
+		isInBounds(spawnpoint2X, spawnpoint2Y);
 		this.spawnpoint = new Spawnpoint(spawnpoint1X, spawnpoint1Y, spawnpoint2X, spawnpoint2Y);
 	}
 
@@ -163,31 +125,9 @@ public class MapData {
 		this.height = height;
 	}
 
-	public MapData scaleMap(int scale) {
-		this.width *= scale;
-		this.height *= scale;
-		this.spawnpoint.oneX *= scale;
-		this.spawnpoint.oneY *= scale;
-		this.spawnpoint.twoX *= scale;
-		this.spawnpoint.twoY *= scale;
-		for (ObjectData o : this.gameObjects) {
-			o.setX(o.getX() * scale);
-			o.setY(o.getY() * scale);
-		}
-		return this;
-	}
+	// Private ------------------------------------------------------------------
 
-	/////////////////
-	// Private Methods
-	////////////////
-
-	/**
-	 * Validates the coordinates to ensure they are within the map boundaries.
-	 *
-	 * @param x - X coordinate.
-	 * @param y - Y coordinate.
-	 */
-	private void validateCoordinates(int x, int y) {
+	private void isInBounds(int x, int y) {
 		if (x > this.width) {
 			throw new IllegalArgumentException("X coordinate is outside the map size.");
 		}
@@ -202,28 +142,50 @@ public class MapData {
 		}
 	}
 
-	/////////////////
-	// Game Object data
-	////////////////
+	// Object Type --------------------------------------------------------------
 
-	/**
-	 * Data class for the individual game objects.
-	 *
-	 */
+	@JsonDeserialize(using = ObjectTypeDeserializer.class)
+	public enum ObjectType {
+
+		TREE("tree", 0, 0, 0, 0), //
+		RED_FLAG("red_flag", 0, 0, 0, 0), //
+		BLUE_FLAG("blue_flag", 0, 0, 0, 0); //
+
+		private final String name;
+		private final Rectangle collision;
+
+		ObjectType(String name, int collisionX, int collisionY, int collisionWidth, int collisionHeight) {
+			this.name = name;
+			this.collision = new Rectangle(collisionX, collisionY, collisionWidth, collisionHeight);
+		}
+
+		@JsonValue
+		public String getName() {
+			return name;
+		}
+
+		public Rectangle getCollision() {
+			return collision;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("ObjectType{name='%s', collisionPos=[%d, %d], collisionSize=[%d, %d]}", name, collision.x, collision.y, collision.width, collision.height);
+		}
+
+		@JsonCreator
+		public static ObjectType fromName(String name) {
+			return Arrays.stream(values()).filter(type -> type.name.equalsIgnoreCase(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown ObjectType: " + name));
+		}
+	}
+
+	// Object Data --------------------------------------------------------------
+
 	public static class ObjectData {
 
 		private ObjectType objectType;
 		private int x, y, id;
 
-		// ----------------------------------------------
-
-		/**
-		 * Default constructor.
-		 *
-		 * @param objectType - type of the game object.
-		 * @param x          - X position.
-		 * @param y          - Y position.
-		 */
 		public ObjectData(ObjectType objectType, int id, int x, int y) {
 			this.objectType = objectType;
 			this.x = x;
@@ -231,14 +193,10 @@ public class MapData {
 			this.id = id;
 		}
 
-		/**
-		 * Empty constructor for Jackson serialization.
-		 */
+		// For JSON serialization
 		public ObjectData() {
 			this(null, -1, 0, 0);
 		}
-
-		// ----------------------------------------------
 
 		public int getX() {
 			return this.x;
@@ -276,73 +234,10 @@ public class MapData {
 		public String toString() {
 			return String.format("ObjectData{id=%d, objectType=%s, x=%d, y=%d}", id, objectType, x, y);
 		}
-
 	}
 
-	/////////////////
-	// Game object enum
-	////////////////
+	// Deserialization ----------------------------------------------------------
 
-	/**
-	 * Enum class with constants for different game object types.
-	 *
-	 */
-	@JsonDeserialize(using = ObjectTypeDeserializer.class)
-	public enum ObjectType {
-
-		TREE("tree", 0, 0, 0, 0), //
-		RED_FLAG("red_flag", 0, 0, 0, 0), //
-		BLUE_FLAG("blue_flag", 0, 0, 0, 0); //
-
-		private final String name;
-		private final int collisionX, collisionY, collisionWidth, collisionHeight;
-
-		ObjectType(String name, int collisionX, int collisionY, int collisionWidth, int collisionHeight) {
-			this.name = name;
-			this.collisionX = collisionX;
-			this.collisionY = collisionY;
-			this.collisionWidth = collisionWidth;
-			this.collisionHeight = collisionHeight;
-		}
-
-		// Returns name as JSON value
-		@JsonValue
-		public String getName() {
-			return name;
-		}
-
-		// Accessor for collision position
-		public int[] getCollisionPos() {
-			return new int[] { collisionX, collisionY };
-		}
-
-		// Accessor for collision size
-		public int[] getCollisionSize() {
-			return new int[] { collisionWidth, collisionHeight };
-		}
-
-		// Custom toString method
-		@Override
-		public String toString() {
-			return String.format("ObjectType{name='%s', collisionPos=[%d, %d], collisionSize=[%d, %d]}", name, collisionX, collisionY, collisionWidth, collisionHeight);
-		}
-
-		// Custom deserialization by name
-		@JsonCreator
-		public static ObjectType fromName(String name) {
-			return Arrays.stream(values()).filter(type -> type.name.equalsIgnoreCase(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Unknown ObjectType: " + name));
-		}
-	}
-
-	/////////////////
-	// Deserialization
-	////////////////
-
-	/**
-	 * Deseriliazer for the {@code ObjectType} enum.
-	 *
-	 * @see ObjectType
-	 */
 	public static class ObjectTypeDeserializer extends JsonDeserializer<ObjectType> {
 		@Override
 		public ObjectType deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -351,14 +246,8 @@ public class MapData {
 		}
 	}
 
-	/////////////////
-	// Other structs
-	////////////////
+	// Spawnpoint ---------------------------------------------------------------
 
-	/**
-	 * Spawnpoint data class.
-	 *
-	 */
 	public static class Spawnpoint {
 
 		public int oneX, oneY, twoX, twoY;
@@ -378,9 +267,7 @@ public class MapData {
 			this.twoY = twoY;
 		}
 
-		/**
-		 * Empty constructor for Jackson serialization.
-		 */
+		// JSON serialization
 		public Spawnpoint() {
 			this(0, 0, 0, 0);
 		}
@@ -389,7 +276,5 @@ public class MapData {
 		public String toString() {
 			return String.format("Spawnpoint{oneX=%d, oneY=%d, twoX=%d, twoY=%d}", oneX, oneY, twoX, twoY);
 		}
-
 	}
-
 }
