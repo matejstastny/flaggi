@@ -21,16 +21,18 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-find "$ROOT_DIR" -type f -name "*.java" | while read -r file; do
-    mapfile -t lines < <(head -n 5 "$file")
+find "$ROOT_DIR" -type f -name "*.java" | while IFS= read -r file; do
+    line2=$(sed -n '2p' "$file")
+    line4=$(sed -n '4p' "$file")
+
     changed=false
 
-    if [[ "${lines[1]}" == *"aka Kirei"* ]]; then
+    if echo "$line2" | grep -q "aka Kirei"; then
         sed -i '' '2s/aka Kirei/aka matysta/' "$file"
         changed=true
     fi
 
-    if [[ "${lines[3]}" == " * Git"* ]]; then
+    if echo "$line4" | grep -q "^ \* Git"; then
         sed -i '' '4s|.*| * GitHub link: https://github.com/matysta/flaggi|' "$file"
         changed=true
     fi
