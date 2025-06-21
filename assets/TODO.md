@@ -7,3 +7,5 @@ Convert to java 23 and update gradle
 TCP manager in server starts after upd (should be the other way)
 
 Add an intro ascii to the console outputs for all (icon and ascii "flaggi" ?)
+
+Separate build-and-test.yml into 4 files (build and test all 4 components separately)
