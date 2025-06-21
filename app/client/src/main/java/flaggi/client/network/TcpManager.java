@@ -68,7 +68,6 @@ public class TcpManager implements Runnable {
 			Logger.log(LogLevel.ERROR, "An error occurred while receiving message.", e);
 		} finally {
 			close();
-			Logger.log(LogLevel.DEBUG, "TcpManager stopped");
 			if (onDisconnect != null) {
 				onDisconnect.run();
 			}
@@ -125,7 +124,7 @@ public class TcpManager implements Runnable {
 
 	// Message senders -----------------------------------------------------------
 
-	public void sendCommandToServer(ClientCommandType type) {
+	public void sendCommand(ClientCommandType type) {
 		if (!validUuid("Cannot send command to server")) {
 			return;
 		}

@@ -109,7 +109,7 @@ public class App implements Updatable {
 	// Server commands ----------------------------------------------------------
 
 	public void refreshIdleClients() {
-		this.tcpManager.sendCommandToServer(ClientCommandType.GET_IDLE_CLIENT_LIST);
+		this.tcpManager.sendCommand(ClientCommandType.GET_IDLE_CLIENT_LIST);
 	}
 
 	public void invitePlayer(String otherUuid) {

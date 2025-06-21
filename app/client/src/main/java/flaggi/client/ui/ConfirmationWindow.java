@@ -24,7 +24,7 @@ import flaggi.shared.common.GPanel.Renderable;
 import flaggi.shared.util.FontUtil;
 
 /**
- * A basic yes/no user confirmation window.
+ * A basic yes/no user confirmation window widget.
  */
 public class ConfirmationWindow extends Renderable implements Interactable {
 

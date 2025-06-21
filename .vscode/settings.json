@@ -7,14 +7,14 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[dockerfile]": {
-    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
 
   // Fallback -----------------------------------------------------------------
-  // In case the folder is not opened using the workspace
+  // In case the folder is not opened using the workspace (please don't do that)
 
   "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
-  "java.configuration.updateBuildConfiguration": "automatic", // For gradle build files
+  "java.configuration.updateBuildConfiguration": "automatic",
   "java.debug.settings.onBuildFailureProceed": true,
   "java.compile.nullAnalysis.mode": "automatic",
   "java.import.gradle.enabled": true

@@ -7,7 +7,7 @@
 package flaggi.client.constants;
 
 /**
- * THE HIGHER THE Z-INDEX, THE HIGHER THE LAYER.
+ * The HIGHER the z-index, the HIGHER the layer
  */
 public class ZIndex {
 

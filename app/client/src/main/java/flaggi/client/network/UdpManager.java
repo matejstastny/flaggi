@@ -1,3 +1,9 @@
+/*
+ * Author: Matěj Šťastný aka matysta
+ * Date created: 4/26/2025
+ * GitHub link: https://github.com/matysta/flaggi
+ */
+
 package flaggi.client.network;
 
 import java.io.IOException;
@@ -18,10 +24,10 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpManager implements Runnable {
 
-	private final BlockingQueue<ServerStateUpdate> queue;
-	private DatagramSocket socket;
-	private InetAddress address;
 	private int port;
+	private InetAddress address;
+	private DatagramSocket socket;
+	private final BlockingQueue<ServerStateUpdate> queue;
 
 	// Constructor ---------------------------------------------------------------
 
@@ -59,7 +65,7 @@ public class UdpManager implements Runnable {
 				Logger.log(LogLevel.ERROR, "Unexpected error in UDP listener: " + e.getMessage(), e);
 			}
 		}
-		close(); // Ensure socket is closed when the thread exits
+		close();
 	}
 
 	// Public --------------------------------------------------------------------

@@ -17,6 +17,10 @@ import flaggi.proto.ClientMessages.Ping;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.util.ProtoUtil;
 
+/**
+ * Global utility class providing static methods for various functionalities
+ * across the application.
+ */
 public class Global {
 
 	// Private constructor to prevent instantiation

@@ -19,4 +19,5 @@ app/shadowjar
 !gradle-wrapper.jar
 
 # Development server directory
+# A server for testing is setup in here
 flaggi-server-temp
