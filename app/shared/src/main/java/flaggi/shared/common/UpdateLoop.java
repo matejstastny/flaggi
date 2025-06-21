@@ -27,6 +27,10 @@ public class UpdateLoop implements Runnable {
 		this.update.add(updatable);
 	}
 
+	public void remove(Updatable updatable) {
+		this.update.remove(updatable);
+	}
+
 	@Override
 	public void run() {
 		while (!Thread.currentThread().isInterrupted()) {

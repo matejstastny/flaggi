@@ -16,10 +16,12 @@ import java.util.concurrent.Executors;
 
 import javax.swing.SwingUtilities;
 
+import flaggi.client.common.GameManager;
 import flaggi.client.common.Global;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.network.TcpManager;
+import flaggi.client.network.UdpManager;
 import flaggi.client.ui.ConfirmationWindow;
 import flaggi.client.ui.DebugGame;
 import flaggi.client.ui.LobbyUi;
@@ -46,7 +48,9 @@ public class App implements Updatable {
 	private final GPanel gpanel;
 	private final ToastManager toasts;
 	private final ConfirmationWindow confirmationWindow;
+	private GameManager gameManager;
 	private TcpManager tcpManager;
+	private UdpManager udpManager;
 
 	// Main ---------------------------------------------------------------------
 
@@ -94,6 +98,11 @@ public class App implements Updatable {
 	}
 
 	public void gotoGame() {
+		if (this.gameManager == null) {
+			updateLoop.remove(gameManager);
+		}
+		gameManager = new GameManager(udpManager);
+		updateLoop.add(gameManager);
 		toggleUi(UiTags.GAME);
 	}
 
@@ -254,6 +263,7 @@ public class App implements Updatable {
 	private void handleServerHello(ServerHello msg) {
 		Logger.log(LogLevel.DEBUG, "Received server hello message with uuid: " + msg.getUuid() + " and UDP port: " + msg.getUdpPort());
 		this.tcpManager.setUuid(msg.getUuid());
+		udpManager = new UdpManager(tcpManager.getIP(), (int) msg.getUdpPort());
 		gotoLobby();
 	}
 }

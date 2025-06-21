@@ -24,15 +24,14 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpManager implements Runnable {
 
+	private final BlockingQueue<ServerStateUpdate> queue = new LinkedBlockingQueue<>();
 	private int port;
 	private InetAddress address;
 	private DatagramSocket socket;
-	private final BlockingQueue<ServerStateUpdate> queue;
 
 	// Constructor ---------------------------------------------------------------
 
 	public UdpManager(String address, int port) {
-		queue = new LinkedBlockingQueue<>();
 		try {
 			this.address = InetAddress.getByName(address);
 			this.port = port;

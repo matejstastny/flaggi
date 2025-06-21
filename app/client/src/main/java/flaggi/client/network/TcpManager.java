@@ -122,6 +122,13 @@ public class TcpManager implements Runnable {
 		this.uuid = uuid;
 	}
 
+	public String getIP() {
+		if (socket != null && socket.isConnected()) {
+			return socket.getInetAddress().getHostAddress();
+		}
+		return null;
+	}
+
 	// Message senders -----------------------------------------------------------
 
 	public void sendCommand(ClientCommandType type) {
