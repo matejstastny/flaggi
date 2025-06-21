@@ -2,6 +2,7 @@
 .gradle/
 build/
 *bin
+*.log
 
 # macOS
 .DS_Store
