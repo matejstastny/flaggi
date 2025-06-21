@@ -101,7 +101,7 @@ public class App implements Updatable {
 		if (this.gameManager == null) {
 			updateLoop.remove(gameManager);
 		}
-		gameManager = new GameManager(udpManager);
+		gameManager = new GameManager(udpManager, gpanel);
 		updateLoop.add(gameManager);
 		toggleUi(UiTags.GAME);
 	}

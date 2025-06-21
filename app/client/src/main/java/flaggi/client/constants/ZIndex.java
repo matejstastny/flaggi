@@ -19,7 +19,7 @@ public class ZIndex {
 	// Global -------------------------------------------------------------------
 
 	public static final int BACKGROUND = 1;
-	public static final int GAME_FLOOR = 2;
+	public static final int GAME = 2;
 	public static final int MENU_SCREEN = 2;
 	public static final int CONNECTION = 3;
 	public static final int ENVIRONMENT_BOTTOM = 9;
