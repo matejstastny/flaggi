@@ -28,6 +28,9 @@ import flaggi.shared.util.FontUtil;
  */
 public class ConfirmationWindow extends Renderable implements Interactable {
 
+	private final Color accept = new Color(61, 255, 88);
+	private final Color deny = new Color(238, 57, 57);
+
 	private String question;
 	private Runnable acceptAction;
 	private Runnable denyAction;
@@ -67,9 +70,9 @@ public class ConfirmationWindow extends Renderable implements Interactable {
 		g.drawString(question, position[0], px(40));
 
 		// Draw the buttons
-		g.setColor(new Color(238, 57, 57));
+		g.setColor(deny);
 		g.fill(getNoButton());
-		g.setColor(new Color(61, 255, 88));
+		g.setColor(accept);
 		g.fill(getYesButton());
 		g.setColor(Color.BLACK);
 		g.draw(getYesButton());
@@ -103,11 +106,11 @@ public class ConfirmationWindow extends Renderable implements Interactable {
 		return new RoundRectangle2D.Double(px(3), px(25), px(94), px(50), px(4), px(4));
 	}
 
-	private Shape getYesButton() {
+	private Shape getNoButton() {
 		return new RoundRectangle2D.Double(px(10), px(60), px(30), px(10), px(3), px(3));
 	}
 
-	private Shape getNoButton() {
+	private Shape getYesButton() {
 		return new RoundRectangle2D.Double(px(60), px(60), px(30), px(10), px(3), px(3));
 	}
 
