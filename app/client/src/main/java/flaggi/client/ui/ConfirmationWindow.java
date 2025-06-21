@@ -53,7 +53,7 @@ public class ConfirmationWindow extends Renderable implements Interactable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		if (!active) {
 			return;
 		}

@@ -36,7 +36,7 @@ public class MenuBackground extends Renderable {
 	}
 
 	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		drawBackground(g, background, focusCycleRootAncestor);
 	}
 

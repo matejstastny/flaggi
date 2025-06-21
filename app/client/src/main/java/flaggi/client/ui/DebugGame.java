@@ -21,7 +21,7 @@ public class DebugGame extends Renderable {
 	}
 
 	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		g.setColor(Color.BLACK);
 		g.setFont(Constants.FONT.deriveFont(Font.BOLD, px(5)));
 		int[] pos = FontUtil.getCenteredPosition(px(100), px(100), g.getFontMetrics(), text);

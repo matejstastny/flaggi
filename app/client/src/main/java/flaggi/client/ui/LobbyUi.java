@@ -64,7 +64,7 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable, Upd
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		AffineTransform previousTransform = g.getTransform();
 		g.translate(0, scrollOffset);
 

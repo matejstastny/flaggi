@@ -67,7 +67,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	private final RenderingEngine renderingEngine;
 	private final List<Renderable> widgets;
 	private InteractableHandler handler;
-	private int[] viewportOffset;
 	private boolean isRendering;
 	private JFrame appFrame;
 
@@ -88,7 +87,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		this.renderingEngine = new RenderingEngine();
 		this.widgets = new CopyOnWriteArrayList<Renderable>();
 		this.regions = new EnumMap<>(PanelRegion.class);
-		this.viewportOffset = new int[2];
 		this.isRendering = false;
 		this.handler = null;
 		this.setPreferredSize(new Dimension(windowWidth, windowHeight));
@@ -151,16 +149,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	}
 
 	// Modifiers ----------------------------------------------------------------
-
-	/**
-	 * Sets the viewport offset. 0,0 is the standard position. This viewport value
-	 * will be passed as a param to the widgets render function.
-	 *
-	 * @param viewportOffset
-	 */
-	public void setViewportOffset(int[] offset) {
-		this.viewportOffset = offset;
-	}
 
 	/**
 	 * Clears the widgets list, and sets it to the one given as parameter.
@@ -386,7 +374,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		g2.setClip(bounds);
 		g2.translate(bounds.x, bounds.y);
 
-		getWidgetsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.viewportOffset, this.appFrame.getFocusCycleRootAncestor()));
+		getWidgetsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.appFrame.getFocusCycleRootAncestor()));
 
 		g2.translate(-bounds.x, -bounds.y);
 		g2.setClip(null);
@@ -568,7 +556,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 			}
 		}
 
-		public abstract void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor);
+		public abstract void render(Graphics2D g, Container focusCycleRootAncestor);
 
 		public int getZIndex() {
 			return this.zIndex;

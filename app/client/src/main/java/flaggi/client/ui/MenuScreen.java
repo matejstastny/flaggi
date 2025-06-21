@@ -58,11 +58,11 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, int[] origin, Container fcra) {
-		renderLogo(g, fcra);
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
+		renderLogo(g, focusCycleRootAncestor);
 		renderErrorMessage(g);
-		renderTextFields(g, fcra);
-		renderStartButton(g, fcra);
+		renderTextFields(g, focusCycleRootAncestor);
+		renderStartButton(g, focusCycleRootAncestor);
 	}
 
 	private void renderLogo(Graphics2D g, Container fcra) {
@@ -141,7 +141,7 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 		return null;
 	}
 
-	 @Override
+	@Override
 	public boolean wasInteracted(MouseEvent e) {
 		return getInteractedElement(e) != null;
 	}

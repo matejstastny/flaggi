@@ -45,7 +45,7 @@ public class ToastManager extends Renderable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, int[] viewportOffset, Container focusCycleRootAncestor) {
+	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		for (int i = toasts.size() - 1; i >= 0 && i >= toasts.size() - MAX_TOASTS; i--) {
 			Toast toast = toasts.get(i);
 			if (System.currentTimeMillis() - toast.timestamp >= Constants.TOAST_DISPLAY_DURATION_SEC * 1000) {
