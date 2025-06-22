@@ -701,7 +701,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	 * <li>Integrates seamlessly with GPanel's event forwarding mechanism.</li>
 	 * </ul>
 	 */
-	public abstract class AbstractInteractableHandler implements GPanel.InteractableHandler {
+	public static abstract class AbstractInteractableHandler implements GPanel.InteractableHandler {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 		}
