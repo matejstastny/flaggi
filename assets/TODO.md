@@ -15,3 +15,5 @@ Change Docker env to "FROM eclipse-temurin:8-jre"
 Add used resouces to README & version header like in *Don't Wake Up*
 
 Move maps directory from the server jar into a separate folder that the server makes to get users to add their own maps, also MAP VALIDATION
+
+Move the game mas into a separate repository
