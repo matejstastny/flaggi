@@ -46,7 +46,7 @@ public class ClientHandler implements Runnable {
 		try (InputStream in = clientSocket.getInputStream(); OutputStream out = clientSocket.getOutputStream()) {
 			if (handleInitialMessage(in, out)) {
 				while (!clientSocket.isClosed()) {
-					ClientMessage message = receiveMessage(in);
+					ClientMessage message = ProtoUtil.receiveClientMessage(in);
 					if (message == null) {
 						break;
 					}
@@ -73,11 +73,11 @@ public class ClientHandler implements Runnable {
 	// Private ------------------------------------------------------------------
 
 	private boolean handleInitialMessage(InputStream in, OutputStream out) throws IOException {
-		ClientMessage message = receiveMessage(in);
+		ClientMessage message = ProtoUtil.receiveClientMessage(in);
 		if (message.hasPing()) {
 			Logger.log(LogLevel.DEBUG, "Recieved valid ping from a client");
 			ServerMessage response = ServerMessage.newBuilder().setPong(Pong.newBuilder().setPong("pong")).build();
-			sendMessage(out, response);
+			ProtoUtil.sendServerMessage(out, response);
 			return false;
 		}
 		if (!message.hasClientHello()) {
@@ -94,44 +94,10 @@ public class ClientHandler implements Runnable {
 		clients.put(uuid, client);
 
 		ServerMessage response = ServerMessage.newBuilder().setServerHello(ServerHello.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();
-		sendMessage(out, response);
+		ProtoUtil.sendServerMessage(out, response);
 		messageQueue.offer(message);
 
 		return true;
 	}
 
-	private ClientMessage receiveMessage(InputStream in) throws IOException {
-		byte[] sizeBytes = new byte[4];
-		int readSize = in.read(sizeBytes);
-		if (readSize == -1) {
-			return null;
-		}
-		if (readSize < 4) {
-			throw new IOException("Failed to read message size: only read " + readSize + " bytes.");
-		}
-
-		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
-		byte[] messageBytes = new byte[messageSize];
-
-		int totalRead = 0;
-		while (totalRead < messageSize) {
-			int bytesRead = in.read(messageBytes, totalRead, messageSize - totalRead);
-			if (bytesRead == -1) {
-				throw new IOException("Connection closed while reading message body");
-			}
-			totalRead += bytesRead;
-		}
-
-		ClientMessage msg = ClientMessage.parseFrom(messageBytes);
-		Logger.log(LogLevel.TCP, "Received message from client: \n\n" + msg);
-		return msg;
-	}
-
-	private void sendMessage(OutputStream out, ServerMessage message) throws IOException {
-		byte[] messageBytes = message.toByteArray();
-		byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
-		out.write(sizeBytes);
-		out.write(messageBytes);
-		Logger.log(LogLevel.TCP, "Sent message to client: \n\n" + message);
-	}
 }

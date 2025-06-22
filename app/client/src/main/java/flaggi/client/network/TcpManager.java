@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -61,7 +60,7 @@ public class TcpManager implements Runnable {
 	public void run() {
 		try {
 			ServerMessage msg;
-			while ((msg = receiveMessage(this.in)) != null) {
+			while ((msg = ProtoUtil.receiveServerMessage(this.in)) != null) {
 				queue.add(msg);
 			}
 		} catch (IOException e) {
@@ -83,7 +82,7 @@ public class TcpManager implements Runnable {
 	public void connect(String username) {
 		Logger.log(LogLevel.DEBUG, "Greeting server with username: " + username);
 		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).build()).build();
-		send(message);
+		ProtoUtil.sendClientMessage(message, out);
 	}
 
 	public void close() {
@@ -106,18 +105,6 @@ public class TcpManager implements Runnable {
 		return queue.poll();
 	}
 
-	public void send(ClientMessage message) {
-		try {
-			byte[] messageBytes = message.toByteArray();
-			byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
-			out.write(sizeBytes);
-			out.write(messageBytes);
-			Logger.log(LogLevel.TCP, "Sent a message to server: \n\n" + message);
-		} catch (IOException e) {
-			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server.", e);
-		}
-	}
-
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
@@ -137,7 +124,7 @@ public class TcpManager implements Runnable {
 		}
 		Logger.log(LogLevel.DEBUG, "Sending command to server: " + type);
 		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).setUuid(uuid).build();
-		send(message);
+		ProtoUtil.sendClientMessage(message, out);
 	}
 
 	public void sendInvite(String otherUuid) {
@@ -145,7 +132,7 @@ public class TcpManager implements Runnable {
 			return;
 		}
 		ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInvite(ClientInvite.newBuilder().setInvitee(otherUuid)).build();
-		send(message);
+		ProtoUtil.sendClientMessage(message, out);
 	}
 
 	public void respondToInvite(String otherUuid, boolean accepted) {
@@ -153,39 +140,10 @@ public class TcpManager implements Runnable {
 			return;
 		}
 		ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInviteResponse(ClientInviteResponse.newBuilder().setInvitee(otherUuid).setAccepted(accepted)).build();
-		send(message);
+		ProtoUtil.sendClientMessage(message, out);
 	}
 
 	// Private -------------------------------------------------------------------
-
-	private ServerMessage receiveMessage(InputStream in) throws IOException {
-		byte[] sizeBytes = new byte[4];
-		int readSize = 0;
-		try {
-			readSize = in.read(sizeBytes);
-		} catch (SocketException e) {
-			return null; // If disconnected
-		}
-		if (readSize == -1) { // Server closed connection
-			return null;
-		} else if (readSize < 4) {
-			throw new IOException("Failed to read message size: only read " + readSize + " bytes.");
-		}
-
-		int messageSize = ProtoUtil.byteArrayToInt(sizeBytes);
-		byte[] messageBytes = new byte[messageSize];
-		int totalRead = 0;
-		while (totalRead < messageSize) {
-			int bytesRead = in.read(messageBytes, totalRead, messageSize - totalRead);
-			if (bytesRead == -1) {
-				throw new IOException("Connection closed while reading message data");
-			}
-			totalRead += bytesRead;
-		}
-		ServerMessage msg = ServerMessage.parseFrom(messageBytes);
-		Logger.log(LogLevel.TCP, "Received a message from the server: \n\n" + msg);
-		return msg;
-	}
 
 	private boolean validUuid(String errorMessage) {
 		if (uuid == null || uuid.isEmpty()) {
