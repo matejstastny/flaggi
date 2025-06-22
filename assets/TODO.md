@@ -13,3 +13,5 @@ Separate build-and-test.yml into 4 files (build and test all 4 components separa
 Change Docker env to "FROM eclipse-temurin:8-jre"
 
 Add used resouces to README & version header like in *Don't Wake Up*
+
+Move maps directory from the server jar into a separate folder that the server makes to get users to add their own maps, also MAP VALIDATION
