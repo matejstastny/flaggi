@@ -39,21 +39,15 @@ public class Global {
 			socket.connect(new InetSocketAddress(address, port), 1000);
 			socket.setSoTimeout(2000);
 
-			InputStream in = socket.getInputStream();
 			OutputStream out = socket.getOutputStream();
+			InputStream in = socket.getInputStream();
+
 			ClientMessage ping = ClientMessage.newBuilder().setPing(Ping.newBuilder().setPing("ping")).build();
 
-			byte[] bytes = ping.toByteArray();
-			byte[] size = ProtoUtil.intToByteArray(bytes.length);
-			out.write(size);
-			out.write(bytes);
+			ProtoUtil.sendClientMessage(ping, out);
+			ServerMessage response = ProtoUtil.receiveServerMessage(in);
 
-			size = new byte[4];
-			in.read(size);
-			int messageSize = ProtoUtil.byteArrayToInt(size);
-			byte[] messageBytes = new byte[messageSize];
-			in.read(messageBytes);
-			return ServerMessage.parseFrom(messageBytes).hasPong();
+			return response != null && response.hasPong();
 		} catch (IOException e) {
 			return false;
 		}

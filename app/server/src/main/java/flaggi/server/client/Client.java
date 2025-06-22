@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import flaggi.proto.ServerMessages.ServerMessage;
+import flaggi.server.Server;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ProtoUtil;
@@ -56,12 +57,10 @@ public class Client {
 
 	public void sendMessage(ServerMessage message) {
 		try {
-			byte[] messageBytes = message.toByteArray();
-			byte[] sizeBytes = ProtoUtil.intToByteArray(messageBytes.length);
-			this.out.write(sizeBytes);
-			this.out.write(messageBytes);
+			ProtoUtil.sendServerMessage(out, message);
 		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "IOException occured while sending message to client (" + this.name + ", " + this.uuid + ")", e);
+			Logger.log(LogLevel.ERROR, "Failed to send message to client " + uuid, e);
+			Server.handleFatalError();
 		}
 	}
 }
