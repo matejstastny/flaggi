@@ -30,6 +30,14 @@ enum ClientCommandType {
     GET_IDLE_CLIENT_LIST = 0;
 }
 
+enum ClientInputType {
+    MOUSE_PRESSED = 0;
+    MOUSE_RELEASED = 1;
+    MOUSE_MOVED = 2;
+    KEY_PRESSED = 3;
+    KEY_RELEASED = 4;
+}
+
 // TCP Messages --------------------------------------------------------------
 
 message Ping {
@@ -58,21 +66,8 @@ message ClientInviteResponse {
 message ClientStateUpdate {
     string uuid = 1;
     string gameUuid = 2;
-    oneof update_type {
-        NewPlayerState newPlayerState = 3;
-        NewObject newObject = 4;
-    }
-}
-
-message NewPlayerState {
-    int64 x = 2;
-    int64 y = 3;
-    string animationName = 4;
-    int64 animationFrame = 5;
-}
-
-message NewObject {
-    string objectType = 1;
-    int64 x = 2;
-    int64 y = 3;
+    ClientInputType inputType = 3;
+    int32 mouse_x = 4;
+    int32 mouse_y = 5;
+    int32 key_code = 6;
 }

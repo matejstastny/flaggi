@@ -7,7 +7,7 @@
 package flaggi.server.common;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -25,7 +25,7 @@ import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FileUtil;
 
-public class GameManager implements Updatable {
+public class GameManager implements Closeable, Updatable {
 
 	private final String gameUuid;
 	private Client[] clients;
@@ -39,6 +39,13 @@ public class GameManager implements Updatable {
 		this.clients = clients;
 		this.activeGames = activeGames;
 		sendJoinGameMessages(getRandomMapJson());
+	}
+
+	@Override
+	public void close() {
+		if (activeGames != null && activeGames.get(this.gameUuid) == this) {
+			activeGames.remove(this.gameUuid);
+		}
 	}
 
 	// Update -------------------------------------------------------------------
@@ -58,12 +65,6 @@ public class GameManager implements Updatable {
 	}
 
 	// Private ------------------------------------------------------------------
-
-	private void close() {
-		if (activeGames != null && activeGames.get(this.gameUuid) == this) {
-			activeGames.remove(this.gameUuid);
-		}
-	}
 
 	private void sendJoinGameMessages(String mapJson) {
 		for (Client client : clients) {

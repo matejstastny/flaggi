@@ -62,5 +62,11 @@ message IdleClientList {
 // UDP Messages --------------------------------------------------------------
 
 message ServerStateUpdate {
-    int64 objectId = 1;
+    repeated RenderableObject renderables = 1;
+}
+
+message RenderableObject {
+    string sprite_name = 1;
+    string animation_name = 2;
+    int32 frame = 3;
 }

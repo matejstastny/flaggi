@@ -6,7 +6,6 @@
 
 package flaggi.client;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
@@ -37,8 +36,6 @@ import flaggi.shared.common.GPanel;
 import flaggi.shared.common.GPanel.Renderable;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
-import flaggi.shared.common.MapData;
-import flaggi.shared.common.MapData.ObjectType;
 import flaggi.shared.common.UpdateLoop;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.NetUtil;
@@ -57,18 +54,8 @@ public class App implements Updatable {
 
 	// Main ---------------------------------------------------------------------
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		SwingUtilities.invokeLater(App::new);
-
-		// MapData map = new MapData("My Awesome Map", 300, 600);
-		// map.setSpawnpoints(150, 10, 150, 590);
-		// map.newGameObject(ObjectType.TREE, 150, 300);
-		// File f = new
-		// File("/Users/matejstastny/Documents/devel/java/flaggi/app/server/src/main/resources/maps/sandbox.json");
-		// if (!f.exists()) {
-		// f.createNewFile();
-		// }
-		// map.saveToFile(f);
 	}
 
 	public App() {
