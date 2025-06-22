@@ -44,6 +44,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import flaggi.shared.common.GPanel.InteractableHandler;
+
 /**
  * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed
  * rendering loop, and a flexible region-based layout for UI elements.
@@ -277,7 +279,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	 *
 	 * @param handler
 	 */
-	public void setInteractionHandler(InteractableHandler handler) {
+	public void setInteractableHandler(InteractableHandler handler) {
 		this.handler = handler;
 	}
 
@@ -673,6 +675,80 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		// No need to manually define methods, as they are inherited
 	}
 
+	/**
+	 * <h2>AbstractInteractableHandler</h2>
+	 * A base class for handling user input events in a GPanel. This class provides
+	 * empty method definitions for all event listener methods, allowing you to
+	 * override only the ones you need.
+	 *
+	 * <h3>Usage Example:</h3>
+	 * <pre>
+	 * panel.setInteractableHandler(new AbstractInteractableHandler() {
+	 *     {@code @Override}
+	 *     public void keyPressed(KeyEvent e) {
+	 *         System.out.println("Key pressed: " + e.getKeyCode());
+	 *     }
+	 *
+	 *     {@code @Override}
+	 *     public void mouseClicked(MouseEvent e) {
+	 *         System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
+	 *     }
+	 * });
+	 * </pre>
+	 *
+	 * <h3>Features:</h3>
+	 * <ul>
+	 * <li>Provides default empty implementations for all event listener methods.</li>
+	 * <li>Allows selective overriding of methods for specific event handling.</li>
+	 * <li>Integrates seamlessly with GPanel's event forwarding mechanism.</li>
+	 * </ul>
+	 */
+	public abstract class AbstractInteractableHandler implements GPanel.InteractableHandler {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+		}
+	}
+
 	private <T> void forwardEvent(BiConsumer<InteractableHandler, T> method, T event) {
 		if (this.handler != null) {
 			method.accept(this.handler, event);
@@ -739,5 +815,4 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		forwardEvent(InteractableHandler::keyReleased, e);
 		this.widgets.stream().filter(w -> w instanceof Typable).forEach(w -> ((Typable) w).type(e));
 	}
-
 }
