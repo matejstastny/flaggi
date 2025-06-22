@@ -97,11 +97,11 @@ public class App implements Updatable {
 		toggleUi(UiTags.LOBBY);
 	}
 
-	public void gotoGame(String mapJson) {
+	public void gotoGame(String gameUuid) {
 		if (this.gameManager == null) {
 			updateLoop.remove(gameManager);
 		}
-		gameManager = new GameManager(udpManager, gpanel, mapJson);
+		gameManager = new GameManager(gameUuid, udpManager, gpanel);
 		updateLoop.add(gameManager);
 		toggleUi(UiTags.GAME);
 	}
@@ -181,7 +181,7 @@ public class App implements Updatable {
 			} else if (message.hasServerHello()) {
 				handleServerHello(message.getServerHello());
 			} else if (message.hasServerJoinGame()) {
-				gotoGame(message.getServerJoinGame().getMapJson());
+				gotoGame(message.getServerJoinGame().getGameUuid());
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasServerInvite()) {
 				Runnable acceptAction = () -> respondToInvite(message.getServerInvite().getInviteeUuid(), true);

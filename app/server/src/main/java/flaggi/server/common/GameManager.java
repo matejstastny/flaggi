@@ -38,7 +38,7 @@ public class GameManager implements Closeable, Updatable {
 		this.gameUuid = gameUuid;
 		this.clients = clients;
 		this.activeGames = activeGames;
-		sendJoinGameMessages(getRandomMapJson());
+		sendJoinGameMessages();
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class GameManager implements Closeable, Updatable {
 
 	// Private ------------------------------------------------------------------
 
-	private void sendJoinGameMessages(String mapJson) {
+	private void sendJoinGameMessages() {
 		for (Client client : clients) {
-			client.sendMessage(ServerMessage.newBuilder().setServerJoinGame(ServerJoinGame.newBuilder().setMapJson(mapJson).build()).build());
+			client.sendMessage(ServerMessage.newBuilder().setServerJoinGame(ServerJoinGame.newBuilder().setGameUuid(gameUuid).build()).build());
 		}
 	}
 

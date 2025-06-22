@@ -43,7 +43,6 @@ message ServerHello {
 
 message ServerJoinGame {
     string gameUuid = 1;
-    string mapJson = 2;
 }
 
 message ServerInvite {
