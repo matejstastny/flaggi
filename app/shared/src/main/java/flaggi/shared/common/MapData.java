@@ -6,7 +6,6 @@
 
 package flaggi.shared.common;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,12 +27,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class MapData {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-	private final List<ObjectData> gameObjects = new CopyOnWriteArrayList<>();
 
 	private volatile int objectIdCounter;
 	private volatile String name;
 	private volatile int width, height;
 	private volatile Spawnpoint spawnpoint;
+	private final List<ObjectData> gameObjects = new CopyOnWriteArrayList<>();
 
 	// Constructors -------------------------------------------------------------
 
@@ -46,6 +45,7 @@ public class MapData {
 	}
 
 	// for JSON serialization
+	@JsonCreator
 	public MapData() {
 		this("Untitled Map", 1000, 1000);
 	}
@@ -69,7 +69,7 @@ public class MapData {
 
 	// JSON ---------------------------------------------------------------------
 
-	public String toJson() throws IOException {
+	public String serialize() throws IOException {
 		return objectMapper.writeValueAsString(this);
 	}
 
@@ -103,7 +103,7 @@ public class MapData {
 		return gameObjects;
 	}
 
-	public synchronized Spawnpoint getSpawnpoints() {
+	public synchronized Spawnpoint getSpawnpoint() {
 		return this.spawnpoint;
 	}
 
@@ -127,17 +127,8 @@ public class MapData {
 	// Private ------------------------------------------------------------------
 
 	private void isInBounds(int x, int y) {
-		if (x > this.width) {
-			throw new IllegalArgumentException("X coordinate is outside the map size.");
-		}
-		if (y > this.height) {
-			throw new IllegalArgumentException("Y coordinate is outside the map size.");
-		}
-		if (x < 0) {
-			throw new IllegalArgumentException("X coordinate is smaller than 0.");
-		}
-		if (y < 0) {
-			throw new IllegalArgumentException("Y coordinate is smaller than 0.");
+		if (x < 0 || x > width || y < 0 || y > height) {
+			throw new IllegalArgumentException(String.format("Coordinates (%d, %d) are outside map bounds (%d x %d)", x, y, width, height));
 		}
 	}
 
@@ -146,16 +137,14 @@ public class MapData {
 	@JsonDeserialize(using = ObjectTypeDeserializer.class)
 	public enum ObjectType {
 
-		TREE("tree", 0, 0, 0, 0), //
-		RED_FLAG("red_flag", 0, 0, 0, 0), //
-		BLUE_FLAG("blue_flag", 0, 0, 0, 0); //
+		TREE("tree"), //
+		RED_FLAG("red_flag"), //
+		BLUE_FLAG("blue_flag"); //
 
 		private final String name;
-		private final Rectangle collision;
 
-		ObjectType(String name, int collisionX, int collisionY, int collisionWidth, int collisionHeight) {
+		ObjectType(String name) {
 			this.name = name;
-			this.collision = new Rectangle(collisionX, collisionY, collisionWidth, collisionHeight);
 		}
 
 		@JsonValue
@@ -163,13 +152,9 @@ public class MapData {
 			return name;
 		}
 
-		public Rectangle getCollision() {
-			return collision;
-		}
-
 		@Override
 		public String toString() {
-			return String.format("ObjectType{name='%s', collisionPos=[%d, %d], collisionSize=[%d, %d]}", name, collision.x, collision.y, collision.width, collision.height);
+			return String.format("ObjectType{name='%s'}", name);
 		}
 
 		@JsonCreator
@@ -249,7 +234,7 @@ public class MapData {
 
 	public static class Spawnpoint {
 
-		public int oneX, oneY, twoX, twoY;
+		private int oneX, oneY, twoX, twoY;
 
 		/**
 		 * Default constructor.
@@ -269,6 +254,22 @@ public class MapData {
 		// JSON serialization
 		public Spawnpoint() {
 			this(0, 0, 0, 0);
+		}
+
+		public int getOneX() {
+			return oneX;
+		}
+
+		public int getOneY() {
+			return oneY;
+		}
+
+		public int getTwoX() {
+			return twoX;
+		}
+
+		public int getTwoY() {
+			return twoY;
 		}
 
 		@Override

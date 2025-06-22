@@ -67,18 +67,23 @@ public class FileUtil {
 	// JAR resources -------------------------------------------------------------
 
 	/**
-	 * Gets a list of all directories in the given path. The path must be a jar
-	 * relative path.
+	 * Lists either directories or files from a given path inside a JAR or classpath
+	 * folder.
 	 *
-	 * @param path - target path.
-	 * @return - list of {@code String} dir names.
+	 * @param path      The internal path (must be JAR-relative, e.g.
+	 *                  "assets/sprites").
+	 * @param extension Behavior is based on this: - "" (empty string) → list
+	 *                  directories only - null → list all files - "ext" → list only
+	 *                  files with that extension (e.g. "png")
+	 * @return A list of matching directory or file names (just the base names).
 	 */
-	public static String[] retrieveJarDirectoryList(String path) {
+	public static List<String> retrieveJarEntries(String path, String extension) {
 		if (!path.endsWith("/")) {
 			path += "/";
 		}
 
-		List<String> directories = new ArrayList<>();
+		List<String> results = new ArrayList<>();
+
 		try {
 			Enumeration<URL> resources = FileUtil.class.getClassLoader().getResources(path);
 			while (resources.hasMoreElements()) {
@@ -90,10 +95,28 @@ public class FileUtil {
 						while (entries.hasMoreElements()) {
 							JarEntry entry = entries.nextElement();
 							String entryName = entry.getName();
-							if (entryName.startsWith(path) && entryName.endsWith("/") && !entryName.equals(path)) {
-								directories.add(extractRelativeDirName(path, entryName));
-							}
 
+							if (entryName.startsWith(path) && !entryName.equals(path)) {
+								String relativeName = entryName.substring(path.length());
+
+								// Skip nested entries
+								if (relativeName.contains("/"))
+									continue;
+
+								if (extension != null && extension.isEmpty()) {
+									// Directories only
+									if (entry.isDirectory()) {
+										results.add(relativeName);
+									}
+								} else {
+									// Files only
+									if (!entry.isDirectory()) {
+										if (extension == null || relativeName.endsWith("." + extension)) {
+											results.add(relativeName);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -102,7 +125,7 @@ public class FileUtil {
 			e.printStackTrace();
 		}
 
-		return directories.toArray(new String[0]);
+		return results;
 	}
 
 	public static void copyResource(String resourcePath, String outputPath) throws IOException {
@@ -142,22 +165,4 @@ public class FileUtil {
 			}
 		});
 	}
-
-	// Private methods -----------------------------------------------------------
-
-	/**
-	 * Extracts the relative directory name from the given path. For example, if the
-	 * original path is "path/to/dir/" and the path is "path/to/dir/subdir/", the
-	 * method will return "subdir".
-	 *
-	 * @see FileUtil#retrieveJarDirectoryList(String)
-	 * @param parentDirPath - parent directory path (example: "path/to/dir/").
-	 * @param fullPath      - full path (example: "path/to/dir/subdir/").
-	 * @return relative directory name (example: "subdir").
-	 */
-	private static String extractRelativeDirName(String parentDirPath, String fullPath) {
-		int frontCut = parentDirPath.length();
-		return fullPath.substring(frontCut, fullPath.length() - 1);
-	}
-
 }

@@ -25,6 +25,6 @@ public class GameRoom extends Renderable {
 
 	@Override
 	public void render(Graphics2D g, Container focusCycleRootAncestor) {
-
+		
 	}
 }

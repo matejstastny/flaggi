@@ -33,11 +33,16 @@ public class Constants {
 	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
 	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
 	public static final ConfigManager CONFIG = getConfigManager();
+
 	/**
 	 * Resources that will be created at server start in the directory the sever
 	 * lives. The map is in "/resource/path" "new relative path"
 	 */
 	public static Map<String, String> SERVER_RESOURCES = getServerResources();
+
+	// Resources ----------------------------------------------------------------
+
+	public static final String MAPS_RES_DIR = "maps";
 
 	// Debug --------------------------------------------------------------------
 

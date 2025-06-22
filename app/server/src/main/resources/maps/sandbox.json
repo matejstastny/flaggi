@@ -1,31 +1,19 @@
 {
-  "name": "Sandbox",
-  "width": 500,
-  "height": 1000,
+  "name": "Debug testing map",
+  "width": 300,
+  "height": 600,
   "spawnpoint": {
-    "oneX": 250,
-    "oneY": 20,
-    "twoX": 250,
-    "twoY": 980
+    "oneX": 150,
+    "oneY": 10,
+    "twoX": 150,
+    "twoY": 590
   },
   "gameObjects": [
     {
       "objectType": "tree",
-      "x": 250,
-      "y": 500,
+      "x": 150,
+      "y": 300,
       "id": 0
-    },
-    {
-      "objectType": "red_flag",
-      "x": 200,
-      "y": 200,
-      "id": 1
-    },
-    {
-      "objectType": "blue_flag",
-      "x": 300,
-      "y": 800,
-      "id": 2
     }
   ]
 }
