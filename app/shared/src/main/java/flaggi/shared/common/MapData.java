@@ -9,9 +9,9 @@ package flaggi.shared.common;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -28,12 +28,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class MapData {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-	private final List<ObjectData> gameObjects = new ArrayList<ObjectData>();
+	private final List<ObjectData> gameObjects = new CopyOnWriteArrayList<>();
 
-	private int objectIdCounter;
-	private String name;
-	private int width, height;
-	private Spawnpoint spawnpoint;
+	private volatile int objectIdCounter;
+	private volatile String name;
+	private volatile int width, height;
+	private volatile Spawnpoint spawnpoint;
 
 	// Constructors -------------------------------------------------------------
 
@@ -52,10 +52,9 @@ public class MapData {
 
 	// Public -------------------------------------------------------------------
 
-	public void newGameObject(ObjectType type, int x, int y) {
+	public synchronized void newGameObject(ObjectType type, int x, int y) {
 		isInBounds(x, y);
-		int id = this.objectIdCounter;
-		this.objectIdCounter++;
+		int id = this.objectIdCounter++;
 		this.gameObjects.add(new ObjectData(type, id, x, y));
 	}
 
@@ -88,15 +87,15 @@ public class MapData {
 
 	// Accesors -----------------------------------------------------------------
 
-	public String getName() {
+	public synchronized String getName() {
 		return name;
 	}
 
-	public int getWidth() {
+	public synchronized int getWidth() {
 		return width;
 	}
 
-	public int getHeight() {
+	public synchronized int getHeight() {
 		return height;
 	}
 
@@ -104,23 +103,23 @@ public class MapData {
 		return gameObjects;
 	}
 
-	public Spawnpoint getSpawnpoints() {
+	public synchronized Spawnpoint getSpawnpoints() {
 		return this.spawnpoint;
 	}
 
 	// Modifiers ----------------------------------------------------------------
 
-	public void setName(String name) {
+	public synchronized void setName(String name) {
 		this.name = name;
 	}
 
-	public void setSpawnpoints(int spawnpoint1X, int spawnpoint1Y, int spawnpoint2X, int spawnpoint2Y) {
+	public synchronized void setSpawnpoints(int spawnpoint1X, int spawnpoint1Y, int spawnpoint2X, int spawnpoint2Y) {
 		isInBounds(spawnpoint1X, spawnpoint1Y);
 		isInBounds(spawnpoint2X, spawnpoint2Y);
 		this.spawnpoint = new Spawnpoint(spawnpoint1X, spawnpoint1Y, spawnpoint2X, spawnpoint2Y);
 	}
 
-	public void setSize(int width, int height) {
+	public synchronized void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
 	}
