@@ -44,8 +44,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import flaggi.shared.common.GPanel.InteractableHandler;
-
 /**
  * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed
  * rendering loop, and a flexible region-based layout for UI elements.
@@ -676,12 +674,12 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	}
 
 	/**
-	 * <h2>AbstractInteractableHandler</h2>
-	 * A base class for handling user input events in a GPanel. This class provides
-	 * empty method definitions for all event listener methods, allowing you to
-	 * override only the ones you need.
+	 * <h2>AbstractInteractableHandler</h2> A base class for handling user input
+	 * events in a GPanel. This class provides empty method definitions for all
+	 * event listener methods, allowing you to override only the ones you need.
 	 *
 	 * <h3>Usage Example:</h3>
+	 *
 	 * <pre>
 	 * panel.setInteractableHandler(new AbstractInteractableHandler() {
 	 *     {@code @Override}
@@ -698,7 +696,8 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	 *
 	 * <h3>Features:</h3>
 	 * <ul>
-	 * <li>Provides default empty implementations for all event listener methods.</li>
+	 * <li>Provides default empty implementations for all event listener
+	 * methods.</li>
 	 * <li>Allows selective overriding of methods for specific event handling.</li>
 	 * <li>Integrates seamlessly with GPanel's event forwarding mechanism.</li>
 	 * </ul>
