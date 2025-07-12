@@ -43,6 +43,8 @@ message ServerHello {
 
 message ServerJoinGame {
     string gameUuid = 1;
+    int32 roomWidth = 2;
+    int32 roomHeight = 3;
 }
 
 message ServerInvite {
@@ -61,11 +63,17 @@ message IdleClientList {
 // UDP Messages --------------------------------------------------------------
 
 message ServerStateUpdate {
-    repeated RenderableObject renderables = 1;
+    int32 x = 1;
+    int32 y = 2;
+    int32 hp = 3;
+    repeated RenderableObject renderables = 4;
 }
 
 message RenderableObject {
     string sprite_name = 1;
     string animation_name = 2;
     int32 frame = 3;
+    int32 x = 4;
+    int32 y = 5;
+    int32 hp = 6;
 }

@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 2/23/2025
  * GitHub link: https://github.com/matysta/flaggi
  */

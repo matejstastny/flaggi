@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 4/26/2025
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -12,8 +12,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.client.App;
 import flaggi.client.constants.Constants;
@@ -24,10 +22,10 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpManager implements Runnable {
 
-	private final BlockingQueue<ServerStateUpdate> queue = new LinkedBlockingQueue<>();
 	private int port;
 	private InetAddress address;
 	private DatagramSocket socket;
+	private volatile ServerStateUpdate latestUpdate;
 
 	// Constructor ---------------------------------------------------------------
 
@@ -53,7 +51,7 @@ public class UdpManager implements Runnable {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 				ServerStateUpdate update = ServerStateUpdate.parseFrom(packet.getData());
-				queue.offer(update);
+				this.latestUpdate = update;
 			} catch (IOException e) {
 				if (Thread.currentThread().isInterrupted()) {
 					Logger.log(LogLevel.INFO, "UDP listener thread interrupted, shutting down.");
@@ -76,8 +74,8 @@ public class UdpManager implements Runnable {
 		}
 	}
 
-	public ServerStateUpdate poll() {
-		return queue.poll();
+	public ServerStateUpdate getLatestUpdate() {
+		return this.latestUpdate;
 	}
 
 	public void send(ClientStateUpdate message) {

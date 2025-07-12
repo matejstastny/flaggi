@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 6/21/2025
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -13,8 +13,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.client.network.UdpManager;
+import flaggi.client.ui.GameRoom;
 import flaggi.proto.ClientMessages.ClientInputType;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
+import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.GPanel.AbstractInteractableHandler;
@@ -25,15 +27,17 @@ public class GameManager implements Closeable, Updatable {
 	private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
 	private final String gameUuid;
 	private UdpManager udpManager;
+	private GameRoom gameUi;
 	private GPanel gpanel;
 
 	// Constructor --------------------------------------------------------------
 
-	public GameManager(String gameUuid, UdpManager udpManager, GPanel gpanel) {
-		this.gameUuid = gameUuid;
+	public GameManager(ServerJoinGame message, UdpManager udpManager, GPanel gpanel) {
+		this.gameUuid = message.getGameUuid();
 		this.udpManager = udpManager;
 		this.gpanel = gpanel;
 		addInteractHandeler();
+		setupGameUi(message.getRoomWidth(), message.getRoomHeight());
 	}
 
 	@Override
@@ -45,14 +49,21 @@ public class GameManager implements Closeable, Updatable {
 
 	@Override
 	public void update() {
-		ServerStateUpdate update;
-		while ((update = udpManager.poll()) != null) {
+		ServerStateUpdate latest = udpManager.getLatestUpdate();
+		this.gameUi.updateGameUi(latest);
 
-		}
 		ClientStateUpdate outgoingUpdate;
 		while ((outgoingUpdate = outgoing.poll()) != null) {
 			udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).build());
 		}
+	}
+
+	// UI -----------------------------------------------------------------------
+
+	private void setupGameUi(int width, int height) {
+		this.gpanel.removeWidgetsOfClass(GameRoom.class);
+		this.gameUi = new GameRoom(new int[] { width, height });
+		this.gpanel.add(gameUi);
 	}
 
 	// Input handeling ----------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 11/27/2024
  * Github link: https://github.com/matysta/flaggi
 */
@@ -224,9 +224,9 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 
 	private void loadImages() {
 		try {
-			this.logo = ImageUtil.getImageFromFile("ui/logo.png");
-			this.button = ImageUtil.getImageFromFile("ui/button.png");
-			this.textField = ImageUtil.getImageFromFile("ui/text_field.png");
+			this.logo = ImageUtil.getImageFromResource("ui/logo.png");
+			this.button = ImageUtil.getImageFromResource("ui/button.png");
+			this.textField = ImageUtil.getImageFromResource("ui/text_field.png");
 		} catch (IOException e) {
 			Logger.log(LogLevel.WARN, "Couldn't load " + getClass().getSimpleName() + " textures.", e);
 		}

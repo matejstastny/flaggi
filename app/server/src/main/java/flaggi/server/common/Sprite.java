@@ -1,10 +1,10 @@
 /*
- * Author: Matěj Šťastný aka Kirei
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 12/1/2024
- * Github link: https://github.com/kireiiiiiiii/flaggi
+ * GitHub link: https://github.com/matysta/flaggi
  */
 
-package flaggi.client.common;
+package flaggi.server.common;
 
 import java.awt.Container;
 import java.awt.Graphics2D;
@@ -24,7 +24,7 @@ import flaggi.shared.util.ImageUtil;
 
 public class Sprite {
 
-	public static final String DEFAULT_TEXTURE_PATH = "sprites/";
+	public static final String TEXTURE_RESOURCE_DIRECTORY = "sprites/";
 	public static final String DEFAULT_TEXTURE_EXTENSION = ".png";
 
 	private final ScheduledExecutorService frameScheduler;
@@ -43,8 +43,12 @@ public class Sprite {
 	// New animations -----------------------------------------------------------
 
 	/**
-	 * @param frameNames   - names of the frames without a directory path, or a file
-	 *                     extension.
+	 * Adds a new animation to the sprite.
+	 *
+	 * @param name         - name of the animation. Will be used to select it later.
+	 * @param frameNames   - names of the frames. Will be prefixed by
+	 *                     {@link #TEXTURE_RESOURCE_DIRECTORY} and suffixed by
+	 *                     {@link #DEFAULT_TEXTURE_EXTENSION}.
 	 * @param resourcePath - path to the sprite textures directory in the jar file.
 	 *                     Pass in {@code ""} if they are located in the root. If
 	 *                     you pass a path that doesn't end with "/" it will be
@@ -53,22 +57,25 @@ public class Sprite {
 	 *                     ...). If the extension doesn't start with a dot, it will
 	 *                     be appended.
 	 */
-	public void addAnimation(String name, List<String> frameNames, String resourcePath, String fileType) {
-		try {
-			animations.put(name, loadFrames(frameNames, resourcePath, fileType));
-		} catch (IOException e) {
-			Logger.log(LogLevel.WARN, "Failed to load animation: '" + name + "'. Resource does not exist.");
-		}
+	public void addAnimation(String name, List<String> frameNames) {
+		addAnimation(name, frameNames, null, null);
 	}
 
 	/**
-	 * Automatically sets name param to ".png" and the resource path to "sprites/"
+	 * Adds a new animation to the sprite.
 	 *
-	 * @see #addAnimation(String, List, String, String)
-	 * @see #loadFrames(List, String, String)
+	 * @param name          - name of the animation. Will be used to select it
+	 *                      later.
+	 * @param frameNames    - names of the frames. Will be prefixed by
+	 * @param directoryPath
+	 * @param fileExtension
 	 */
-	public void addAnimation(String name, List<String> frameNames) {
-		addAnimation(name, frameNames, null, null);
+	public void addAnimation(String name, List<String> frameNames, String directoryPath, String fileExtension) {
+		try {
+			animations.put(name, loadFrames(frameNames, directoryPath, fileExtension));
+		} catch (IOException e) {
+			Logger.log(LogLevel.WARN, "Failed to load animation: '" + name + "'. Resource does not exist.");
+		}
 	}
 
 	// Setters ------------------------------------------------------------------
@@ -141,7 +148,7 @@ public class Sprite {
 		}
 
 		List<Image> frames = new ArrayList<>();
-		String basePath = (directory == null || directory.isEmpty()) ? DEFAULT_TEXTURE_PATH : directory;
+		String basePath = (directory == null || directory.isEmpty()) ? TEXTURE_RESOURCE_DIRECTORY : directory;
 		basePath = basePath.endsWith("/") ? basePath : basePath.concat("/");
 		String ext = (fileType == null || fileType.isEmpty()) ? DEFAULT_TEXTURE_EXTENSION : fileType;
 		ext = ext.startsWith(".") || ext.isEmpty() ? ext : ".".concat(ext);
@@ -152,7 +159,7 @@ public class Sprite {
 			String fullPath = fullPathBuilder.toString();
 
 			try {
-				Image image = ImageUtil.getImageFromFile(fullPath);
+				Image image = ImageUtil.getImageFromResource(fullPath);
 				if (image != null) {
 					frames.add(image);
 				} else {
@@ -191,5 +198,4 @@ public class Sprite {
 	private String getAnimationNames() {
 		return String.join(", ", animations.keySet());
 	}
-
 }

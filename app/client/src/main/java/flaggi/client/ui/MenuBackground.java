@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 03/25/2025
  * GitHub link: https://github.com/matysta/flaggi
 */
@@ -29,7 +29,7 @@ public class MenuBackground extends Renderable {
 	public MenuBackground() {
 		super(ZIndex.BACKGROUND, PanelRegion.BACKGROUND, UiTags.MAIN_MENU);
 		try {
-			this.background = ImageUtil.getImageFromFile("ui/menu_screen.png");
+			this.background = ImageUtil.getImageFromResource("ui/menu_screen.png");
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERROR, "Failed to load background texture.");
 		}
@@ -39,5 +39,4 @@ public class MenuBackground extends Renderable {
 	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		drawBackground(g, background, focusCycleRootAncestor);
 	}
-
 }

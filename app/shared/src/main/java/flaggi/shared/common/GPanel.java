@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 7/23/2024
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -340,6 +340,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		int height = getHeight();
 		int minSize = Math.min(width, height) / 2;
 
+		regions.put(PanelRegion.FULLSCREEN, computeRegion((Math.max(width, height) - width) / -2, (Math.max(width, height) - height) / -2, Math.max(width, height), Math.max(width, height)));
 		regions.put(PanelRegion.BACKGROUND, computeRegion(0, 0, width, height));
 		regions.put(PanelRegion.CENTER, computeRegion((width - minSize * 2) / 2, (height - minSize * 2) / 2, minSize * 2, minSize * 2));
 		regions.put(PanelRegion.TOP_LEFT, computeRegion(0, 0, minSize, minSize));
@@ -349,13 +350,13 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
 		double pxPerVh = minSize / 100.0;
 		double centerPxPerVh = (minSize * 2) / 100.0;
-		double backgroundPxPerVh = Math.max(width, height) / 100;
+		double fullscreenPxPerVh = Math.max(width, height) / 100;
 
 		widgets.forEach(c -> {
 			if (c.getRegion() == PanelRegion.CENTER) {
 				c.setPxPerVh(centerPxPerVh);
-			} else if (c.getRegion() == PanelRegion.BACKGROUND) {
-				c.setPxPerVh(backgroundPxPerVh);
+			} else if (c.getRegion() == PanelRegion.FULLSCREEN || c.getRegion() == PanelRegion.BACKGROUND) {
+				c.setPxPerVh(fullscreenPxPerVh);
 			} else {
 				c.setPxPerVh(pxPerVh);
 			}
@@ -522,18 +523,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	// Renderable abs class -----------------------------------------------------
 
 	public enum PanelRegion {
-		/**
-		 *
-		 */
-		BACKGROUND,
-		/**
-		 * HEADER 2
-		 */
-		CENTER,
-		/**
-		 * Top left corner, overlays with the center if window is a perfect square.
-		 */
-		TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+		FULLSCREEN, BACKGROUND, CENTER, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
 	}
 
 	/**

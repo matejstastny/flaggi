@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 6/21/2025
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -21,16 +21,17 @@ import flaggi.server.Server;
 import flaggi.server.client.Client;
 import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
+import flaggi.shared.common.MapData;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FileUtil;
 
 public class GameManager implements Closeable, Updatable {
 
+	private BlockingQueue<ClientStateUpdate> updates;
+	private Map<String, GameManager> activeGames;
 	private final String gameUuid;
 	private Client[] clients;
-	private Map<String, GameManager> activeGames;
-	private BlockingQueue<ClientStateUpdate> updates;
 
 	// Constructor --------------------------------------------------------------
 
@@ -38,7 +39,8 @@ public class GameManager implements Closeable, Updatable {
 		this.gameUuid = gameUuid;
 		this.clients = clients;
 		this.activeGames = activeGames;
-		sendJoinGameMessages();
+		MapData mapData = getRandomMap();
+		sendJoinGameMessages(mapData.getWidth(), mapData.getHeight());
 	}
 
 	@Override
@@ -66,13 +68,17 @@ public class GameManager implements Closeable, Updatable {
 
 	// Private ------------------------------------------------------------------
 
-	private void sendJoinGameMessages() {
+	private void processClientUpdate(ClientStateUpdate update) {
+
+	}
+
+	private void sendJoinGameMessages(int roomWidth, int roomHeight) {
 		for (Client client : clients) {
-			client.sendMessage(ServerMessage.newBuilder().setServerJoinGame(ServerJoinGame.newBuilder().setGameUuid(gameUuid).build()).build());
+			client.sendMessage(ServerMessage.newBuilder().setServerJoinGame(ServerJoinGame.newBuilder().setGameUuid(gameUuid).setRoomWidth(roomWidth).setRoomHeight(roomHeight).build()).build());
 		}
 	}
 
-	private String getRandomMapJson() {
+	private MapData getRandomMap() {
 		List<String> maps = FileUtil.retrieveJarEntries(Constants.MAPS_RES_DIR, "json");
 		if (maps.isEmpty()) {
 			Logger.log(LogLevel.ERROR, "No maps found in resources directory: " + Constants.MAPS_RES_DIR);
@@ -91,6 +97,13 @@ public class GameManager implements Closeable, Updatable {
 			Logger.log(LogLevel.ERROR, "Failed to read map resource for file " + file, e);
 			Server.handleFatalError();
 		}
-		return contentBuilder.toString();
+		MapData mapData = null;
+		try {
+			mapData = MapData.fromJson(contentBuilder.toString());
+		} catch (IOException e) {
+			Logger.log(LogLevel.ERROR, "Failed to convernt map JSON to MapData " + file, e);
+			Server.handleFatalError();
+		}
+		return mapData;
 	}
 }

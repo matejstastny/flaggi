@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 5/16/2024
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -33,7 +33,7 @@ public class ImageUtil {
 	 * @return the loaded Image object, or {@code null} if an error occurs.
 	 * @throws IOException if there is an error reading the image.
 	 */
-	public static Image getImageFromFile(String imageName) throws IOException {
+	public static Image getImageFromResource(String imageName) throws IOException {
 		InputStream imageStream = getImageInputStream(imageName);
 		if (imageStream == null) {
 			return null;
@@ -50,8 +50,8 @@ public class ImageUtil {
 	 * @return the repeated image.
 	 * @throws IOException if there is an error reading the image.
 	 */
-	public static BufferedImage createRepeatedImage(String imageName, int width, int height) throws IOException {
-		BufferedImage originalImage = imageToBufferedImage(getImageFromFile(imageName));
+	public static BufferedImage createRepeatedImage(Image image, int width, int height) throws IOException {
+		BufferedImage originalImage = imageToBufferedImage(image);
 		BufferedImage repeatedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = repeatedImage.createGraphics();
 		for (int y = 0; y < height; y += originalImage.getHeight()) {

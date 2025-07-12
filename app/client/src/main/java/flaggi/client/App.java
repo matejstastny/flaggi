@@ -1,5 +1,5 @@
 /*
- * Author: Matěj Šťastný aka matysta
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 11/4/2024 (v2 - 2/25/2025)
  * GitHub link: https://github.com/matysta/flaggi
  */
@@ -31,6 +31,7 @@ import flaggi.client.ui.ToastManager;
 import flaggi.client.ui.ToastManager.ToastCategory;
 import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.proto.ServerMessages.ServerHello;
+import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.shared.common.GPanel;
 import flaggi.shared.common.GPanel.Renderable;
@@ -97,11 +98,11 @@ public class App implements Updatable {
 		toggleUi(UiTags.LOBBY);
 	}
 
-	public void gotoGame(String gameUuid) {
+	public void gotoGame(ServerJoinGame message) {
 		if (this.gameManager == null) {
 			updateLoop.remove(gameManager);
 		}
-		gameManager = new GameManager(gameUuid, udpManager, gpanel);
+		gameManager = new GameManager(message, udpManager, gpanel);
 		updateLoop.add(gameManager);
 		toggleUi(UiTags.GAME);
 	}
@@ -181,7 +182,7 @@ public class App implements Updatable {
 			} else if (message.hasServerHello()) {
 				handleServerHello(message.getServerHello());
 			} else if (message.hasServerJoinGame()) {
-				gotoGame(message.getServerJoinGame().getGameUuid());
+				gotoGame(message.getServerJoinGame());
 			} else if (message.hasServerCommand()) {
 			} else if (message.hasServerInvite()) {
 				Runnable acceptAction = () -> respondToInvite(message.getServerInvite().getInviteeUuid(), true);
