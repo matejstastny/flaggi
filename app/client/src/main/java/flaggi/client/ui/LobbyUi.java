@@ -1,7 +1,7 @@
 /*
  * Author: Matěj Šťastný aka my-daarlin
  * Date created: 1/9/2025
- * GitHub link: https://github.com/matysta/flaggi
+ * GitHub link: https://github.com/my-daarlin/flaggi
  */
 
 package flaggi.client.ui;

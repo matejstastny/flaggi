@@ -1,7 +1,7 @@
 /*
- * Author: Matěj Šťastný aka Kirei
+ * Author: Matěj Šťastný aka my-daarlin
  * Date created: 12/1/2024
- * Github link: https://github.com/kireiiiiiiii/flaggi
+ * GitHub link: https://github.com/my-daarlin/flaggi
  */
 
 package flaggi.client.common;
