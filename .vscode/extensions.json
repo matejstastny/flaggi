@@ -3,6 +3,7 @@
     "vscjava.vscode-java-pack",
     "EditorConfig.EditorConfig",
     "kalifun.vscode-proto3-tools",
-    "ms-azuretools.vscode-docker"
+    "ms-azuretools.vscode-docker",
+    "izaxon.todo"
   ]
 }
