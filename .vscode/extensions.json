@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "vscjava.vscode-java-pack",
-    "foxundermoon.shell-format",
     "EditorConfig.EditorConfig",
     "kalifun.vscode-proto3-tools",
     "ms-azuretools.vscode-docker"

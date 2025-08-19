@@ -3,9 +3,6 @@
 
   "editor.defaultFormatter": "redhat.java",
   "editor.formatOnSave": true,
-  "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
