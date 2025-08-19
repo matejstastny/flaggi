@@ -4,6 +4,6 @@
     "EditorConfig.EditorConfig",
     "kalifun.vscode-proto3-tools",
     "ms-azuretools.vscode-docker",
-    "izaxon.todo"
+    "fabiospampinato.vscode-todo-plus"
   ]
 }

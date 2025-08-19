@@ -1,29 +1,24 @@
-Flaggi 2.0
+Flaggi 2.0:
 ----------
 
-Game loop and game rendering 2025-08-18 20:18-
+    Game loop and game rendering:
+        - Figure out how the server will have data about what sprites exist (GameUi:88) @started(25-08-18 22:32)
 
 
-
-After 2.0 is finished
+After 2.0 is finished:
 ---------------------
 
-The run_dev script logs don't have a space before them, but the java app logs do
+    1. Fixes:
+        - The run_dev script logs don't have a space before them, but the java app logs do
+        - When the client app window is resized by the user to 0, it throws and unhandeled exception
+        - Fix server TCP manager starting after the UDP manager (should be the other way)
 
-When the client app window is resized by the user to 0, it throws and unhandeled exception
+    2. Updates:
+        - Update to latest Java version
+        - Update to latest Gradle version
+        - Update the Java version in Dockerfile
 
-Convert to java 23 and update gradle
+    3. Features:
+        - Add an intro Ascii banner to all script console outputs
 
-TCP manager in server starts after upd (should be the other way)
-
-Add an intro ascii to the console outputs for all (icon and ascii "flaggi" ?)
-
-Separate build-and-test.yml into 4 files (build and test all 4 components separately)
-
-Change Docker env to "FROM eclipse-temurin:8-jre"
-
-Add used resouces to README & version header like in *Don't Wake Up*
-
-Move maps directory from the server jar into a separate folder that the server makes to get users to add their own maps, also MAP VALIDATION
-
-Move the game mas into a separate repository
+    4. Documentation:
