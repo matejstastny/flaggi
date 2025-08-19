@@ -617,6 +617,10 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 			return (int) (vh * pxPerVh);
 		}
 
+		protected double vh(double px) {
+			return px / pxPerVh;
+		}
+
 	}
 
 	// Widget input interfaces --------------------------------------------------
