@@ -22,3 +22,8 @@ After 2.0 is finished:
         - Add an intro Ascii banner to all script console outputs
 
     4. Documentation:
+        - Make Github pages wiki
+
+    5. Scripts:
+        - Make the run_dev script work when called from another directory (not the scripts directory)
+        - Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.)
