@@ -77,7 +77,7 @@ public class FileUtil {
 	 *                  files with that extension (e.g. "png")
 	 * @return A list of matching directory or file names (just the base names).
 	 */
-	public static List<String> retrieveJarEntries(String path, String extension) {
+	public static List<String> listResourceFiles(String path, String extension) {
 		if (!path.endsWith("/")) {
 			path += "/";
 		}

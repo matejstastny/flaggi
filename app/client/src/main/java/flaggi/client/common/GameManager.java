@@ -13,13 +13,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.client.network.UdpManager;
-import flaggi.client.ui.GameRoom;
+import flaggi.client.ui.GameUi;
 import flaggi.proto.ClientMessages.ClientInputType;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.shared.common.GPanel;
+import flaggi.shared.common.Logger;
 import flaggi.shared.common.GPanel.AbstractInteractableHandler;
+import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop.Updatable;
 
 public class GameManager implements Closeable, Updatable {
@@ -27,7 +29,7 @@ public class GameManager implements Closeable, Updatable {
 	private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
 	private final String gameUuid;
 	private UdpManager udpManager;
-	private GameRoom gameUi;
+	private GameUi gameUi;
 	private GPanel gpanel;
 
 	// Constructor --------------------------------------------------------------
@@ -61,8 +63,9 @@ public class GameManager implements Closeable, Updatable {
 	// UI -----------------------------------------------------------------------
 
 	private void setupGameUi(int width, int height) {
-		this.gpanel.removeWidgetsOfClass(GameRoom.class);
-		this.gameUi = new GameRoom(new int[] { width, height });
+		this.gpanel.removeWidgetsOfClass(GameUi.class);
+		Logger.log(LogLevel.DEBUG, "Room size: [" + width + ", " + height + "]");
+		this.gameUi = new GameUi(new int[] { width, height });
 		this.gpanel.add(gameUi);
 	}
 
@@ -103,8 +106,10 @@ public class GameManager implements Closeable, Updatable {
 		});
 	}
 
-	private void sendInputUpdate(ClientInputType type, int x, int y, int code) {
-		ClientStateUpdate update = ClientStateUpdate.newBuilder().setInputType(type).setMouseX(x).setMouseY(y).setKeyCode(code).build();
+	private void sendInputUpdate(ClientInputType type, int mouseX, int mouseY, int code) {
+		double vhX = this.gameUi.getViewHeight(mouseX);
+		double vhY = this.gameUi.getViewHeight(mouseY);
+		ClientStateUpdate update = ClientStateUpdate.newBuilder().setInputType(type).setVhX(vhX).setVhY(vhY).setKeyCode(code).build();
 		outgoing.offer(update);
 	}
 }

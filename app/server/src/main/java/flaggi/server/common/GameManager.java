@@ -79,7 +79,7 @@ public class GameManager implements Closeable, Updatable {
 	}
 
 	private MapData getRandomMap() {
-		List<String> maps = FileUtil.retrieveJarEntries(Constants.MAPS_RES_DIR, "json");
+		List<String> maps = FileUtil.listResourceFiles(Constants.MAPS_RES_DIR, "json");
 		if (maps.isEmpty()) {
 			Logger.log(LogLevel.ERROR, "No maps found in resources directory: " + Constants.MAPS_RES_DIR);
 			Server.handleFatalError();

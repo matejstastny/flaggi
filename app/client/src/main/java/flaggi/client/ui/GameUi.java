@@ -23,7 +23,7 @@ import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.ImageUtil;
 
-public class GameRoom extends Renderable {
+public class GameUi extends Renderable {
 
 	private int[] roomSize;
 	private List<RenderableObject> objects;
@@ -31,7 +31,7 @@ public class GameRoom extends Renderable {
 
 	// Constructor --------------------------------------------------------------
 
-	public GameRoom(int[] roomSize) {
+	public GameUi(int[] roomSize) {
 		super(ZIndex.GAME, PanelRegion.FULLSCREEN, UiTags.GAME);
 		this.roomSize = roomSize;
 	}
@@ -39,17 +39,25 @@ public class GameRoom extends Renderable {
 	// Public -------------------------------------------------------------------
 
 	public void updateGameUi(ServerStateUpdate update) {
-		this.objects = update.getRenderablesList();
+		if (update == null) {
+			return;
+		}
+		this.objects = update.getRenderablesList() == null ? this.objects : update.getRenderablesList();
 		this.cameraX = update.getX();
 		this.cameraY = update.getY();
+	}
+
+	public double getViewHeight(int px) {
+		return vh(px);
 	}
 
 	// Rendering ----------------------------------------------------------------
 
 	@Override
 	public void render(Graphics2D g, Container focusCycleRootAncestor) {
-		renderFloor(g, focusCycleRootAncestor);
-		objects.forEach(object -> renderGameObject(object, g, focusCycleRootAncestor));
+		// renderFloor(g, focusCycleRootAncestor);
+		// objects.forEach(object -> renderGameObject(object, g,
+		// focusCycleRootAncestor));
 	}
 
 	private void renderGameObject(RenderableObject object, Graphics2D g, Container focusCycleRootAncestor) {
@@ -76,6 +84,8 @@ public class GameRoom extends Renderable {
 			g.drawImage(floorSprite, -cameraX, -cameraY, focusCycleRootAncestor);
 		}
 	}
+
+	// Helpers ------------------------------------------------------------------
 
 	private Image getSprite(String spriteName, String animationName, int frameIndex) {
 		String path = Constants.SPRITES_RES_DIR + "/" + spriteName + "/" + animationName + "/" + frameIndex + ".png";
