@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 1/0/2024
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// ConfirmationWindow.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 01-00-2024 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.client.ui;
 

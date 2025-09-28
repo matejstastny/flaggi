@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 12/2/2024
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// FileUtil.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 12-02-2024 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.shared.util;
 

@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 7/25/2024
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// ZIndex.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 07-25-2024 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.client.constants;
 

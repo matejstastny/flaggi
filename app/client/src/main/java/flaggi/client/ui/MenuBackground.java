@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 03/25/2025
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// MenuBackground.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 03-25-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.client.ui;
 

@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 1/9/2025
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// LobbyUi.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 01-09-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.client.ui;
 

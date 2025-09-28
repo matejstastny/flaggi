@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Date created: 11/4/2024 (v2 - 2/25/2025)
- * GitHub link: https://github.com/my-daarlin/flaggi
- */
+// ------------------------------------------------------------------------------
+// Constants.java - description TODO
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 11-04-2024 (2.0: 02-25-2025) (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 package flaggi.client.constants;
 
