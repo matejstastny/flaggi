@@ -28,7 +28,7 @@ find . -type f -name '*.java' -print0 |
       my $block = $&;
       if ($block =~ /Author:|Date|GitHub/i) {
         my ($bm,$bd,$by) = $block =~ /([0-1]?\d)\/([0-3]?\d)\/([0-9]{4})/;
-        my $base = defined $bm ? sprintf("%04d-%02d-%02d",$by,$bm,$bd) : "";
+        my $base = defined $bm ? sprintf("%02d-%02d-%04d",$bm,$bd,$by) : "";
 
         my ($vn,$vm,$vd,$vy) = $block =~ /v(\d+)\s*[-:]\s*([0-1]?\d)\/([0-3]?\d)\/([0-9]{4})/i;
         my $vpart = "";
@@ -42,7 +42,7 @@ find . -type f -name '*.java' -print0 |
           "// $fname - description TODO",
           "// ------------------------------------------------------------------------------",
           "// Author: " . ($ENV{AUTHOR} || "AUTHOR"),
-          "// Date: " . ($base || "(unknown)") . $vpart (MM-DD-YYYY),
+          "// Date: " . ($base || "(unknown)") . $vpart . " (MM-DD-YYYY)",
           "// License: " . ($ENV{LICENSE} || "LICENSE"),
           "// Link: " . ($ENV{LINK} || "LINK"),
           "// ------------------------------------------------------------------------------",
