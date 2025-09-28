@@ -42,7 +42,7 @@ find . -type f -name '*.java' -print0 |
           "// $fname - description TODO",
           "// ------------------------------------------------------------------------------",
           "// Author: " . ($ENV{AUTHOR} || "AUTHOR"),
-          "// Date: " . ($base || "(unknown)") . $vpart,
+          "// Date: " . ($base || "(unknown)") . $vpart (MM-DD-YYYY),
           "// License: " . ($ENV{LICENSE} || "LICENSE"),
           "// Link: " . ($ENV{LINK} || "LINK"),
           "// ------------------------------------------------------------------------------",
