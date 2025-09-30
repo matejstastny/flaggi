@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Github link: https://github.com/my-daarlin/flaggi
- * Desc: Messages constructed by the CLIENT and processed by the SERVER.
- */
+// ------------------------------------------------------------------------------
+// client-messages.proto - Constructed by the CLIENT and processed by the SERVER
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 03-03-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 syntax = "proto3";
 
@@ -11,7 +14,7 @@ package flaggi;
 option java_package = "flaggi.proto";
 option java_outer_classname = "ClientMessages";
 
-// Wrapper -------------------------------------------------------------------
+// Wrapper ----------------------------------------------------------------------
 
 message ClientMessage {
     string uuid = 1;
@@ -24,7 +27,7 @@ message ClientMessage {
     }
 }
 
-// Enums ---------------------------------------------------------------------
+// Enums ------------------------------------------------------------------------
 
 enum ClientCommandType {
     GET_IDLE_CLIENT_LIST = 0;
@@ -38,7 +41,7 @@ enum ClientInputType {
     KEY_RELEASED = 4;
 }
 
-// TCP Messages --------------------------------------------------------------
+// TCP Messages -----------------------------------------------------------------
 
 message Ping {
     string ping = 1;
@@ -61,10 +64,10 @@ message ClientInviteResponse {
     bool accepted = 2;
 }
 
-// UDP Messages --------------------------------------------------------------
+// UDP Messages -----------------------------------------------------------------
 
 message ClientStateUpdate {
-    string uuid = 1;
+    string playerUuid = 1;
     string gameUuid = 2;
     ClientInputType inputType = 3;
     double vh_x = 4;

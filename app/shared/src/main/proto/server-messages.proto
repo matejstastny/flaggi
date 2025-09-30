@@ -1,8 +1,11 @@
-/*
- * Author: Matěj Šťastný aka my-daarlin
- * Github link: https://github.com/my-daarlin/flaggi
- * Desc: Messages constructed by the SERVER and processed by the CLIENT.
- */
+// ------------------------------------------------------------------------------
+// server-messages.proto - Constructed by the SERVER and processed by the CLIENT
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 03-03-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
 
 syntax = "proto3";
 
@@ -11,7 +14,7 @@ package flaggi;
 option java_package = "flaggi.proto";
 option java_outer_classname = "ServerMessages";
 
-// Wrapper -------------------------------------------------------------------
+// Wrapper ----------------------------------------------------------------------
 
 message ServerMessage {
     oneof message_type {
@@ -24,13 +27,13 @@ message ServerMessage {
     }
 }
 
-// Enums ---------------------------------------------------------------------
+// Enums ------------------------------------------------------------------------
 
 enum ServerCommandType {
     DEBUG = 0;
 }
 
-// TCP Messages --------------------------------------------------------------
+// TCP Messages -----------------------------------------------------------------
 
 message Pong {
     string pong = 1;
@@ -60,7 +63,7 @@ message IdleClientList {
     map<string, string> clientList = 1;
 }
 
-// UDP Messages --------------------------------------------------------------
+// UDP Messages -----------------------------------------------------------------
 
 message ServerStateUpdate {
     int32 x = 1;
