@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ProtoUtil.java - description TODO
+// ProtoUtil.java - Protocol Buffers utility class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-23-2025 (MM-DD-YYYY)

@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// MenuScreen.java - description TODO
+// MenuScreen.java - Main menu screen widget
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 11-27-2024 (MM-DD-YYYY)

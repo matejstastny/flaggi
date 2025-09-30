@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// MenuBackground.java - description TODO
+// MenuBackground.java - Menu background widget
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 03-25-2025 (MM-DD-YYYY)

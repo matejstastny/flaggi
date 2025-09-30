@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ConfirmationWindow.java - description TODO
+// ConfirmationWindow.java - Confirmation dialog widget
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 01-00-2024 (MM-DD-YYYY)

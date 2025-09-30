@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Constants.java - description TODO
+// Constants.java - Server constants class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-22-2025 (MM-DD-YYYY)

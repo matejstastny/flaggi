@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ToastManager.java - description TODO
+// ToastManager.java - Toast manager widget
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 01-09-2025 (MM-DD-YYYY)

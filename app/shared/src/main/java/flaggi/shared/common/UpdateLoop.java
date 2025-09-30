@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// UpdateLoop.java - description TODO
+// UpdateLoop.java - A fixed-timestep update loop
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-23-2025 (MM-DD-YYYY)

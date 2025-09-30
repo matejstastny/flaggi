@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// GitHubApiClient.java - description TODO
+// GitHubApiClient.java - GitHub API client
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 12-01-2024 (MM-DD-YYYY)

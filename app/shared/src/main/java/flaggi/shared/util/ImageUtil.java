@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ImageUtil.java - description TODO
+// ImageUtil.java - Image utility class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 05-16-2024 (MM-DD-YYYY)

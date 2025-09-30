@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ConfigManager.java - description TODO
+// ConfigManager.java - .conf file manager class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-22-2025 (MM-DD-YYYY)

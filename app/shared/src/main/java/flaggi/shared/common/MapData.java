@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// MapData.java - description TODO
+// MapData.java - Game map data structure class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 06-21-2025 (MM-DD-YYYY)

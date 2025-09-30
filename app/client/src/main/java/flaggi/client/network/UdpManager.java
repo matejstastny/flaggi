@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// UdpManager.java - description TODO
+// UdpManager.java - UDP network manager class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 04-26-2025 (MM-DD-YYYY)

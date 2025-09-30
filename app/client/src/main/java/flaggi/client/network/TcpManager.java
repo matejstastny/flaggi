@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// TcpManager.java - description TODO
+// TcpManager.java - Manages TCP communication between the client and server
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 04-04-2025 (MM-DD-YYYY)

@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// PersistentValue.java - description TODO
+// PersistentValue.java - A JSON-serializable variable
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 05-05-2024 (MM-DD-YYYY)

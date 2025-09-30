@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Sprite.java - description TODO
+// Sprite.java - Server sprite data structure class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 12-01-2024 (MM-DD-YYYY)

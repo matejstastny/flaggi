@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ScreenUtil.java - description TODO
+// ScreenUtil.java - Screen utility class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 11-08-2024 (MM-DD-YYYY)

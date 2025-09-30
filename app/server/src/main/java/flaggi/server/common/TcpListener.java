@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// TcpListener.java - description TODO
+// TcpListener.java - Listens for new incoming TCP connections
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-23-2025 (MM-DD-YYYY)
