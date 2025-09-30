@@ -9,9 +9,10 @@ After 2.0 is finished:
 ---------------------
 
     1. Fixes:
-        - The run_dev script logs don't have a space before them, but the java app logs do
+        ✔ The run_dev script logs don't have a space before them, but the java app logs do @done(25-09-30 13:05)
         - When the client app window is resized by the user to 0, it throws and unhandeled exception
         - Fix server TCP manager starting after the UDP manager (should be the other way)
+        - When exiting the client app the log says "shutting down". Replace to "exiting"
 
     2. Updates:
         - Update to latest Java version
@@ -20,6 +21,7 @@ After 2.0 is finished:
 
     3. Features:
         - Add an intro Ascii banner to all script console outputs
+        - Add a config option to turn of stack traces in the console output
 
     4. Documentation:
         - Make Github pages wiki
@@ -27,3 +29,6 @@ After 2.0 is finished:
     5. Scripts:
         - Make the run_dev script work when called from another directory (not the scripts directory)
         - Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.)
+
+    6. Testing:
+        - Make tests. How? Beats me...
