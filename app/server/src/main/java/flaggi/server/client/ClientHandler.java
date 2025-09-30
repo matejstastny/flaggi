@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// ClientHandler.java - description TODO
+// ClientHandler.java - Handles communication with a connected client
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-23-2025 (MM-DD-YYYY)
@@ -95,6 +95,7 @@ public class ClientHandler implements Runnable {
 		String uuid = UUID.randomUUID().toString();
 		client = new Client(uuid, username, clientSocket, out);
 		clients.put(uuid, client);
+		Logger.log(LogLevel.DEBUG, "Asigned UUID " + uuid + " to client " + username);
 
 		ServerMessage response = ServerMessage.newBuilder().setServerHello(ServerHello.newBuilder().setUuid(uuid).setUdpPort(Constants.UDP_PORT).build()).build();
 		ProtoUtil.sendServerMessage(out, response);

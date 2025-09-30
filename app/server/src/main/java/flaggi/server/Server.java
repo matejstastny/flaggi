@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Server.java - description TODO
+// Server.java - Main server application class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 11-04-2024 (2.0: 02-22-2025) (MM-DD-YYYY)
@@ -82,7 +82,7 @@ public class Server implements Updatable {
 	private void initializeLogger() {
 		Logger.setLogFile(Constants.LOG_FILE);
 		Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
-		Logger.log(LogLevel.INFO, "Application start.");
+		Logger.log(LogLevel.INFO, "Application start");
 		Logger.log(LogLevel.INFO, "Server IP: " + NetUtil.getLocalIPv4Address().getHostAddress());
 		Logger.logMaxMemory("GB");
 	}
@@ -142,10 +142,15 @@ public class Server implements Updatable {
 	private void processUdpPackets() {
 		ClientStateUpdate msg;
 		while ((msg = udpPacketQueue.poll()) != null) {
-			if (activeGames.containsKey(msg.getGameUuid())) {
-				activeGames.get(msg.getGameUuid()).addUpdate(msg);
+			String uuid = msg.getGameUuid();
+			if (activeGames.containsKey(uuid)) {
+				if (activeGames.get(uuid) == null) {
+					Logger.log(LogLevel.WARN, "GameManager doesn't exist for game UUID: " + msg.getGameUuid());
+				}
+				Logger.log(LogLevel.UDP, "Recieved UDP client update:\n" + msg.toString());
+				activeGames.get(uuid).addUpdate(msg);
 			} else {
-				Logger.log(LogLevel.WARN, "Received UDP packet for unknown game UUID: " + msg.getGameUuid());
+				Logger.log(LogLevel.WARN, "Received an UDP packet for an unknown game UUID: " + msg.getGameUuid());
 			}
 		}
 	}
@@ -206,6 +211,7 @@ public class Server implements Updatable {
 			String gameUuid = UUID.randomUUID().toString();
 			this.activeGames.put(gameUuid, new GameManager(gameUuid, gameClients, activeGames));
 			Logger.log(LogLevel.INFO, "Game created with clients: " + gameClients[0].getName() + " and " + gameClients[1].getName());
+			Logger.log(LogLevel.DEBUG, "Game UUID: " + gameUuid);
 		}
 	}
 }

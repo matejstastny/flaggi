@@ -89,7 +89,7 @@ public class UdpManager implements Runnable {
 			byte[] messageBytes = message.toByteArray();
 			DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, port);
 			socket.send(packet);
-			Logger.log(LogLevel.DEBUG, "Sent message to server: " + message);
+			Logger.log(LogLevel.UDP, "Sent UDP ClientUpdate to server:\n" + message);
 		} catch (IOException e) {
 			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server: " + e.getMessage(), e);
 		}
