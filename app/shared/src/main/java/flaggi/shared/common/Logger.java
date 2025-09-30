@@ -30,6 +30,28 @@ public class Logger {
 	private static LogLevel[] ignore = new LogLevel[0];
 	private static File logFile = null;
 
+	// Log types -----------------------------------------------------------------
+
+	public enum LogLevel {
+		INFO(TermColors.GREEN), //
+		WARN(TermColors.YELLOW), //
+		ERROR(TermColors.RED), //
+		DEBUG(TermColors.BLUE), //
+		TCP(TermColors.PURPLE), //
+		UDP(TermColors.CYAN), //
+		MEMORY(TermColors.CYAN);
+
+		private final String color;
+
+		LogLevel(String color) {
+			this.color = color;
+		}
+
+		public String getColor() {
+			return color;
+		}
+	}
+
 	// Setup ---------------------------------------------------------------------
 
 	public static void setLogFile(String path) {
@@ -122,29 +144,6 @@ public class Logger {
 
 		log(LogLevel.MEMORY, String.format("Max memory: %.2f %s", maxMemory, unitLabel));
 	}
-
-	// Log types -----------------------------------------------------------------
-
-	public enum LogLevel {
-		INFO(TermColors.GREEN), //
-		WARN(TermColors.YELLOW), //
-		ERROR(TermColors.RED), //
-		DEBUG(TermColors.BLUE), //
-		TCP(TermColors.PURPLE), //
-		UDP(TermColors.CYAN), //
-		MEMORY(TermColors.CYAN);
-
-		private final String color;
-
-		LogLevel(String color) {
-			this.color = color;
-		}
-
-		public String getColor() {
-			return color;
-		}
-	}
-
 	// Private -------------------------------------------------------------------
 
 	private static class TermColors {
