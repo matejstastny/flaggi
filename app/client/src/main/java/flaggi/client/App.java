@@ -55,6 +55,7 @@ public class App implements Updatable {
 	private GameManager gameManager;
 	private TcpManager tcpManager;
 	private UdpManager udpManager;
+	private String uuid;
 
 	// Main ---------------------------------------------------------------------
 
@@ -105,7 +106,7 @@ public class App implements Updatable {
 		if (this.gameManager == null) {
 			updateLoop.remove(gameManager);
 		}
-		gameManager = new GameManager(message, udpManager, gpanel);
+		gameManager = new GameManager(message, udpManager, uuid, gpanel);
 		updateLoop.add(gameManager);
 		toggleUi(UiTags.GAME);
 	}
@@ -157,6 +158,10 @@ public class App implements Updatable {
 			this.tcpManager.close();
 			this.tcpManager = null;
 		}
+		if (this.udpManager != null) {
+			this.udpManager.close();
+			this.udpManager = null;
+		}
 		gotoMainMenu();
 		toasts.newToast(ToastCategory.ERROR, "Server shut down");
 		this.gpanel.getWidgetsOfClass(MenuScreen.class).forEach(x -> x.reset());
@@ -204,7 +209,7 @@ public class App implements Updatable {
 	private void initializeLogger() {
 		Logger.setLogFile(Constants.LOG_FILE);
 		Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
-		Logger.log(LogLevel.INFO, "Application start.");
+		Logger.log(LogLevel.INFO, "Application start");
 		if (Constants.LOG_MEM_USAGE) {
 			Logger.logMemoryUsage(Constants.MEM_LOG_INTERVAL_SEC);
 		}
@@ -265,8 +270,9 @@ public class App implements Updatable {
 	}
 
 	private void handleServerHello(ServerHello msg) {
+		this.uuid = msg.getUuid();
 		Logger.log(LogLevel.DEBUG, "Received server hello message with uuid: " + msg.getUuid() + " and UDP port: " + msg.getUdpPort());
-		this.tcpManager.setUuid(msg.getUuid());
+		this.tcpManager.setUuid(uuid);
 		udpManager = new UdpManager(tcpManager.getIP(), (int) msg.getUdpPort());
 		gotoLobby();
 	}

@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// GameManager.java - description TODO
+// GameManager.java - Manages game state and logic on the client side
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 06-21-2025 (MM-DD-YYYY)
@@ -30,6 +30,7 @@ import flaggi.shared.common.UpdateLoop.Updatable;
 public class GameManager implements Closeable, Updatable {
 
 	private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
+	private final String uuid;
 	private final String gameUuid;
 	private UdpManager udpManager;
 	private GameUi gameUi;
@@ -37,10 +38,11 @@ public class GameManager implements Closeable, Updatable {
 
 	// Constructor --------------------------------------------------------------
 
-	public GameManager(ServerJoinGame message, UdpManager udpManager, GPanel gpanel) {
+	public GameManager(ServerJoinGame message, UdpManager udpManager, String uuid, GPanel gpanel) {
 		this.gameUuid = message.getGameUuid();
 		this.udpManager = udpManager;
 		this.gpanel = gpanel;
+		this.uuid = uuid;
 		addInteractHandeler();
 		setupGameUi(message.getRoomWidth(), message.getRoomHeight());
 	}
@@ -59,7 +61,7 @@ public class GameManager implements Closeable, Updatable {
 
 		ClientStateUpdate outgoingUpdate;
 		while ((outgoingUpdate = outgoing.poll()) != null) {
-			udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).build());
+			udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).setPlayerUuid(uuid).build());
 		}
 	}
 
@@ -67,8 +69,8 @@ public class GameManager implements Closeable, Updatable {
 
 	private void setupGameUi(int width, int height) {
 		this.gpanel.removeWidgetsOfClass(GameUi.class);
-		Logger.log(LogLevel.DEBUG, "Room size: [" + width + ", " + height + "]");
 		this.gameUi = new GameUi(new int[] { width, height });
+		Logger.log(LogLevel.DEBUG, "Set up game UI with room size [" + width + ", " + height + "]");
 		this.gpanel.add(gameUi);
 	}
 
@@ -110,8 +112,9 @@ public class GameManager implements Closeable, Updatable {
 	}
 
 	private void sendInputUpdate(ClientInputType type, int mouseX, int mouseY, int code) {
-		double vhX = this.gameUi.getViewHeight(mouseX);
-		double vhY = this.gameUi.getViewHeight(mouseY);
+		double vhX = mouseX == -1 ? -1 : this.gameUi.getViewHeight(mouseX);
+		double vhY = mouseY == -1 ? -1 : this.gameUi.getViewHeight(mouseY);
+		Logger.log(LogLevel.DEBUG, "Original mouse coords: [" + mouseX + "," + mouseY + "] -> View height coords: [" + vhX + "," + vhY + "]");
 		ClientStateUpdate update = ClientStateUpdate.newBuilder().setInputType(type).setVhX(vhX).setVhY(vhY).setKeyCode(code).build();
 		outgoing.offer(update);
 	}

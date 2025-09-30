@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// UdpListener.java - description TODO
+// UdpListener.java - UDP listener for receiving client state updates
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 02-23-2025 (MM-DD-YYYY)
@@ -9,6 +9,8 @@
 
 package flaggi.server.common;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -59,15 +61,23 @@ public class UdpListener implements Runnable {
 
 	private void processPacket(DatagramPacket packet) {
 		try {
-			ClientStateUpdate message = deserialize(packet.getData());
+			ClientStateUpdate message = deserialize(packet.getData(), packet.getOffset(), packet.getLength());
+			if (message == null) {
+				Logger.log(LogLevel.WARN, "Received null ClientStateUpdate from " + packet.getAddress());
+				return;
+			}
 			messageQueue.offer(message);
 		} catch (Exception e) {
 			Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
 		}
 	}
 
-	public static ClientStateUpdate deserialize(byte[] data) throws InvalidProtocolBufferException {
-		return ClientStateUpdate.parseFrom(data);
+	public static ClientStateUpdate deserialize(byte[] data, int offset, int length) throws InvalidProtocolBufferException {
+		try {
+			return ClientStateUpdate.parseFrom(new ByteArrayInputStream(data, offset, length));
+		} catch (IOException e) {
+			throw new InvalidProtocolBufferException("Failed to parse ClientStateUpdate", e);
+		}
 	}
 
 	// Limiter ------------------------------------------------------------------
