@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Logger.java - description TODO
+// Logger.java - Logging utility class
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
 // Date: 11-04-2024 (MM-DD-YYYY)
@@ -86,7 +86,7 @@ public class Logger {
 
 		String timestamp = DATE_FORMAT.format(new Date());
 		String paddedLevel = String.format("%-" + (getMaxLogLevelLength() + 2) + "s", "[" + level.name() + "]");
-		String logMessage = String.format("%s %s %s %s %s", level.getColor(), timestamp, paddedLevel, TermColors.WHITE, message);
+		String logMessage = String.format("%s%s %s %s %s", level.getColor(), timestamp, paddedLevel, TermColors.WHITE, message);
 
 		System.out.println(logMessage);
 
