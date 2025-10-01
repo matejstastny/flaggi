@@ -7,6 +7,17 @@
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
 
+  // Proto --------------------------------------------------------------------
+
+  "protoc": {
+    "compile_on_save": true,
+    "options": [
+      "--proto_path=${workspaceRoot}/app/shared/src/main/proto",
+      "--proto_path=${env.GOPATH}/src",
+      "--java_out=${workspaceRoot}/app/shared/build/generated/source/proto/main/java"
+    ]
+  },
+
   // Fallback -----------------------------------------------------------------
   // In case the folder is not opened using the workspace (please don't do that)
 

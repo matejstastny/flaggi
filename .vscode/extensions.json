@@ -2,8 +2,8 @@
   "recommendations": [
     "vscjava.vscode-java-pack",
     "EditorConfig.EditorConfig",
-    "kalifun.vscode-proto3-tools",
     "ms-azuretools.vscode-docker",
-    "fabiospampinato.vscode-todo-plus"
+    "fabiospampinato.vscode-todo-plus",
+    "zxh404.vscode-proto3"
   ]
 }
