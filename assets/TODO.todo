@@ -4,6 +4,12 @@ Flaggi 2.0:
     Game loop and game rendering:
         - Figure out how the server will have data about what sprites exist (GameUi:88) @started(25-08-18 22:32)
 
+    Input UDP sending:
+        - Fix px to vh conversion resulting in Infinity (GameManager:sendInputUpdate) @started(25-09-30 14:34)
+        ✔ Handle input events internally, and send actions like move left, move right, jump, shoot etc. @done(25-10-01 13:50)
+        - Implement client update sender methods (GameManager)
+        - Implement Keybinder class (Keybinder)
+
 
 After 2.0 is finished:
 ---------------------
