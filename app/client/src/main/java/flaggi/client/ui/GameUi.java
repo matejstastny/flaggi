@@ -50,10 +50,6 @@ public class GameUi extends Renderable {
 		this.cameraY = update.getY();
 	}
 
-	public double getViewHeight(int px) {
-		return vh(px);
-	}
-
 	// Rendering ----------------------------------------------------------------
 
 	@Override
