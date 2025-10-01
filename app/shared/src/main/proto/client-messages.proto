@@ -27,18 +27,26 @@ message ClientMessage {
     }
 }
 
+message ClientStateUpdate {
+    string playerUuid = 1;
+    string gameUuid = 2;
+    oneof message_type {
+        ClientMouseInput clientMouseInput = 3;
+        ClientKeyInput clientKeyInput = 4;
+    }
+}
+
 // Enums ------------------------------------------------------------------------
 
 enum ClientCommandType {
     GET_IDLE_CLIENT_LIST = 0;
 }
 
-enum ClientInputType {
-    MOUSE_PRESSED = 0;
-    MOUSE_RELEASED = 1;
-    MOUSE_MOVED = 2;
-    KEY_PRESSED = 3;
-    KEY_RELEASED = 4;
+enum ClientKeyAction {
+    MOVE_UP = 0;
+    MOVE_DOWN = 1;
+    MOVE_LEFT = 2;
+    MOVE_RIGHT = 3;
 }
 
 // TCP Messages -----------------------------------------------------------------
@@ -66,11 +74,11 @@ message ClientInviteResponse {
 
 // UDP Messages -----------------------------------------------------------------
 
-message ClientStateUpdate {
-    string playerUuid = 1;
-    string gameUuid = 2;
-    ClientInputType inputType = 3;
-    double vh_x = 4;
-    double vh_y = 5;
-    int32 key_code = 6;
+message ClientMouseInput {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message ClientKeyInput {
+    ClientKeyAction clientKeyAction = 1;
 }

@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.client.network.UdpManager;
 import flaggi.client.ui.GameUi;
-import flaggi.proto.ClientMessages.ClientInputType;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
@@ -76,46 +75,25 @@ public class GameManager implements Closeable, Updatable {
 
 	// Input handeling ----------------------------------------------------------
 
+	private void sendClientMouseUpdate(MouseEvent e) {
+		// TODO
+	}
+
+	private void sendClientKeyAction(KeyEvent e) {
+		// TODO
+	}
+
 	private void addInteractHandeler() {
 		this.gpanel.setInteractableHandler(new AbstractInteractableHandler() {
 			@Override
-			public void mousePressed(MouseEvent e) {
-				sendInputUpdate(ClientInputType.MOUSE_PRESSED, e.getX(), e.getY(), -1);
-			}
-
-			@Override
 			public void mouseReleased(MouseEvent e) {
-				sendInputUpdate(ClientInputType.MOUSE_RELEASED, e.getX(), e.getY(), -1);
-			}
-
-			private long lastMouseMoveSent = 0;
-
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				long now = System.currentTimeMillis();
-				if (now - lastMouseMoveSent > 50) {
-					sendInputUpdate(ClientInputType.MOUSE_MOVED, e.getX(), e.getY(), -1);
-					lastMouseMoveSent = now;
-				}
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				sendInputUpdate(ClientInputType.KEY_PRESSED, -1, -1, e.getKeyCode());
+				sendClientMouseUpdate(e);
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				sendInputUpdate(ClientInputType.KEY_RELEASED, -1, -1, e.getKeyCode());
+				sendClientKeyAction(e);
 			}
 		});
-	}
-
-	private void sendInputUpdate(ClientInputType type, int mouseX, int mouseY, int code) {
-		double vhX = mouseX == -1 ? -1 : this.gameUi.getViewHeight(mouseX);
-		double vhY = mouseY == -1 ? -1 : this.gameUi.getViewHeight(mouseY);
-		Logger.log(LogLevel.DEBUG, "Original mouse coords: [" + mouseX + "," + mouseY + "] -> View height coords: [" + vhX + "," + vhY + "]");
-		ClientStateUpdate update = ClientStateUpdate.newBuilder().setInputType(type).setVhX(vhX).setVhY(vhY).setKeyCode(code).build();
-		outgoing.offer(update);
 	}
 }
