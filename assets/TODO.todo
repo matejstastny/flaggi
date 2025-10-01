@@ -10,6 +10,9 @@ Flaggi 2.0:
         - Implement client update sender methods (GameManager)
         - Implement Keybinder class (Keybinder)
 
+    Server-to-client UDP updates:
+        - Implement periodically sending position updates to client @started(25-10-01 13:54)
+
 
 After 2.0 is finished:
 ---------------------
