@@ -9,34 +9,42 @@
 
 package flaggi.server.common;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-
 import flaggi.proto.ClientMessages.ClientStateUpdate;
+import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.server.Server;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 
-public class UdpListener implements Runnable {
+public class UdpManager implements Runnable {
 
 	private final int port;
+	private final DatagramSocket socket;
 	private final BlockingQueue<ClientStateUpdate> messageQueue;
 	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
 
 	// Constructor --------------------------------------------------------------
 
-	public UdpListener(int port, BlockingQueue<ClientStateUpdate> messageQueue) {
+	public UdpManager(int port, BlockingQueue<ClientStateUpdate> messageQueue) {
+		DatagramSocket tempSocket = null;
 		this.port = port;
 		this.messageQueue = messageQueue;
+		try {
+			tempSocket = new DatagramSocket();
+		} catch (SocketException e) {
+			Logger.log(LogLevel.ERROR, "Failed to initialize Datagram Socket", e);
+			Server.handleFatalError();
+		}
+		this.socket = tempSocket;
 	}
 
 	@Override
@@ -57,26 +65,41 @@ public class UdpListener implements Runnable {
 		}
 	}
 
+	// Public -------------------------------------------------------------------
+
+	public void close() {
+		if (socket != null || socket.isClosed()) {
+			socket.close();
+			Logger.log(LogLevel.INFO, "UDP socket closed");
+		}
+	}
+
+	public void send(ServerStateUpdate message, InetAddress address, int port) {
+		if (message == null) {
+			throw new IllegalArgumentException("Message cannot be null");
+		}
+		try {
+			byte[] messageBytes = message.toByteArray();
+			DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, port);
+			socket.send(packet);
+			Logger.log(LogLevel.UDP, "Sent UDP ServerUpdate to client on " + address + ":" + port + ": \n" + message);
+		} catch (IOException e) {
+			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server: " + e.getMessage(), e);
+		}
+	}
+
 	// Private ------------------------------------------------------------------
 
 	private void processPacket(DatagramPacket packet) {
 		try {
-			ClientStateUpdate message = deserialize(packet.getData(), packet.getOffset(), packet.getLength());
+			ClientStateUpdate message = ClientStateUpdate.parseFrom(packet.getData());
 			if (message == null) {
 				Logger.log(LogLevel.WARN, "Received null ClientStateUpdate from " + packet.getAddress());
 				return;
 			}
 			messageQueue.offer(message);
 		} catch (Exception e) {
-			Logger.log(LogLevel.ERROR, "Failed to process UDP packet.", e);
-		}
-	}
-
-	public static ClientStateUpdate deserialize(byte[] data, int offset, int length) throws InvalidProtocolBufferException {
-		try {
-			return ClientStateUpdate.parseFrom(new ByteArrayInputStream(data, offset, length));
-		} catch (IOException e) {
-			throw new InvalidProtocolBufferException("Failed to parse ClientStateUpdate", e);
+			Logger.log(LogLevel.WARN, "Failed to process UDP packet from " + packet.getAddress() + ":" + packet.getPort(), e);
 		}
 	}
 
