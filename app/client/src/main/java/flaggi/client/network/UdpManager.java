@@ -9,11 +9,13 @@
 
 package flaggi.client.network;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import flaggi.client.App;
@@ -32,14 +34,19 @@ public class UdpManager implements Runnable {
 
 	// Constructor ---------------------------------------------------------------
 
-	public UdpManager(String address, int port) {
+	public UdpManager() {
 		try {
-			this.address = InetAddress.getByName(address);
-			this.port = port;
+			this.port = -1;
+			this.address = null;
 			socket = new DatagramSocket();
+			InetAddress addr = socket.getLocalAddress();
+			if (addr == null || addr.isAnyLocalAddress()) {
+				addr = InetAddress.getLoopbackAddress();
+			}
+			Logger.log(LogLevel.DEBUG, "Datagram socket created on " + addr.getHostAddress() + ":" + socket.getLocalPort());
 			socket.setSoTimeout(Constants.SERVER_TIMEOUT_MS);
-		} catch (SocketException | UnknownHostException e) {
-			Logger.log(LogLevel.ERROR, "Failed to initialize UDP socket", e);
+		} catch (SocketException e) {
+			Logger.log(LogLevel.ERROR, "Failed to initialize Datagram Socket", e);
 			App.handleFatalError();
 		}
 	}
@@ -53,8 +60,12 @@ public class UdpManager implements Runnable {
 			try {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
-				ServerStateUpdate update = ServerStateUpdate.parseFrom(packet.getData());
+				ServerStateUpdate update = ServerStateUpdate.parseFrom(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
+				Logger.log(LogLevel.UDP, "Received server update:\n" + update.toString());
 				this.latestUpdate = update;
+			} catch (SocketTimeoutException e) {
+			} catch (SocketException e) {
+				break;
 			} catch (IOException e) {
 				if (Thread.currentThread().isInterrupted()) {
 					Logger.log(LogLevel.INFO, "UDP listener thread interrupted, shutting down.");
@@ -73,8 +84,18 @@ public class UdpManager implements Runnable {
 	public void close() {
 		if (socket != null && !socket.isClosed()) {
 			socket.close();
-			Logger.log(LogLevel.INFO, "UDP socket closed.");
 		}
+		Logger.log(LogLevel.INFO, "UDP socket closed");
+	}
+
+	public void setAdress(String address, int port) {
+		try {
+			this.address = InetAddress.getByName(address);
+		} catch (UnknownHostException e) {
+			Logger.log(LogLevel.ERROR, "Invalid inet address passed to Udp Manager", e);
+			App.handleFatalError();
+		}
+		this.port = port;
 	}
 
 	public ServerStateUpdate getLatestUpdate() {
@@ -84,6 +105,9 @@ public class UdpManager implements Runnable {
 	public void send(ClientStateUpdate message) {
 		if (message == null) {
 			throw new IllegalArgumentException("Message cannot be null");
+		} else if (this.port == 0 || this.address == null) {
+			Logger.log(LogLevel.WARN, "Cannot send UDP message, address and/or port not set");
+			return;
 		}
 		try {
 			byte[] messageBytes = message.toByteArray();
@@ -93,5 +117,9 @@ public class UdpManager implements Runnable {
 		} catch (IOException e) {
 			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server: " + e.getMessage(), e);
 		}
+	}
+
+	public int listenerPort() {
+		return socket.getLocalPort();
 	}
 }

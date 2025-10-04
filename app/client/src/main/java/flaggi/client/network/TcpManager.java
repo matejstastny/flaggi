@@ -82,9 +82,9 @@ public class TcpManager implements Runnable {
 	 * Connects to the server with the given username. Sends a greeting message to
 	 * the server.
 	 */
-	public void connect(String username) {
+	public void connect(String username, int udpPort) {
 		Logger.log(LogLevel.DEBUG, "Greeting server with username: " + username);
-		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).build()).build();
+		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).setUpdPort(udpPort).build()).build();
 		ProtoUtil.sendClientMessage(message, out);
 	}
 

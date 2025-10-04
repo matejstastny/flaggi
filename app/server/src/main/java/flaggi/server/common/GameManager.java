@@ -19,14 +19,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.proto.ClientMessages.ClientStateUpdate;
+import flaggi.proto.ServerMessages.GameObjectType;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerMessage;
+import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.server.Server;
 import flaggi.server.client.Client;
 import flaggi.server.constants.Constants;
+import flaggi.server.constants.Hitboxes;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.MapData;
+import flaggi.shared.common.MapData.Spawnpoint;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FileUtil;
 
@@ -34,16 +38,22 @@ public class GameManager implements Closeable, Updatable {
 
 	private BlockingQueue<ClientStateUpdate> incoming = new LinkedBlockingQueue<>();
 	private Map<String, GameManager> activeGames;
+	private final UdpManager udpManager;
+	private final GameData gameData;
+	private final MapData mapData;
 	private final String gameUuid;
 	private Client[] clients;
 
 	// Constructor --------------------------------------------------------------
 
-	public GameManager(String gameUuid, Client[] clients, Map<String, GameManager> activeGames) {
-		this.gameUuid = gameUuid;
+	public GameManager(String gameUuid, Client[] clients, Map<String, GameManager> activeGames, UdpManager udpManager) {
 		this.clients = clients;
+		this.gameUuid = gameUuid;
+		this.udpManager = udpManager;
 		this.activeGames = activeGames;
-		MapData mapData = getRandomMap();
+		this.gameData = new GameData();
+		this.mapData = getRandomMap();
+		initializeClientData();
 		sendJoinGameMessages(mapData.getWidth(), mapData.getHeight());
 	}
 
@@ -62,6 +72,7 @@ public class GameManager implements Closeable, Updatable {
 		while ((update = incoming.poll()) != null) {
 			processClientUpdate(update);
 		}
+		sendUpdatesToClients();
 	}
 
 	// Public -------------------------------------------------------------------
@@ -79,6 +90,22 @@ public class GameManager implements Closeable, Updatable {
 	}
 
 	// Private ------------------------------------------------------------------
+
+	private void initializeClientData() {
+		Spawnpoint s = mapData.getSpawnpoint();
+		for (Client c : clients) {
+			GameObject g = new GameObject(GameObjectType.PLAYER, s.getOneX(), s.getOneY(), Hitboxes.player());
+			gameData.add(g, c.uuid());
+		}
+	}
+
+	private void sendUpdatesToClients() {
+		Map<String, ServerStateUpdate> updates = gameData.getServerUpdateData();
+		for (String uuid : updates.keySet()) {
+			Client c = getClient(uuid);
+			udpManager.send(updates.get(uuid), c.address(), c.udpPort());
+		}
+	}
 
 	private void processClientUpdate(ClientStateUpdate update) {
 		// TODO process update
@@ -120,5 +147,14 @@ public class GameManager implements Closeable, Updatable {
 			Server.handleFatalError(); // TODO just fail game not whole server
 		}
 		return mapData;
+	}
+
+	private Client getClient(String uuid) {
+		for (Client c : clients) {
+			if (c.uuid().equals(uuid)) {
+				return c;
+			}
+		}
+		return null;
 	}
 }

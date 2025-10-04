@@ -62,8 +62,8 @@ public class ClientHandler implements Runnable {
 			Logger.log(LogLevel.ERROR, "An IOException occurred in ClientHandler", e);
 		} finally {
 			if (client != null) {
-				Logger.log(LogLevel.INFO, "Client disconnected: " + client.getName());
-				clients.remove(client.getUuid());
+				Logger.log(LogLevel.INFO, "Client disconnected: " + client.name());
+				clients.remove(client.uuid());
 			}
 			try {
 				clientSocket.close();
@@ -90,10 +90,11 @@ public class ClientHandler implements Runnable {
 		}
 
 		String username = message.getClientHello().getUsername();
+		int clientUdpPort = message.getClientHello().getUpdPort();
 		Logger.log(LogLevel.INFO, "New client connected: " + username + " (" + clientSocket.getInetAddress().getHostAddress() + ")");
 
 		String uuid = UUID.randomUUID().toString();
-		client = new Client(uuid, username, clientSocket, out);
+		client = new Client(uuid, username, clientSocket, out, clientUdpPort);
 		clients.put(uuid, client);
 		Logger.log(LogLevel.DEBUG, "Asigned UUID " + uuid + " to client " + username);
 

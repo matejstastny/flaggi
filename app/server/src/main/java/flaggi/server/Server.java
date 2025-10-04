@@ -31,7 +31,7 @@ import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.client.Client;
 import flaggi.server.common.GameManager;
 import flaggi.server.common.TcpListener;
-import flaggi.server.common.UdpListener;
+import flaggi.server.common.UdpManager;
 import flaggi.server.constants.Constants;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
@@ -44,7 +44,7 @@ public class Server implements Updatable {
 
 	private final ExecutorService threads;
 	private final TcpListener tcpListener;
-	private final UdpListener udpListener;
+	private final UdpManager udpManager;
 	private final UpdateLoop updateLoop;
 	private final Map<String, Client> clients = new ConcurrentHashMap<>();
 	private final Map<String, GameManager> activeGames = new ConcurrentHashMap<>();
@@ -62,7 +62,7 @@ public class Server implements Updatable {
 		initializeLogger();
 		buildServerFiles();
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, clients);
-		this.udpListener = new UdpListener(Constants.UDP_PORT, udpPacketQueue);
+		this.udpManager = new UdpManager(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
 		this.threads = Executors.newFixedThreadPool(4);
 		this.updateLoop.add(this);
@@ -89,7 +89,7 @@ public class Server implements Updatable {
 
 	private void initializeThreads() {
 		threads.execute(this.tcpListener);
-		threads.execute(this.udpListener);
+		threads.execute(this.udpManager);
 		threads.execute(this.updateLoop);
 	}
 
@@ -130,8 +130,8 @@ public class Server implements Updatable {
 	private Map<String, String> getIdleClients(String uuid) {
 		Map<String, String> idleClients = new HashMap<>();
 		for (Client client : clients.values()) {
-			if (!client.getUuid().equals(uuid)) {
-				idleClients.put(client.getUuid(), client.getName());
+			if (!client.uuid().equals(uuid)) {
+				idleClients.put(client.uuid(), client.name());
 			}
 		}
 		return idleClients;
@@ -209,9 +209,12 @@ public class Server implements Updatable {
 				}
 			}
 			String gameUuid = UUID.randomUUID().toString();
-			this.activeGames.put(gameUuid, new GameManager(gameUuid, gameClients, activeGames));
-			Logger.log(LogLevel.INFO, "Game created with clients: " + gameClients[0].getName() + " and " + gameClients[1].getName());
+			GameManager g = new GameManager(gameUuid, gameClients, activeGames, udpManager);
+			this.activeGames.put(gameUuid, g);
+			this.updateLoop.add(g);
+			Logger.log(LogLevel.INFO, "Game created with clients: " + gameClients[0].name() + " and " + gameClients[1].name());
 			Logger.log(LogLevel.DEBUG, "Game UUID: " + gameUuid);
 		}
 	}
 }
+// 08:40 left

@@ -18,7 +18,7 @@ import java.util.List;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
-import flaggi.proto.ServerMessages.RenderableObject;
+import flaggi.proto.ServerMessages.ServerGameObject;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.shared.common.GPanel.PanelRegion;
 import flaggi.shared.common.GPanel.Renderable;
@@ -29,7 +29,7 @@ import flaggi.shared.util.ImageUtil;
 public class GameUi extends Renderable {
 
 	private int[] roomSize;
-	private List<RenderableObject> objects;
+	private List<ServerGameObject> objects;
 	private int cameraX, cameraY;
 
 	// Constructor --------------------------------------------------------------
@@ -45,9 +45,7 @@ public class GameUi extends Renderable {
 		if (update == null) {
 			return;
 		}
-		this.objects = update.getRenderablesList() == null ? this.objects : update.getRenderablesList();
-		this.cameraX = update.getX();
-		this.cameraY = update.getY();
+		// TODO Upate UT
 	}
 
 	// Rendering ----------------------------------------------------------------
@@ -55,20 +53,22 @@ public class GameUi extends Renderable {
 	@Override
 	public void render(Graphics2D g, Container focusCycleRootAncestor) {
 		// renderFloor(g, focusCycleRootAncestor);
-		// objects.forEach(object -> renderGameObject(object, g,
+		// objects.forEach(object -> renderServerGameObject(object, g,
 		// focusCycleRootAncestor));
 	}
 
-	private void renderGameObject(RenderableObject object, Graphics2D g, Container focusCycleRootAncestor) {
-		if (object == null) {
-			return;
-		}
-		Image sprite = getSprite(object.getSpriteName(), object.getAnimationName(), object.getFrame());
-		if (sprite != null) {
-			int xPos = object.getX() - cameraX;
-			int yPos = object.getY() - cameraY;
-			g.drawImage(sprite, xPos, yPos, focusCycleRootAncestor);
-		}
+	private void renderServerGameObject(ServerGameObject object, Graphics2D g, Container focusCycleRootAncestor) {
+		// TODO
+		// if (object == null) {
+		// return;
+		// }
+		// Image sprite = getSprite(object.getSpriteName(), object.getAnimationName(),
+		// object.getFrame());
+		// if (sprite != null) {
+		// int xPos = object.getX() - cameraX;
+		// int yPos = object.getY() - cameraY;
+		// g.drawImage(sprite, xPos, yPos, focusCycleRootAncestor);
+		// }
 	}
 
 	private void renderFloor(Graphics2D g, Container focusCycleRootAncestor) {

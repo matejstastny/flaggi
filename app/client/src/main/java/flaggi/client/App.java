@@ -148,8 +148,10 @@ public class App implements Updatable {
 			return ip.getKey();
 		}
 		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue(), this::disconnectFromServer);
-		this.tcpManager.connect(name);
+		this.udpManager = new UdpManager();
+		this.tcpManager.connect(name, this.udpManager.listenerPort());
 		this.threads.execute(tcpManager);
+		this.threads.execute(udpManager);
 		return "Connecting...";
 	}
 
@@ -271,9 +273,10 @@ public class App implements Updatable {
 
 	private void handleServerHello(ServerHello msg) {
 		this.uuid = msg.getUuid();
-		Logger.log(LogLevel.DEBUG, "Received server hello message with uuid: " + msg.getUuid() + " and UDP port: " + msg.getUdpPort());
+		Logger.log(LogLevel.DEBUG, "Received uuid from server: " + msg.getUuid());
+		Logger.log(LogLevel.DEBUG, "Received UDP port from server: " + msg.getUdpPort());
 		this.tcpManager.setUuid(uuid);
-		udpManager = new UdpManager(tcpManager.getIP(), (int) msg.getUdpPort());
+		this.udpManager.setAdress(tcpManager.getIP(), (int) msg.getUdpPort());
 		gotoLobby();
 	}
 }

@@ -11,6 +11,7 @@ package flaggi.server.client;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import flaggi.proto.ServerMessages.ServerMessage;
@@ -26,34 +27,46 @@ public class Client {
 
 	private final String uuid;
 	private final String name;
+	private final int udpPort;
 	private final Socket socket;
 	private final OutputStream out;
+	private final InetAddress address;
 
 	// Constructor --------------------------------------------------------------
 
-	public Client(String uuid, String name, Socket socket, OutputStream out) {
+	public Client(String uuid, String name, Socket socket, OutputStream out, int udpPort) {
+		this.address = socket.getInetAddress();
+		this.udpPort = udpPort;
+		this.socket = socket;
 		this.uuid = uuid;
 		this.name = name;
-		this.socket = socket;
 		this.out = out;
 	}
 
 	// Accesors -----------------------------------------------------------------
 
-	public String getUuid() {
+	public String uuid() {
 		return uuid;
 	}
 
-	public String getName() {
+	public String name() {
 		return name;
 	}
 
-	public Socket getSocket() {
+	public Socket socket() {
 		return socket;
 	}
 
-	public OutputStream getOutputStream() {
+	public OutputStream outputStream() {
 		return out;
+	}
+
+	public InetAddress address() {
+		return address;
+	}
+
+	public int udpPort() {
+		return udpPort;
 	}
 
 	// Util ---------------------------------------------------------------------

@@ -57,6 +57,7 @@ message Ping {
 
 message ClientHello {
     string username = 1;
+    int32 updPort = 2;
 }
 
 message ClientCommand {
