@@ -59,7 +59,7 @@ public class Constants {
 	// Other --------------------------------------------------------------------
 
 	public static final int UPDATE_INTERVAL_MS = 16;
-	public static final int SERVER_SHUTDOWN_TIMEOUT_SEC = 5;
+	public static final int SERVER_SHUTDOWN_TIMEOUT_SEC = 1;
 
 	// Internal -----------------------------------------------------------------
 
