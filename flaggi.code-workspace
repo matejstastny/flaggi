@@ -46,7 +46,8 @@
         // Formatter
         "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
         "files.associations": {
-            "*.gradle.kts": "kotlin"
+            "*.gradle.kts": "kotlin",
+            "*.sdkmanrc": "shellscript"
         },
         // Gradle
         "java.configuration.updateBuildConfiguration": "automatic",
