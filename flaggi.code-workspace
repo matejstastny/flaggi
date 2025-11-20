@@ -1,53 +1,47 @@
 {
-  // Sections -----------------------------------------------------------------
-
-  "folders": [
-    {
-      "name": "Flaggi",
-      "path": "."
-    },
-    {
-      "name": "Client",
-      "path": "app/client"
-    },
-    {
-      "name": "Server",
-      "path": "app/server"
-    },
-    {
-      "name": "Map Editor",
-      "path": "app/editor"
-    },
-    {
-      "name": "Shared",
-      "path": "app/shared"
+    // Sections -----------------------------------------------------------------
+    "folders": [
+        {
+            "name": "Flaggi",
+            "path": "."
+        },
+        {
+            "name": "Client",
+            "path": "app/client"
+        },
+        {
+            "name": "Server",
+            "path": "app/server"
+        },
+        {
+            "name": "Map Editor",
+            "path": "app/editor"
+        },
+        {
+            "name": "Shared",
+            "path": "app/shared"
+        }
+    ],
+    // Settings ---------------------------------------------------------------------
+    "settings": {
+        "files.exclude": {
+            "app/client": true,
+            "app/server": true,
+            "app/editor": true,
+            "app/shared": true,
+            "app/gradle": true,
+            "app/.gradle": true,
+            "app/gradlew": true,
+            "app/gradlew.bat": true,
+            "app/shadowjar": true,
+            "**/build": true,
+            "**/bin": true
+        },
+        "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
+        // Gradle
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.debug.settings.onBuildFailureProceed": true,
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.import.gradle.enabled": true
     }
-  ],
-
-  // Settings ---------------------------------------------------------------------
-
-  "settings": {
-    "files.exclude": {
-      "app/client": true,
-      "app/server": true,
-      "app/editor": true,
-      "app/shared": true,
-
-      "app/gradle": true,
-      "app/.gradle": true,
-      "app/gradlew": true,
-      "app/gradlew.bat": true,
-      "app/shadowjar": true,
-
-      "**/build": true,
-      "**/bin": true
-    },
-    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
-
-    // Gradle
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.import.gradle.enabled": true
-  }
 }
