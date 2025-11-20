@@ -35,12 +35,13 @@
             "app/editor": true,
             "app/shared": true,
             "app/gradle": true,
-            "app/.gradle": true,
+            "**/.gradle": true,
             "app/gradlew": true,
             "app/gradlew.bat": true,
             "app/shadowjar": true,
             "**/build": true,
-            "**/bin": true
+            "**/bin": true,
+            "**/.kotlin": true
         },
         // Formatter
         "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
