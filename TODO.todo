@@ -24,8 +24,8 @@ After 2.0 is finished:
         - When exiting the client app the log says "shutting down". Replace to "exiting"
 
     2. Updates:
-        - Update to latest Java version
-        - Update to latest Gradle version
+        ✔ Update to latest Java version @done(25-11-20 00:03)
+        ✔ Update to latest Gradle version @done(25-11-20 00:04)
         - Update the Java version in Dockerfile
 
     3. Features:
