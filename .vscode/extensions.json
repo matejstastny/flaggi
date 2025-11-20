@@ -4,6 +4,7 @@
         "EditorConfig.EditorConfig",
         "ms-azuretools.vscode-docker",
         "fabiospampinato.vscode-todo-plus",
-        "zxh404.vscode-proto3"
+        "zxh404.vscode-proto3",
+        "fwcd.kotlin"
     ]
 }

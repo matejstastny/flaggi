@@ -5,6 +5,9 @@
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
+    "[kotlin]": {
+        "editor.defaultFormatter": "fwcd.kotlin"
+    },
     // Proto --------------------------------------------------------------------
     "protoc": {
         "compile_on_save": true,

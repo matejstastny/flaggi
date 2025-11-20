@@ -1,33 +1,15 @@
-// Plugins & dependencies ---------------------------------------------------------------------
-
 plugins {
-    id("java-library")
-    id("com.google.protobuf") version "0.9.4"
-}
-
-repositories {
-    mavenCentral()
+    id("java-common")
+    id("com.gradleup.shadow") version "9.2.2"
+    id("com.google.protobuf") version "0.9.5"
 }
 
 dependencies {
-    testImplementation(libs.junit.jupiter)                               // JUnit for testing
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0") // JSON file manipulation
-    implementation("com.google.protobuf:protobuf-java:3.25.1")           // TCP messages
-    implementation("org.json:json:20230618")                             // GitHub API client
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    implementation("org.json:json:20230618")
 }
 
-// Protobuf -----------------------------------------------------------------------------------
-
 protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.25.1"
-    }
-    generateProtoTasks {
-        all().configureEach {
-            builtins {
-                named("java")
-            }
-        }
-    }
+    protoc { artifact = "com.google.protobuf:protoc:3.25.1" }
+    generateProtoTasks { all().configureEach { builtins { named("java") } } }
 }
