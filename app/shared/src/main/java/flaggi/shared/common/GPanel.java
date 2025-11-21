@@ -248,14 +248,6 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		} else {
 			icon = other;
 		}
-		// Image icon = switch (os) { // TODO Change on update to above Java 14
-		// case String osName when osName.contains("win") -> winIcon;
-		// case String osName when osName.contains("mac") -> macIcon;
-		// case String osName when osName.contains("nix"), String osName when
-		// osName.contains("nux"), String osName when osName.contains("aix") ->
-		// linuxIcon;
-		// default -> other;
-		// };
 		setIcon(icon);
 	}
 
@@ -424,17 +416,10 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 
 	private Map<PanelRegion, MouseEvent> getRelativeMouseEvents(MouseEvent e) {
 		Map<PanelRegion, MouseEvent> relative = new HashMap<PanelRegion, MouseEvent>();
-		int mouseX = e.getX();
-		int mouseY = e.getY();
-
 		for (Entry<PanelRegion, Rectangle> entry : regions.entrySet()) {
 			PanelRegion region = entry.getKey();
 			Rectangle bounds = entry.getValue();
-
-			int relativeX = mouseX - bounds.x;
-			int relativeY = mouseY - bounds.y;
-
-			relative.put(region, new MouseEvent(e.getComponent(), e.getID(), e.getWhen(), e.getModifiers(), relativeX, relativeY, e.getClickCount(), e.isPopupTrigger()));
+			relative.put(region, new MouseEvent(e.getComponent(), e.getID(), e.getWhen(), e.getModifiersEx(), e.getX() - bounds.x, e.getY() - bounds.y, e.getClickCount(), e.isPopupTrigger(), e.getButton()));
 		}
 		return relative;
 	}

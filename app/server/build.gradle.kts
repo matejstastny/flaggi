@@ -1,28 +1,20 @@
-// =========================================================================
-// Plugins & Dependencies
-// =========================================================================
-
-dependencies {
-    implementation(project(":shared"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("com.google.protobuf:protobuf-java:3.25.1")
+plugins {
+    id("java-common")
+    id("application")
+    id("com.gradleup.shadow") version "9.2.2"
+    id("com.google.protobuf") version "0.9.5"
 }
 
-// =========================================================================
-// Application Configuration
-// =========================================================================
+dependencies { implementation(project(":shared")) }
 
-application {
-    mainClass.set("flaggi.server.Server")
-}
-
-// =========================================================================
-// ShadowJar Packaging Configuration
-// =========================================================================
+application { mainClass.set("flaggi.server.Server") }
 
 tasks.shadowJar {
-    enabled = true
-    archiveBaseName.set("Flaggi-server")
-    archiveVersion.set("1.0.0")
+  destinationDirectory = rootProject.layout.projectDirectory.dir("shadowjar")
+  archiveBaseName = "flaggi-server"
+  archiveClassifier = ""
+}
+
+tasks.jar {
+    enabled = false
 }

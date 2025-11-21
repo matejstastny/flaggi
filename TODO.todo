@@ -22,10 +22,11 @@ After 2.0 is finished:
         - When the client app window is resized by the user to 0, it throws and unhandeled exception
         - Fix server TCP manager starting after the UDP manager (should be the other way)
         - When exiting the client app the log says "shutting down". Replace to "exiting"
+        - Add a proper Kotlin formatter
 
     2. Updates:
-        - Update to latest Java version
-        - Update to latest Gradle version
+        ✔ Update to latest Java version @done(25-11-20 00:03)
+        ✔ Update to latest Gradle version @done(25-11-20 00:04)
         - Update the Java version in Dockerfile
 
     3. Features:
@@ -36,8 +37,9 @@ After 2.0 is finished:
         - Make Github pages wiki
 
     5. Scripts:
-        - Make the run_dev script work when called from another directory (not the scripts directory)
-        - Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.)
+        ✔ Make the run_dev script work when called from another directory (not the scripts directory) @done(25-11-20 16:19)
+        ✘ Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.) @cancelled(25-11-20 16:19)
+        - Fix package script & make it more clean
 
     6. Testing:
         - Make tests. How? Beats me...

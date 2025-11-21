@@ -1,3 +1,5 @@
-rootProject.name = "Flaggi"
+rootProject.name = "flaggi"
 
-include(":client", ":server", ":editor", ":shared")
+// WARNING: editor module temporarly removed, because it doesnt work
+// and I dont want to be bombarded by warnings and errors
+include("client", "server", "shared")
