@@ -46,6 +46,14 @@ jobs:
       - run: chmod +x gradlew
       - run: ./gradlew :client:build --no-daemon
 
+			# editor:
+			#   needs: setup
+			#   runs-on: ubuntu-latest
+			#   steps:
+			#     - uses: actions/checkout@v4
+			#     - run: chmod +x gradlew
+			#     - run: ./gradlew :editor:build --no-daemon
+
   shared:
     needs: setup
     runs-on: ubuntu-latest
@@ -54,10 +62,3 @@ jobs:
       - run: chmod +x gradlew
       - run: ./gradlew :shared:build --no-daemon
 
-  editor:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: chmod +x gradlew
-      - run: ./gradlew :editor:build --no-daemon
