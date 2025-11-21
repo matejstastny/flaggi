@@ -8,3 +8,13 @@ plugins {
 dependencies { implementation(project(":shared")) }
 
 application { mainClass.set("flaggieditor.App") }
+
+tasks.shadowJar {
+  destinationDirectory = rootProject.layout.projectDirectory.dir("shadowjar")
+  archiveBaseName = "flaggi-editor"
+  archiveClassifier = ""
+}
+
+tasks.jar {
+    enabled = false
+}

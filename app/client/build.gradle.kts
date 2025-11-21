@@ -8,3 +8,13 @@ plugins {
 dependencies { implementation(project(":shared")) }
 
 application { mainClass.set("flaggi.client.App") }
+
+tasks.shadowJar {
+  destinationDirectory = rootProject.layout.projectDirectory.dir("shadowjar")
+  archiveBaseName = "flaggi-client"
+  archiveClassifier = ""
+}
+
+tasks.jar {
+    enabled = false
+}

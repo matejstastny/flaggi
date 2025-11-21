@@ -10,6 +10,11 @@ dependencies {
 }
 
 protobuf {
+    // https://mvnrepository.com/artifact/com.google.protobuf/protoc
     protoc { artifact = "com.google.protobuf:protoc:3.25.1" }
     generateProtoTasks { all().configureEach { builtins { named("java") } } }
+}
+
+tasks.shadowJar {
+    enabled = false
 }
