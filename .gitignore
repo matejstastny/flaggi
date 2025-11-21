@@ -1,7 +1,8 @@
 # Gradle files
 .gradle/
+.kotlin/
 build/
-*bin
+bin/
 *.log
 
 # macOS
@@ -13,7 +14,7 @@ build/
 diet-jre/
 
 # Shadowjar build files
-app/shadowjar
+shadowjar
 
 # Include the wrapper jar
 !gradle-wrapper.jar
