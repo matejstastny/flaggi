@@ -1,12 +1,20 @@
 {
     // Global -------------------------------------------------------------------
-    "editor.defaultFormatter": "redhat.java",
     "editor.formatOnSave": true,
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+    },
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
     "[kotlin]": {
         "editor.defaultFormatter": "fwcd.kotlin"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "DotJoshJohnson.xml"
     },
     // Proto --------------------------------------------------------------------
     "protoc": {
@@ -23,5 +31,5 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.import.gradle.enabled": true
+    "java.import.gradle.enabled": true,
 }
