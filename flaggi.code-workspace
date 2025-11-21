@@ -52,6 +52,9 @@
         "java.debug.settings.onBuildFailureProceed": true,
         "java.compile.nullAnalysis.mode": "automatic",
         "java.import.gradle.wrapper.enabled": true,
-        "java.import.gradle.enabled": false
+        "java.import.gradle.enabled": false,
+        // YAML
+        "yaml.format.proseWrap": "never",
+        "yaml.format.trailingComma": true
     }
 }

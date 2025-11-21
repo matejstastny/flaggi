@@ -16,6 +16,9 @@
     "[xml]": {
         "editor.defaultFormatter": "DotJoshJohnson.xml"
     },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+    },
     // Proto --------------------------------------------------------------------
     "protoc": {
         "compile_on_save": true,
