@@ -1,14 +1,11 @@
 {
-    // Global -------------------------------------------------------------------
+    // Formatters ---------------------------------------------------------------
     "editor.formatOnSave": true,
     "[java]": {
         "editor.defaultFormatter": "redhat.java",
     },
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
-    },
-    "[kotlin]": {
-        "editor.defaultFormatter": "fwcd.kotlin"
     },
     "[markdown]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -28,11 +25,26 @@
             "--java_out=${workspaceRoot}/app/shared/build/generated/source/proto/main/java"
         ]
     },
-    // Fallback -----------------------------------------------------------------
-    // In case the folder is not opened using the workspace (please don't do that)
+    // Tree exclude -------------------------------------------------------------
+    "files.exclude": {
+        "**/.gradle": true,
+        "gradlew": true,
+        "gradlew.bat": true,
+        "**/build": true,
+        "**/bin": true,
+        "**/.kotlin": true
+    },
+    // Other --------------------------------------------------------------------
+    "files.associations": {
+        "*.gradle.kts": "kotlin",
+        "*.sdkmanrc": "shellscript"
+    },
     "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.enabled": false,
+    "yaml.format.proseWrap": "never",
+    "yaml.format.trailingComma": true
 }
