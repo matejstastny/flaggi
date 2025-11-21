@@ -3,7 +3,14 @@ name: Build
 on:
   push:
     branches: [ main, flaggi-2.0 ]
+    paths-ignore:
+      - '**/*.md'
+      - 'assets/**'
+
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'assets/**'
 
 jobs:
   setup:
