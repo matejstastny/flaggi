@@ -29,18 +29,17 @@
     // Settings ---------------------------------------------------------------------
     "settings": {
         "files.exclude": {
-            // "app/buildSrc": true,
-            // "app/client": true,
-            // "app/server": true,
-            // "app/editor": true,
-            // "app/shared": true,
-            // "app/gradle": true,
-            // "**/.gradle": true,
-            // "app/gradlew": true,
-            // "app/gradlew.bat": true,
-            // "**/build": true,
-            // "**/bin": true,
-            // "**/.kotlin": true
+            "buildSrc": true,
+            "client": true,
+            "server": true,
+            "editor": true,
+            "shared": true,
+            "**/.gradle": true,
+            "gradlew": true,
+            "gradlew.bat": true,
+            "**/build": true,
+            "**/bin": true,
+            "**/.kotlin": true
         },
         // Formatter
         "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
