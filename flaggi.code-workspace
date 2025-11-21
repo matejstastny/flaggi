@@ -38,7 +38,6 @@
             "**/.gradle": true,
             "app/gradlew": true,
             "app/gradlew.bat": true,
-            "app/shadowjar": true,
             "**/build": true,
             "**/bin": true,
             "**/.kotlin": true
