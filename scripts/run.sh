@@ -51,17 +51,17 @@ log success "Using Java $JAVA_VERSION at $JAVA_PATH"
 # Shadowjar ----------------------------------------------------------------------------------
 
 log info "Running shadowJar..."
-GRADLE_CMD="$PROJECT_ROOT/app/gradlew"
+GRADLE_CMD="$PROJECT_ROOT/gradlew"
 [[ -f "$GRADLE_CMD" ]] || GRADLE_CMD="gradle"
 
-(cd "$PROJECT_ROOT/app" && "$GRADLE_CMD" shadowJar --warning-mode none) ||
+(cd "$PROJECT_ROOT" && "$GRADLE_CMD" shadowJar --warning-mode none) ||
     log error "shadowJar failed."
 
 log success "shadowJar completed."
 
 # Jar ----------------------------------------------------------------------------------------
 
-JAR_DIR="$PROJECT_ROOT/app/shadowjar"
+JAR_DIR="$PROJECT_ROOT/shadowjar"
 JAR_FILE=$(find "$JAR_DIR" -maxdepth 1 -type f -name "flaggi-${TARGET_MODULE}*.jar" | head -n 1) ||
     true
 
