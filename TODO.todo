@@ -13,6 +13,9 @@ Flaggi 2.0:
     Server-to-client UDP updates:
         - Implement periodically sending position updates to client @started(25-10-01 13:54)
 
+    README:
+        - Update the README
+
 
 After 2.0 is finished:
 ---------------------
