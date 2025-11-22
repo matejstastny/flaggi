@@ -17,6 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Taskbar;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -46,6 +47,8 @@ import java.util.stream.Collectors;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import flaggi.shared.common.Logger.LogLevel;
 
 /**
  * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed
@@ -214,18 +217,15 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	 * @param path - path of the icon
 	 */
 	public void setIcon(Image icon) {
-		try {
-			String os = System.getProperty("os.name").toLowerCase();
-			if (os.contains("mac")) {
-				Class<?> appClass = Class.forName("com.apple.eawt.Application");
-				Object appInstance = appClass.getMethod("getApplication").invoke(null);
-				appClass.getMethod("setDockIconImage", Image.class).invoke(appInstance, icon);
-			} else {
-				this.appFrame.setIconImage(icon);
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.contains("mac")) {
+			try {
+				Taskbar.getTaskbar().setIconImage(icon);
+			} catch (Exception e) {
+				Logger.log(LogLevel.WARN, "Taskbar icon could not be set", e);
 			}
-		} catch (Exception e) {
-			System.err.println(this.getClass().getName() + " [ERROR]: Could not set icon!");
 		}
+		this.appFrame.setIconImage(icon);
 	}
 
 	/**
