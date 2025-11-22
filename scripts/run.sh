@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-source "$(dirname "$0")/config.sh"
-source "$(dirname "$0")/logging.sh"
-
 # --------------------------------------------------------------------------------------------
 # run.sh - run script that builds a shadowjar and executes it
 # --------------------------------------------------------------------------------------------
@@ -12,6 +8,10 @@ source "$(dirname "$0")/logging.sh"
 # License: MIT
 # Link: https://github.com/matejstastny/flaggi
 # --------------------------------------------------------------------------------------------
+
+set -e
+source "$(dirname "$0")/config.sh"
+source "$(dirname "$0")/logging.sh"
 
 # Helpers ------------------------------------------------------------------------------------
 
@@ -35,29 +35,41 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-[[ -z "$TARGET_MODULE" ]] && log error "No module specified."
+[[ -z "$TARGET_MODULE" ]] && log error "No module specified." && exit 1
 [[ "$TARGET_MODULE" != "server" && "$REBUILD" == "true" ]] && log warn "-r has no effect for this module."
 
 log info "Building module: $TARGET_MODULE"
 
 # Dependencies -------------------------------------------------------------------------------
 
-JAVA_PATH=$(command -v java) || log error "Java not found."
+JAVA_PATH=$(command -v java) || {
+    log error "Java not found." && exit 1
+}
 JAVA_VERSION=$("$JAVA_PATH" -version 2>&1 | awk -F'"' '/version/ {print $2}' | awk -F'.' '{print ($1=="1"?$2:$1)}')
-[[ "$JAVA_VERSION" -ne "$JAVA_VER" ]] && log error "Java $JAVA_VER required."
+[[ "$JAVA_VERSION" -ne "$JAVA_VER" ]] && log error "Java $JAVA_VER required." && exit 1
+log info "Java version: $JAVA_VERSION at $JAVA_PATH"
 
-log success "Using Java $JAVA_VERSION at $JAVA_PATH"
+# Version ------------------------------------------------------------------------------------
+
+GRADLE_CMD="$PROJECT_ROOT/gradlew"
+PROJECT_VERSION=$(
+    "$GRADLE_CMD" properties --quiet |
+        awk -F': ' '/^version:/ {print $2}'
+)
+
+log info "Project version: $PROJECT_VERSION"
 
 # Shadowjar ----------------------------------------------------------------------------------
 
-log info "Running shadowJar..."
-GRADLE_CMD="$PROJECT_ROOT/gradlew"
+log info "Running shadowjar..."
 [[ -f "$GRADLE_CMD" ]] || GRADLE_CMD="gradle"
 
-(cd "$PROJECT_ROOT" && "$GRADLE_CMD" shadowJar --warning-mode none) ||
+(cd "$PROJECT_ROOT" && "$GRADLE_CMD" shadowJar --quiet) || {
     log error "shadowJar failed."
+    exit 1
+}
 
-log success "shadowJar completed."
+log success "shadowjar finished"
 
 # Jar ----------------------------------------------------------------------------------------
 
@@ -79,5 +91,6 @@ fi
 
 # Execute ------------------------------------------------------------------------------------
 
-printf "\e[90m%$(tput cols)s\e[0m" '' | tr ' ' -
+echo ""
+echo "Flaggi --------------------------------------------"
 exec java -jar "$JAR_FILE"
