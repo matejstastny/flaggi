@@ -13,6 +13,9 @@ tasks.shadowJar {
   destinationDirectory = rootProject.layout.projectDirectory.dir("shadowjar")
   archiveBaseName = "flaggi-server"
   archiveClassifier = ""
+  from(rootProject.layout.projectDirectory.file("LICENSE")) {
+    into("licenses")
+  }
 }
 
 tasks.jar {
