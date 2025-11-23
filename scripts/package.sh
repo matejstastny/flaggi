@@ -118,6 +118,7 @@ APP_SRC=$(find "$VOL" -maxdepth 1 -name "*.app" -print -quit)
 
 cp -pPR "$APP_SRC" "$DIR_APP"
 run_quiet hdiutil detach "$VOL"
+log success "Extracted app file"
 
 # DMG Installer ------------------------------------------------------------------------------
 
