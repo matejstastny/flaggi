@@ -28,11 +28,9 @@ usage() {
 TARGET_MODULE=""
 DEBUG=0
 
-while [[ "$#" -gt 0 ]]; do
+while [[ $# -gt 0 ]]; do
     case "$1" in
-    client | editor)
-        TARGET_MODULE="$1"
-        ;;
+    client | editor) TARGET_MODULE="$1" ;;
     -d | --debug) DEBUG=1 ;;
     -h | --help) usage ;;
     *)
@@ -43,18 +41,14 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-((DEBUG == 1)) && log info "Debug logs enabled"
-
-if [[ -z "$TARGET_MODULE" ]]; then
-    log error "No module specified! Use 'client' or 'editor'"
-    exit 1
-fi
+((DEBUG)) && log info "Debug enabled"
+[[ -z "$TARGET_MODULE" ]] && log error "Specify module: client|editor" && exit 1
 
 log info "Building module: $TARGET_MODULE"
 
 # Dependencies -------------------------------------------------------------------------------
 
-REQUIRED_COMMANDS=("realpath" "java" "jlink" "jpackage" "awk" "grep")
+REQUIRED_COMMANDS=("realpath" "java" "jlink" "jpackage" "grep")
 for cmd in "${REQUIRED_COMMANDS[@]}"; do
     if ! command -v "$cmd" &>/dev/null; then
         log error "Missing required command: $cmd"
@@ -72,11 +66,7 @@ JAR_FILE=$(get_shadowjar_path)
 
 # Cleanup ------------------------------------------------------------------------------------
 
-cleanup() {
-    log info "Cleaning up temporary files..."
-    [[ -d "$DIR_APP" ]] && rm -rf "$DIR_APP"
-    log info "Cleaned up"
-}
+cleanup() { [[ -d "$DIR_APP" ]] && rm -rf "$DIR_APP"; }
 trap cleanup EXIT
 
 # JRE ----------------------------------------------------------------------------------------
@@ -112,41 +102,22 @@ log success "Application packaged"
 # App package --------------------------------------------------------------------------------
 
 mkdir -p "$DIR_APP"
-MOUNT_INFO=$(hdiutil attach "$VANILLA_DMG_FILE" -nobrowse)
-DMG_VOLUME=$(echo "$MOUNT_INFO" | grep -o '/Volumes/.*')
-
-if [ -z "$DMG_VOLUME" ]; then
-    log error "Failed to mount DMG or find volume"
+log info "Extracting app file"
+MOUNT=$(hdiutil attach "$VANILLA_DMG_FILE" -nobrowse)
+VOL=$(echo "$MOUNT" | grep -o '/Volumes/.*') || {
+    log error "Mount failed"
     exit 1
-fi
+}
 
-log info "Volume: $DMG_VOLUME"
-
-APP_PATH=$(find "$DMG_VOLUME" -maxdepth 1 -name "*.app" -print -quit)
-
-if [ -z "$APP_PATH" ]; then
-    log error "No .app found in DMG"
-    run_quiet hdiutil detach "$DMG_VOLUME"
+APP_SRC=$(find "$VOL" -maxdepth 1 -name "*.app" -print -quit)
+[[ -z "$APP_SRC" ]] && {
+    log error "No app found"
+    hdiutil detach "$VOL"
     exit 1
-fi
+}
 
-cp -pPR "$APP_PATH" "$DIR_APP"
-
-if [ $? -eq 0 ]; then
-    log success "Successfully copied $APP_PATH to $DIR_APP"
-else
-    log error "Failed to copy $APP_PATH"
-    run_quiet hdiutil detach "$DMG_VOLUME"
-    exit 1
-fi
-
-run_quiet run_quiet hdiutil detach "$DMG_VOLUME"
-
-if [ $? -eq 0 ]; then
-    log info "Unmounted $DMG_VOLUME"
-else
-    log warn "Failed to unmount $DMG_VOLUME"
-fi
+cp -pPR "$APP_SRC" "$DIR_APP"
+run_quiet hdiutil detach "$VOL"
 
 # DMG Installer ------------------------------------------------------------------------------
 
@@ -167,4 +138,6 @@ log info "Creating DMG installer..."
 mkdir -p "$DIR_DIST"
 rm -f "$DIR_DIST/$APP_NAME-$APP_VERSION.dmg"
 run_quiet create-dmg "${DMG_ARGS[@]}"
+# Delete trash dmg files create-dmg creates
+find "$DIR_DIST" -maxdepth 1 -type f -name "*.$APP_NAME-$APP_VERSION.dmg" ! -name "$APP_NAME-$APP_VERSION.dmg" -delete
 log celebrate "DMG installer created"
