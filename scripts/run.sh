@@ -11,6 +11,7 @@
 
 set -e
 source "$(dirname "$0")/config.sh"
+source "$(dirname "$0")/shared.sh"
 source "$(dirname "$0")/logging.sh"
 
 # Helpers ------------------------------------------------------------------------------------
@@ -40,47 +41,14 @@ done
 
 log info "Building module: $TARGET_MODULE"
 
-# Dependencies -------------------------------------------------------------------------------
+# Main ---------------------------------------------------------------------------------------
 
-JAVA_PATH=$(command -v java) || {
-    log error "Java not found." && exit 1
-}
-JAVA_VERSION=$("$JAVA_PATH" -version 2>&1 | awk -F'"' '/version/ {print $2}' | awk -F'.' '{print ($1=="1"?$2:$1)}')
-[[ "$JAVA_VERSION" -ne "$JAVA_VER" ]] && log error "Java $JAVA_VER required." && exit 1
-log info "Java version: $JAVA_VERSION at $JAVA_PATH"
+check_java_ver "$JAVA_VERSION" || exit 1
+APP_VERSION=$(get_project_ver)
+run_shadowjar || exit 1
+JAR_FILE=$(get_shadowjar_path)
 
-# Version ------------------------------------------------------------------------------------
-
-GRADLE_CMD="$PROJECT_ROOT/gradlew"
-PROJECT_VERSION=$(
-    "$GRADLE_CMD" properties --quiet |
-        awk -F': ' '/^version:/ {print $2}'
-)
-
-log info "Project version: $PROJECT_VERSION"
-
-# Shadowjar ----------------------------------------------------------------------------------
-
-log info "Running shadowjar..."
-[[ -f "$GRADLE_CMD" ]] || GRADLE_CMD="gradle"
-
-(cd "$PROJECT_ROOT" && "$GRADLE_CMD" shadowJar --quiet) || {
-    log error "shadowJar failed."
-    exit 1
-}
-
-log success "shadowjar finished"
-
-# Jar ----------------------------------------------------------------------------------------
-
-JAR_DIR="$PROJECT_ROOT/shadowjar"
-JAR_FILE=$(find "$JAR_DIR" -maxdepth 1 -type f -name "flaggi-${TARGET_MODULE}*.jar" | head -n 1) ||
-    true
-
-[[ -z "$JAR_FILE" ]] && log error "No JAR found for pattern: flaggi-${TARGET_MODULE}*.jar"
-
-# Server dir ---------------------------------------------------------------------------------
-
+# Setup temp server environment
 if [[ "$TARGET_MODULE" == "server" ]]; then
     SERVER_DIR="$PROJECT_ROOT/$SERVER_DIR"
     [[ "$REBUILD" == "true" && -d "$SERVER_DIR" ]] && rm -rf "$SERVER_DIR"
@@ -89,8 +57,7 @@ if [[ "$TARGET_MODULE" == "server" ]]; then
     JAR_FILE="$SERVER_DIR/$(basename "$JAR_FILE")"
 fi
 
-# Execute ------------------------------------------------------------------------------------
-
+# Execute
 echo ""
 echo "Flaggi --------------------------------------------"
 exec java -jar "$JAR_FILE"

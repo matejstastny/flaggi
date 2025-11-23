@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # --------------------------------------------------------------------------------------------
 # logging.sh — Logging Functions
@@ -13,6 +12,8 @@ set -euo pipefail
 #   This script provides logging functions with different levels (info, success, warn, error)
 #   and corresponding emojis and colors for better readability in terminal output.
 # --------------------------------------------------------------------------------------------
+
+set -e
 
 black=30
 red=31
@@ -42,7 +43,7 @@ log() {
         ;;
     celebrate)
         emoji="🎉"
-        color="$blue"
+        color="$purple"
         ;;
     prompt)
         emoji="⁉️"
