@@ -50,11 +50,10 @@ JAR_FILE=$(get_shadowjar_path)
 
 # Setup temp server environment
 if [[ "$TARGET_MODULE" == "server" ]]; then
-    SERVER_DIR="$PROJECT_ROOT/$SERVER_DIR"
-    [[ "$REBUILD" == "true" && -d "$SERVER_DIR" ]] && rm -rf "$SERVER_DIR"
-    mkdir -p "$SERVER_DIR"
-    mv "$JAR_FILE" "$SERVER_DIR"
-    JAR_FILE="$SERVER_DIR/$(basename "$JAR_FILE")"
+    [[ "$REBUILD" == "true" && -d "$DIR_SERVER_TEMP" ]] && rm -rf "$DIR_SERVER_TEMP"
+    mkdir -p "$DIR_SERVER_TEMP"
+    mv "$JAR_FILE" "$DIR_SERVER_TEMP"
+    JAR_FILE="$DIR_SERVER_TEMP/$(basename "$JAR_FILE")"
 fi
 
 # Execute
