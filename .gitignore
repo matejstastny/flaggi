@@ -16,6 +16,9 @@ diet-jre/
 # Shadowjar build files
 shadowjar
 
+# Exported .exe and .dmg files for distrubition
+distribution
+
 # Include the wrapper jar
 !gradle-wrapper.jar
 
