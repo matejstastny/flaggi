@@ -32,7 +32,8 @@
         "gradlew.bat": true,
         "**/build": true,
         "**/bin": true,
-        "**/.kotlin": true
+        "**/.kotlin": true,
+        "flaggi-server-temp": true
     },
     // Other --------------------------------------------------------------------
     "files.associations": {
