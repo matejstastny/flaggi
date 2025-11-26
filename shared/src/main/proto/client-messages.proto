@@ -11,28 +11,28 @@ syntax = "proto3";
 
 package flaggi;
 
-option java_package = "flaggi.proto";
+option java_package         = "flaggi.proto";
 option java_outer_classname = "ClientMessages";
 
 // Wrapper ----------------------------------------------------------------------
 
 message ClientMessage {
     string uuid = 1;
-    oneof message_type {
-        Ping ping = 2;
-        ClientHello clientHello = 3;
-        ClientCommand clientCommand = 4;
-        ClientInvite clientInvite = 5;
+    oneof  message_type {
+        Ping                 ping                 = 2;
+        ClientHello          clientHello          = 3;
+        ClientCommand        clientCommand        = 4;
+        ClientInvite         clientInvite         = 5;
         ClientInviteResponse clientInviteResponse = 6;
     }
 }
 
 message ClientStateUpdate {
     string playerUuid = 1;
-    string gameUuid = 2;
-    oneof message_type {
+    string gameUuid   = 2;
+    oneof  message_type {
         ClientMouseInput clientMouseInput = 3;
-        ClientKeyInput clientKeyInput = 4;
+        ClientKeyInput   clientKeyInput   = 4;
     }
 }
 
@@ -43,9 +43,9 @@ enum ClientCommandType {
 }
 
 enum ClientKeyAction {
-    MOVE_UP = 0;
-    MOVE_DOWN = 1;
-    MOVE_LEFT = 2;
+    MOVE_UP    = 0;
+    MOVE_DOWN  = 1;
+    MOVE_LEFT  = 2;
     MOVE_RIGHT = 3;
 }
 
@@ -57,7 +57,7 @@ message Ping {
 
 message ClientHello {
     string username = 1;
-    int32 updPort = 2;
+    int32  updPort  = 2;
 }
 
 message ClientCommand {
@@ -69,8 +69,8 @@ message ClientInvite {
 }
 
 message ClientInviteResponse {
-    string invitee = 1;
-    bool accepted = 2;
+    string invitee  = 1;
+    bool   accepted = 2;
 }
 
 // UDP Messages -----------------------------------------------------------------

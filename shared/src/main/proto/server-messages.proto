@@ -9,7 +9,7 @@
 
 syntax = "proto3";
 
-option java_package = "flaggi.proto";
+option java_package         = "flaggi.proto";
 option java_outer_classname = "ServerMessages";
 
 package flaggi;
@@ -18,11 +18,11 @@ package flaggi;
 
 message ServerMessage {
     oneof message_type {
-        Pong pong = 1;
-        ServerHello serverHello = 2;
+        Pong           pong           = 1;
+        ServerHello    serverHello    = 2;
         ServerJoinGame serverJoinGame = 3;
-        ServerCommand serverCommand = 4;
-        ServerInvite serverInvite = 5;
+        ServerCommand  serverCommand  = 4;
+        ServerInvite   serverInvite   = 5;
         IdleClientList idleClientList = 6;
     }
 }
@@ -40,14 +40,14 @@ message Pong {
 }
 
 message ServerHello {
-    string uuid = 1;
-    int64 udpPort = 2;
+    string uuid    = 1;
+    int64  udpPort = 2;
 }
 
 message ServerJoinGame {
-    string gameUuid = 1;
-    int32 roomWidth = 2;
-    int32 roomHeight = 3;
+    string gameUuid   = 1;
+    int32  roomWidth  = 2;
+    int32  roomHeight = 3;
 }
 
 message ServerInvite {
@@ -66,20 +66,20 @@ message IdleClientList {
 // UDP Messages -----------------------------------------------------------------
 
 message ServerStateUpdate {
-    ServerGameObject me = 1;
+    ServerGameObject          me    = 1;
     repeated ServerGameObject other = 2;
 }
 
 // Game Object ------------------------------------------------------------------
 
 message ServerGameObject {
-    GameObjectType type = 1;
-    double x = 2;
-    double y = 3;
-    double coll_x = 4;
-    double coll_y = 5;
-    double coll_width = 6;
-    double coll_height = 7;
+    GameObjectType type        = 1;
+    double         x           = 2;
+    double         y           = 3;
+    double         coll_x      = 4;
+    double         coll_y      = 5;
+    double         coll_width  = 6;
+    double         coll_height = 7;
 }
 
 enum GameObjectType {
