@@ -1,0 +1,41 @@
+# .clang-format for Protocol Buffers (.proto)
+Language: Proto
+BasedOnStyle: Google
+
+# Indentation & layout
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+IndentCaseLabels: false
+
+# Whitespace
+SpaceBeforeAssignmentOperators: true
+SpacesInAngles: false
+
+# Line breaks
+AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+
+# Comments
+CommentPragmas: '^\s*option|^ Example:'
+ReflowComments: true
+AlignTrailingComments: true
+
+# Alignment
+AlignOperands: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignAfterOpenBracket: Align
+
+# Sorting (fields/enums/options)
+SortIncludes: false
+SortUsingDeclarations: true
+
+# Other
+ExperimentalAutoDetectBinPacking: false
+BinPackArguments: true
+BinPackParameters: true
