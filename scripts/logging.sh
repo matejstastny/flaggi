@@ -13,8 +13,6 @@
 #   and corresponding emojis and colors for better readability in terminal output.
 # --------------------------------------------------------------------------------------------
 
-set -e
-
 black=30
 red=31
 green=32

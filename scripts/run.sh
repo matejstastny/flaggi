@@ -9,10 +9,10 @@
 # Link: https://github.com/matejstastny/flaggi
 # --------------------------------------------------------------------------------------------
 
-set -e
 source "$(dirname "$0")/config.sh"
 source "$(dirname "$0")/shared.sh"
 source "$(dirname "$0")/logging.sh"
+set -e
 
 # Helpers ------------------------------------------------------------------------------------
 
