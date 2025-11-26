@@ -20,9 +20,8 @@
     "protoc": {
         "compile_on_save": true,
         "options": [
-            "--proto_path=${workspaceRoot}/app/shared/src/main/proto",
-            "--proto_path=${env.GOPATH}/src",
-            "--java_out=${workspaceRoot}/app/shared/build/generated/source/proto/main/java"
+            "--proto_path=${workspaceRoot}/shared/src/main/proto",
+            "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
         ]
     },
     // Tree exclude -------------------------------------------------------------
