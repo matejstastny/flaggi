@@ -6,16 +6,14 @@
 // License: MIT
 // Link: https: //github.com/matejstastny/flaggi
 // --------------------------------------------------------------------------------------------
+
 {
     "name": "flaggi",
     "build": {
         "dockerfile": "Dockerfile"
     },
     "remoteUser": "flaggi",
-    "appPort": [
-        54321,
-        "54322:54322/udp"
-    ],
+    "appPort": [54321, "54322:54322/udp"],
     "customizations": {
         "vscode": {
             "extensions": [

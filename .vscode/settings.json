@@ -1,8 +1,9 @@
 {
     // Formatters ---------------------------------------------------------------
+
     "editor.formatOnSave": true,
     "[java]": {
-        "editor.defaultFormatter": "redhat.java",
+        "editor.defaultFormatter": "redhat.java"
     },
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
@@ -14,9 +15,17 @@
         "editor.defaultFormatter": "DotJoshJohnson.xml"
     },
     "[yaml]": {
-        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
     },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
     // Proto --------------------------------------------------------------------
+
     "protoc": {
         "compile_on_save": true,
         "options": [
@@ -24,7 +33,9 @@
             "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
         ]
     },
+
     // Tree exclude -------------------------------------------------------------
+
     "files.exclude": {
         "**/.gradle": true,
         "gradlew": true,
@@ -35,6 +46,7 @@
         "flaggi-server-temp": true
     },
     // Other --------------------------------------------------------------------
+
     "files.associations": {
         "*.gradle.kts": "kotlin",
         "*.sdkmanrc": "shellscript"
@@ -46,5 +58,7 @@
     "java.import.gradle.wrapper.enabled": true,
     "java.import.gradle.enabled": false,
     "yaml.format.proseWrap": "never",
-    "yaml.format.trailingComma": true
+    "yaml.format.trailingComma": true,
+    "gradle.nestedProjects": true,
+    "kotlin.scripts.buildScriptsEnabled": true
 }
