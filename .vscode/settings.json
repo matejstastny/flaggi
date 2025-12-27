@@ -6,7 +6,8 @@
         "editor.defaultFormatter": "redhat.java"
     },
     "[dockerfile]": {
-        "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers",
+        "editor.semanticHighlighting.enabled": false
     },
     "[markdown]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
