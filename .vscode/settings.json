@@ -60,5 +60,6 @@
     "yaml.format.proseWrap": "never",
     "yaml.format.trailingComma": true,
     "gradle.nestedProjects": true,
+    "redhat.telemetry.enabled": false,
     "kotlin.scripts.buildScriptsEnabled": true
 }
