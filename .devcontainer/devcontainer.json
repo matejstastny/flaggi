@@ -4,7 +4,7 @@
 // Author: Matej Stastny
 // Date: 2025-11-23 (YYYY-MM-DD)
 // License: MIT
-// Link: https: //github.com/matejstastny/flaggi
+// Link: https://github.com/matejstastny/flaggi
 // --------------------------------------------------------------------------------------------
 
 {
@@ -28,7 +28,7 @@
                 "xaver.clang-format", // For formatting proto files
                 "esbenp.prettier-vscode", // For formatting markdown
                 "DotJoshJohnson.xml", // For formatting xml
-                "redhat.vscode-yaml" // For formatting xml
+                "redhat.vscode-yaml" // For formatting yaml
             ]
         }
     },
