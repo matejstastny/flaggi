@@ -9,7 +9,7 @@
 # Link: https://github.com/matejstastny/flaggi
 # --------------------------------------------------------------------------------------------
 
-source "$(dirname "$0")/logging.sh"
+source "$(dirname "$0")/lib/logging.sh"
 
 CONTAINER_ID=$(
     docker ps --format "{{.ID}} {{.Image}}" |
@@ -24,5 +24,4 @@ if [ -z "$CONTAINER_ID" ]; then
     exit 1
 fi
 
-log info "Attaching to container: $CONTAINER_ID"
 docker exec -it -u flaggi "$CONTAINER_ID" bash -l

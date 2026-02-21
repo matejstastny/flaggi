@@ -6,8 +6,7 @@
         "editor.defaultFormatter": "redhat.java"
     },
     "[dockerfile]": {
-        "editor.defaultFormatter": "ms-azuretools.vscode-containers",
-        "editor.semanticHighlighting.enabled": false
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
     "[markdown]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -27,13 +26,14 @@
 
     // Proto --------------------------------------------------------------------
 
-    "protoc": {
-        "compile_on_save": true,
-        "options": [
-            "--proto_path=${workspaceRoot}/shared/src/main/proto",
-            "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
-        ]
-    },
+    "protobuf.protoc.path": "/usr/bin/protoc",
+    "protobuf.protoc.options": [
+        "--proto_path=${workspaceRoot}/shared/src/main/proto",
+        "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
+    ],
+    "protobuf.clangFormat.configPath": "${workspaceFolder}/.clang-format",
+    "protobuf.codegen.generateOnSave": true,
+    "protobuf.clangFormat.enabled": true,
 
     // Tree exclude -------------------------------------------------------------
 
@@ -46,6 +46,7 @@
         "**/.kotlin": true,
         "flaggi-server-temp": true
     },
+
     // Other --------------------------------------------------------------------
 
     "files.associations": {
@@ -57,7 +58,7 @@
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",
     "java.import.gradle.wrapper.enabled": true,
-    "java.import.gradle.enabled": false,
+    "java.import.gradle.enabled": true,
     "yaml.format.proseWrap": "never",
     "yaml.format.trailingComma": true,
     "gradle.nestedProjects": true,

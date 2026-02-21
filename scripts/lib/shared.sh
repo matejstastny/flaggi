@@ -10,8 +10,8 @@
 # --------------------------------------------------------------------------------------------
 
 set -e
-source "$(dirname "$0")/config.sh"
-source "$(dirname "$0")/logging.sh"
+source "$(dirname "$0")/lib/config.sh"
+source "$(dirname "$0")/lib/logging.sh"
 
 # checks if the current java used matches
 # @param Target Java version
