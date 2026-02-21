@@ -30,7 +30,10 @@
                 "DotJoshJohnson.xml",
                 "redhat.vscode-yaml",
                 "DrBlury.protobuf-vsc",
-                "richardwillis.vscode-spotless-gradle"
+                "richardwillis.vscode-spotless-gradle",
+                "patbenatar.advanced-new-file",
+                "jsynowiec.vscode-insertdatestring",
+                "mskelton.ktlint"
             ]
         }
     },

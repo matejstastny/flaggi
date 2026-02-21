@@ -3,7 +3,10 @@
 
     "editor.formatOnSave": true,
     "[java]": {
-        "editor.defaultFormatter": "redhat.java"
+        "editor.defaultFormatter": "redhat.java",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "always"
+        }
     },
     "[kotlin]": {
         "editor.defaultFormatter": "mskelton.ktlint"
