@@ -7,10 +7,10 @@
 // Link: https://github.com/matejstastny/flaggi
 // ------------------------------------------------------------------------------
 
-package flaggi.server.common;
+package flaggi.shared.common;
 
-import flaggi.proto.ServerMessages.ServerGameObject;
 import flaggi.proto.ServerMessages.GameObjectType;
+import flaggi.proto.ServerMessages.ServerGameObject;
 
 public class GameObject {
 
@@ -19,6 +19,10 @@ public class GameObject {
 	private double x, y, hp;
 
 	// Constructors -------------------------------------------------------------
+
+	public GameObject(ServerGameObject o) {
+		this(o.getType(), o.getX(), o.getY(), new Hitbox(o.getCollX(), o.getCollY(), o.getCollWidth(), o.getCollHeight()));
+	}
 
 	public GameObject(GameObjectType type, double x, double y, Hitbox c) {
 		this.collision = c;

@@ -9,7 +9,7 @@
 
 package flaggi.server.constants;
 
-import flaggi.server.common.Hitbox;
+import flaggi.shared.common.Hitbox;
 
 public class Hitboxes {
 

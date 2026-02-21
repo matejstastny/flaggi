@@ -27,6 +27,7 @@ import flaggi.server.Server;
 import flaggi.server.client.Client;
 import flaggi.server.constants.Constants;
 import flaggi.server.constants.Hitboxes;
+import flaggi.shared.common.GameObject;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.MapData;

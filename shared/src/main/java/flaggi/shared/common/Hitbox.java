@@ -7,7 +7,7 @@
 // Link: https://github.com/matejstastny/flaggi
 // ------------------------------------------------------------------------------
 
-package flaggi.server.common;
+package flaggi.shared.common;
 
 public class Hitbox {
 

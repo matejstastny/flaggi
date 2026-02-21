@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import flaggi.proto.ServerMessages.GameObjectType;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
+import flaggi.shared.common.GameObject;
 
 public class GameData {
 

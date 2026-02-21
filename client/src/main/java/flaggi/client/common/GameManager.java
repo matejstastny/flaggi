@@ -21,8 +21,8 @@ import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
 import flaggi.shared.common.GPanel;
-import flaggi.shared.common.Logger;
 import flaggi.shared.common.GPanel.AbstractInteractableHandler;
+import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop.Updatable;
 
