@@ -31,6 +31,10 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.21.0-openjdk-arm64
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 RUN ls -la "$JAVA_HOME/bin/java" && "$JAVA_HOME/bin/java" -version
 
+RUN curl -sSLO -L https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint \
+    && chmod +x ktlint \
+    && mv ktlint /usr/local/bin/
+
 RUN useradd flaggi \
     --shell /bin/bash \
     --create-home \

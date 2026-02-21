@@ -5,6 +5,9 @@
     "[java]": {
         "editor.defaultFormatter": "redhat.java"
     },
+    "[kotlin]": {
+        "editor.defaultFormatter": "mskelton.ktlint"
+    },
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
@@ -22,6 +25,22 @@
     },
     "[jsonc]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // Java ---------------------------------------------------------------------
+
+    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.enabled": true,
+    "redhat.telemetry.enabled": false,
+    "gradle.nestedProjects": true,
+
+    "files.associations": {
+        "*.gradle.kts": "kotlin",
+        "*.sdkmanrc": "shellscript"
     },
 
     // Proto --------------------------------------------------------------------
@@ -49,19 +68,6 @@
 
     // Other --------------------------------------------------------------------
 
-    "files.associations": {
-        "*.gradle.kts": "kotlin",
-        "*.sdkmanrc": "shellscript"
-    },
-    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.import.gradle.wrapper.enabled": true,
-    "java.import.gradle.enabled": true,
     "yaml.format.proseWrap": "never",
-    "yaml.format.trailingComma": true,
-    "gradle.nestedProjects": true,
-    "redhat.telemetry.enabled": false,
-    "kotlin.scripts.buildScriptsEnabled": true
+    "yaml.format.trailingComma": true
 }

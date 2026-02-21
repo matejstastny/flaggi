@@ -20,7 +20,6 @@
             "extensions": [
                 "vscjava.vscode-java-pack",
                 "redhat.vscode-xml",
-                "fwcd.kotlin",
                 "ms-azuretools.vscode-docker",
                 "jeff-hykin.better-dockerfile-syntax",
                 "EditorConfig.EditorConfig",
@@ -30,7 +29,8 @@
                 "esbenp.prettier-vscode",
                 "DotJoshJohnson.xml",
                 "redhat.vscode-yaml",
-                "DrBlury.protobuf-vsc"
+                "DrBlury.protobuf-vsc",
+                "richardwillis.vscode-spotless-gradle"
             ]
         }
     },
