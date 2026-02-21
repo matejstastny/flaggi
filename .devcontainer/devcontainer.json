@@ -33,7 +33,8 @@
                 "richardwillis.vscode-spotless-gradle",
                 "patbenatar.advanced-new-file",
                 "jsynowiec.vscode-insertdatestring",
-                "mskelton.ktlint"
+                "mskelton.ktlint",
+                "eamodio.gitlens"
             ]
         }
     },
