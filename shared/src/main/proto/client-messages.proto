@@ -28,12 +28,10 @@ message ClientMessage {
 }
 
 message ClientStateUpdate {
-    string playerUuid = 1;
-    string gameUuid   = 2;
-    oneof  message_type {
-        ClientMouseInput clientMouseInput = 3;
-        ClientKeyInput   clientKeyInput   = 4;
-    }
+    string           playerUuid       = 1;
+    string           gameUuid         = 2;
+    ClientMouseInput clientMouseInput = 3;
+    ClientKeyInput   clientKeyInput   = 4;
 }
 
 // Enums ------------------------------------------------------------------------
@@ -42,11 +40,12 @@ enum ClientCommandType {
     GET_IDLE_CLIENT_LIST = 0;
 }
 
-enum ClientKeyAction {
-    MOVE_UP    = 0;
-    MOVE_DOWN  = 1;
-    MOVE_LEFT  = 2;
-    MOVE_RIGHT = 3;
+enum ClientKey {
+    KEY_UP    = 0;
+    KEY_DOWN  = 1;
+    KEY_LEFT  = 2;
+    KEY_RIGHT = 3;
+    KEY_SHOOT = 4;
 }
 
 // TCP Messages -----------------------------------------------------------------
@@ -81,5 +80,5 @@ message ClientMouseInput {
 }
 
 message ClientKeyInput {
-    ClientKeyAction clientKeyAction = 1;
+    repeated ClientKey heldKeys = 1;
 }

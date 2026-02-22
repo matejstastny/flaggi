@@ -23,12 +23,12 @@ import java.util.function.BiFunction;
 
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
-import flaggi.shared.common.GPanel.Interactable;
-import flaggi.shared.common.GPanel.PanelRegion;
-import flaggi.shared.common.GPanel.Renderable;
-import flaggi.shared.common.GPanel.Typable;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.ui.GPanel.Interactable;
+import flaggi.shared.ui.GPanel.PanelRegion;
+import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.GPanel.Typable;
 import flaggi.shared.util.FontUtil;
 import flaggi.shared.util.ImageUtil;
 

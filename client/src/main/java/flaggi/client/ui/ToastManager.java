@@ -20,8 +20,8 @@ import java.util.List;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
-import flaggi.shared.common.GPanel.PanelRegion;
-import flaggi.shared.common.GPanel.Renderable;
+import flaggi.shared.ui.GPanel.PanelRegion;
+import flaggi.shared.ui.GPanel.Renderable;
 
 /**
  * A manager class for displaying toast messages on the screen. Toasts are small

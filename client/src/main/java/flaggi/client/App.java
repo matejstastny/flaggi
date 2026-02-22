@@ -36,12 +36,12 @@ import flaggi.proto.ClientMessages.ClientCommandType;
 import flaggi.proto.ServerMessages.ServerHello;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerMessage;
-import flaggi.shared.common.GPanel;
-import flaggi.shared.common.GPanel.Renderable;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop;
 import flaggi.shared.common.UpdateLoop.Updatable;
+import flaggi.shared.ui.GPanel;
+import flaggi.shared.ui.GPanel.Renderable;
 import flaggi.shared.util.NetUtil;
 import flaggi.shared.util.ScreenUtil;
 

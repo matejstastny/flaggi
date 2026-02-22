@@ -25,11 +25,11 @@ import java.util.function.Consumer;
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
-import flaggi.shared.common.GPanel.Interactable;
-import flaggi.shared.common.GPanel.PanelRegion;
-import flaggi.shared.common.GPanel.Renderable;
-import flaggi.shared.common.GPanel.Scrollable;
 import flaggi.shared.common.UpdateLoop.Updatable;
+import flaggi.shared.ui.GPanel.Interactable;
+import flaggi.shared.ui.GPanel.PanelRegion;
+import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.GPanel.Scrollable;
 import flaggi.shared.util.FontUtil;
 
 /**

@@ -9,10 +9,10 @@
 
 syntax = "proto3";
 
+package flaggi;
+
 option java_package         = "flaggi.proto";
 option java_outer_classname = "ServerMessages";
-
-package flaggi;
 
 // Wrapper ----------------------------------------------------------------------
 
@@ -20,17 +20,36 @@ message ServerMessage {
     oneof message_type {
         Pong           pong           = 1;
         ServerHello    serverHello    = 2;
-        ServerJoinGame serverJoinGame = 3;
-        ServerCommand  serverCommand  = 4;
-        ServerInvite   serverInvite   = 5;
-        IdleClientList idleClientList = 6;
+        ServerCommand  serverCommand  = 3;
+        ServerInvite   serverInvite   = 4;
+        IdleClientList idleClientList = 5;
+        ServerJoinGame serverJoinGame = 6;
+        ServerEndGame  serverEndGame  = 7;
     }
 }
 
 // Enums ------------------------------------------------------------------------
 
-enum ServerCommandType {
-    DEBUG = 0;
+enum GameObjectType {
+    PLAYER = 0;
+    TREE   = 1;
+    FLAG   = 2;
+    BULLET = 3;
+}
+
+enum PlayerSkin {
+    SKIN_BLUE   = 0;
+    SKIN_RED    = 1;
+    SKIN_JESTER = 2;
+    SKIN_VENOM  = 3;
+}
+
+enum PlayerAnimation {
+    ANIM_IDLE          = 0;
+    ANIM_WALK_UP       = 1;
+    ANIM_WALK_DOWN     = 2;
+    ANIM_WALK_SIDE     = 3;
+    ANIM_WALK_DIAGONAL = 4;
 }
 
 // TCP Messages -----------------------------------------------------------------
@@ -41,7 +60,20 @@ message Pong {
 
 message ServerHello {
     string uuid    = 1;
-    int64  udpPort = 2;
+    int32  udpPort = 2;
+}
+
+message ServerCommand {
+    // expand as needed
+}
+
+message ServerInvite {
+    string inviteeName = 1;
+    string inviteeUuid = 2;
+}
+
+message IdleClientList {
+    map<string, string> clientList = 1;  // uuid → username
 }
 
 message ServerJoinGame {
@@ -50,27 +82,26 @@ message ServerJoinGame {
     int32  roomHeight = 3;
 }
 
-message ServerInvite {
-    string inviteeName = 1;
-    string inviteeUuid = 2;
-}
-
-message ServerCommand {
-    ServerCommandType requestType = 1;
-}
-
-message IdleClientList {
-    map<string, string> clientList = 1;
+message ServerEndGame {
+    string winnerUuid = 1;
+    string winnerName = 2;
 }
 
 // UDP Messages -----------------------------------------------------------------
 
 message ServerStateUpdate {
-    ServerGameObject          me    = 1;
-    repeated ServerGameObject other = 2;
-}
+    // The local player's own object — used by the client to:
+    //   1. Center the camera (camera.x = me.x, camera.y = me.y)
+    //   2. Render the local player in world space
+    //   3. Show the local player's HP / flag count in the HUD
+    ServerGameObject me = 1;
 
-// Game Object ------------------------------------------------------------------
+    // All other objects in the world (other players, flags, bullets, trees).
+    repeated ServerGameObject other = 2;
+
+    // Server tick number — used by DebugOverlay to show tick count.
+    int32 tick = 3;
+}
 
 message ServerGameObject {
     GameObjectType type        = 1;
@@ -80,8 +111,14 @@ message ServerGameObject {
     double         coll_y      = 5;
     double         coll_width  = 6;
     double         coll_height = 7;
-}
 
-enum GameObjectType {
-    PLAYER = 0;
+    // Player-specific — only set when type == PLAYER
+    PlayerSkin      skin        = 8;
+    PlayerAnimation animation   = 9;
+    bool            facing_left = 10;
+
+    // Stats shown in HUD / above player heads
+    double hp         = 11;
+    int32  flag_count = 12;
+    string username   = 13;
 }

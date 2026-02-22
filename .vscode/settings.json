@@ -11,6 +11,12 @@
     "[kotlin]": {
         "editor.defaultFormatter": "mskelton.ktlint"
     },
+    "[proto]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        },
+        "editor.semanticHighlighting.enabled": true
+    },
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },

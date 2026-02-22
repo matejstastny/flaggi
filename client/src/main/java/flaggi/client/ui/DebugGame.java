@@ -7,8 +7,8 @@ import java.awt.Graphics2D;
 
 import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
-import flaggi.shared.common.GPanel.PanelRegion;
-import flaggi.shared.common.GPanel.Renderable;
+import flaggi.shared.ui.GPanel.PanelRegion;
+import flaggi.shared.ui.GPanel.Renderable;
 import flaggi.shared.util.FontUtil;
 
 // TODO Debbugging class to test entering a game from menu

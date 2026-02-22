@@ -7,9 +7,8 @@
 // Link: https://github.com/matejstastny/flaggi
 // ------------------------------------------------------------------------------
 
-package flaggi.shared.common;
+package flaggi.shared.ui;
 
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -48,7 +47,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
+import flaggi.shared.ui.GPanel.InteractableHandler;
 
 /**
  * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed
@@ -302,7 +303,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 	 */
 	private JFrame getDefaultJFrame(boolean resizable, String appTitle) {
 		JFrame frame = new JFrame(appTitle);
-		frame.setBackground(Color.BLACK);
+		frame.setBackground(java.awt.Color.BLACK);
 		frame.setResizable(resizable);
 		// frame.setUndecorated(true); Transparent window
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -566,7 +567,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 			g.setTransform(originalTransform);
 		}
 
-		protected void drawBackground(Graphics2D g, Color c) {
+		protected void drawBackground(Graphics2D g, java.awt.Color c) {
 			g.setColor(c);
 			g.fillRect(0, 0, screenSize[0], screenSize[1]);
 		}

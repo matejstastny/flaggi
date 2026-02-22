@@ -20,11 +20,11 @@ import flaggi.client.ui.GameUi;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
-import flaggi.shared.common.GPanel;
-import flaggi.shared.common.GPanel.AbstractInteractableHandler;
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.common.UpdateLoop.Updatable;
+import flaggi.shared.ui.GPanel;
+import flaggi.shared.ui.GPanel.AbstractInteractableHandler;
 
 public class GameManager implements Closeable, Updatable {
 
