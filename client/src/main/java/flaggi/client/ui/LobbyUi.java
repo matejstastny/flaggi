@@ -30,6 +30,7 @@ import flaggi.shared.ui.GPanel.Interactable;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
 import flaggi.shared.ui.GPanel.Scrollable;
+import flaggi.shared.ui.VhGraphics;
 import flaggi.shared.util.FontUtil;
 
 /**
@@ -67,18 +68,18 @@ public class LobbyUi extends Renderable implements Scrollable, Interactable, Upd
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
-		AffineTransform previousTransform = g.getTransform();
-		g.translate(0, scrollOffset);
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
+		AffineTransform previousTransform = g.raw().getTransform();
+		g.raw().translate(0, scrollOffset);
 
-		renderHeader(g);
+		renderHeader(g.raw());
 		int offsetY = px(ITEMS_TOP_OFFSET);
 		for (ClientItem clientItem : clientItems) {
-			renderClientItem(g, clientItem, offsetY);
+			renderClientItem(g.raw(), clientItem, offsetY);
 			offsetY += px(ITEM_HEIGHT) + px(ITEM_PADDING);
 		}
 
-		g.setTransform(previousTransform);
+		g.raw().setTransform(previousTransform);
 	}
 
 	private void renderHeader(Graphics2D g) {

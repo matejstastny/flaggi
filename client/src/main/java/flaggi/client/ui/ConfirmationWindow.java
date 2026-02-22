@@ -12,8 +12,6 @@ package flaggi.client.ui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
@@ -24,6 +22,7 @@ import flaggi.client.constants.ZIndex;
 import flaggi.shared.ui.GPanel.Interactable;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.VhGraphics;
 import flaggi.shared.util.FontUtil;
 
 /**
@@ -56,30 +55,30 @@ public class ConfirmationWindow extends Renderable implements Interactable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
 		if (!active) {
 			return;
 		}
-		g.setFont(Constants.FONT.deriveFont(Font.PLAIN, px(5)));
+		g.setFont(Constants.FONT, 5);
 
 		g.setColor(new Color(152, 152, 152));
-		g.fill(getWindow());
+		g.raw().fill(getWindow());
 		g.setColor(Color.BLACK);
 		g.setStroke(new BasicStroke(px(0.5)));
-		g.draw(getWindow());
+		g.raw().draw(getWindow());
 
 		// Draw the question
-		int[] position = FontUtil.getCenteredPosition(px(100), px(100), g.getFontMetrics(), question);
+		int[] position = FontUtil.getCenteredPosition(px(100), px(100), g.raw().getFontMetrics(), question);
 		g.drawString(question, position[0], px(40));
 
 		// Draw the buttons
 		g.setColor(deny);
-		g.fill(getNoButton());
+		g.raw().fill(getNoButton());
 		g.setColor(accept);
-		g.fill(getYesButton());
+		g.raw().fill(getYesButton());
 		g.setColor(Color.BLACK);
-		g.draw(getYesButton());
-		g.draw(getNoButton());
+		g.raw().draw(getYesButton());
+		g.raw().draw(getNoButton());
 
 	}
 

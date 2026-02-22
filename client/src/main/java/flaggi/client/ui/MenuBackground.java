@@ -10,7 +10,6 @@
 package flaggi.client.ui;
 
 import java.awt.Container;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.IOException;
 
@@ -20,6 +19,7 @@ import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.VhGraphics;
 import flaggi.shared.util.ImageUtil;
 
 /**
@@ -39,7 +39,7 @@ public class MenuBackground extends Renderable {
 	}
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
-		drawBackground(g, background, focusCycleRootAncestor);
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
+		drawBackground(g.raw(), background, focusCycleRootAncestor);
 	}
 }

@@ -24,6 +24,7 @@ import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.VhGraphics;
 import flaggi.shared.util.ImageUtil;
 
 public class GameUi extends Renderable {
@@ -51,7 +52,7 @@ public class GameUi extends Renderable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
 		// renderFloor(g, focusCycleRootAncestor);
 		// objects.forEach(object -> renderServerGameObject(object, g,
 		// focusCycleRootAncestor));

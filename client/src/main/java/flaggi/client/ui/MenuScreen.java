@@ -29,6 +29,7 @@ import flaggi.shared.ui.GPanel.Interactable;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
 import flaggi.shared.ui.GPanel.Typable;
+import flaggi.shared.ui.VhGraphics;
 import flaggi.shared.util.FontUtil;
 import flaggi.shared.util.ImageUtil;
 
@@ -61,11 +62,11 @@ public class MenuScreen extends Renderable implements Interactable, Typable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
-		renderLogo(g, focusCycleRootAncestor);
-		renderErrorMessage(g);
-		renderTextFields(g, focusCycleRootAncestor);
-		renderStartButton(g, focusCycleRootAncestor);
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
+		renderLogo(g.raw(), focusCycleRootAncestor);
+		renderErrorMessage(g.raw());
+		renderTextFields(g.raw(), focusCycleRootAncestor);
+		renderStartButton(g.raw(), focusCycleRootAncestor);
 	}
 
 	private void renderLogo(Graphics2D g, Container fcra) {

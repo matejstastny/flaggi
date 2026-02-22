@@ -370,7 +370,10 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		g2.setClip(bounds);
 		g2.translate(bounds.x, bounds.y);
 
-		getWidgetsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> c.render(g2, this.appFrame.getFocusCycleRootAncestor()));
+		getWidgetsForRegion(region).stream().filter(Renderable::isVisible).forEach(c -> {
+			VhGraphics vhg = new VhGraphics(g2, c.getPxPerVh());
+			c.render(vhg, this.appFrame.getFocusCycleRootAncestor());
+		});
 
 		g2.translate(-bounds.x, -bounds.y);
 		g2.setClip(null);
@@ -534,7 +537,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 			}
 		}
 
-		public abstract void render(Graphics2D g, Container focusCycleRootAncestor);
+		public abstract void render(VhGraphics g, Container focusCycleRootAncestor);
 
 		public int getZIndex() {
 			return this.zIndex;
@@ -570,6 +573,10 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		protected void drawBackground(Graphics2D g, java.awt.Color c) {
 			g.setColor(c);
 			g.fillRect(0, 0, screenSize[0], screenSize[1]);
+		}
+
+		private double getPxPerVh() {
+			return this.pxPerVh;
 		}
 
 		public boolean isVisible() {

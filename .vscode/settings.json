@@ -78,5 +78,6 @@
     // Other --------------------------------------------------------------------
 
     "yaml.format.proseWrap": "never",
-    "yaml.format.trailingComma": true
+    "yaml.format.trailingComma": true,
+    "insertDateString.formatDate": "MM-DD-YYYY"
 }

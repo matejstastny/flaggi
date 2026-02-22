@@ -13,7 +13,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,7 @@ import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
 import flaggi.shared.ui.GPanel.PanelRegion;
 import flaggi.shared.ui.GPanel.Renderable;
+import flaggi.shared.ui.VhGraphics;
 
 /**
  * A manager class for displaying toast messages on the screen. Toasts are small
@@ -48,7 +48,7 @@ public class ToastManager extends Renderable {
 	// Rendering ----------------------------------------------------------------
 
 	@Override
-	public void render(Graphics2D g, Container focusCycleRootAncestor) {
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
 		for (int i = toasts.size() - 1; i >= 0 && i >= toasts.size() - MAX_TOASTS; i--) {
 			Toast toast = toasts.get(i);
 			if (System.currentTimeMillis() - toast.timestamp >= Constants.TOAST_DISPLAY_DURATION_SEC * 1000) {
@@ -64,15 +64,15 @@ public class ToastManager extends Renderable {
 
 			// Background
 			g.setColor(toast.category.getColor());
-			g.fillRoundRect(x, y, width, height, arc, arc);
+			g.raw().fillRoundRect(x, y, width, height, arc, arc);
 
 			// Border
 			g.setColor(new Color(0, 0, 0, 220));
 			g.setStroke(new BasicStroke(px(1)));
-			g.drawRoundRect(x, y, width, height, arc, arc);
+			g.raw().drawRoundRect(x, y, width, height, arc, arc);
 
 			// Text
-			g.setFont(Constants.FONT.deriveFont(Font.PLAIN, px(4)));
+			g.raw().setFont(Constants.FONT.deriveFont(Font.PLAIN, px(4)));
 			g.setColor(Color.WHITE);
 			g.drawString(toast.message, x + px(3), y + px(8.7));
 		}
