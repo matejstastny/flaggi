@@ -176,6 +176,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 				this.widgets.add(index, r);
 			}
 		}
+		updateRegions();
 	}
 
 	public void add(List<Renderable> widgets) {
@@ -311,6 +312,7 @@ public class GPanel extends JPanel implements MouseListener, MouseMotionListener
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		updateRegions();
 		return frame;
 	}
 
