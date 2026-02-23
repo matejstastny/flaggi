@@ -16,8 +16,8 @@ import java.util.Map;
 
 import flaggi.server.Server;
 import flaggi.shared.common.ConfigManager;
-import flaggi.shared.common.Logger;
 import flaggi.shared.common.ConfigManager.FieldFormatException;
+import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
 import flaggi.shared.util.FileUtil;
 
