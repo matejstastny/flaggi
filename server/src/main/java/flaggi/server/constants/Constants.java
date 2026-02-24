@@ -33,8 +33,8 @@ public class Constants {
 
 	// Paths --------------------------------------------------------------------
 
-	public static final String APP_DATA_DIR_NAME = "kireiiiiiiii.flaggi.server";
-	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.txt");
+	public static final String APP_DATA_DIR_NAME = "flaggi.server";
+	public static final String LOG_FILE = String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "logs", "latest.log");
 	public static final ConfigManager CONFIG = getConfigManager();
 
 	/**
@@ -67,7 +67,7 @@ public class Constants {
 		try {
 			return new ConfigManager(String.join(File.separator, FileUtil.getJarExecDirectory(), "config.properties"), "/configs/config.properties");
 		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "An IOException occured when initializing the ConfigManager", e);
+			Logger.log(LogLevel.ERR, "An IOException occured when initializing the ConfigManager", e);
 			Server.handleFatalError();
 			return null;
 		}
@@ -78,7 +78,7 @@ public class Constants {
 		try {
 			val = CONFIG.getIntValue(key);
 		} catch (FieldFormatException e) {
-			Logger.log(LogLevel.ERROR, "Configuration error: The field \"" + key + "\" is assigned a value of the wrong type. Expected: Integer.");
+			Logger.log(LogLevel.ERR, "Configuration error: The field \"" + key + "\" is assigned a value of the wrong type. Expected: Integer.");
 			Server.handleFatalError();
 		}
 		return val;

@@ -34,125 +34,125 @@ import flaggi.shared.util.ProtoUtil;
  */
 public class TcpManager implements Runnable {
 
-	private final BlockingQueue<ServerMessage> queue;
-	private final Runnable onDisconnect;
-	private Socket socket;
-	private InputStream in;
-	private OutputStream out;
-	private String uuid;
+    private final BlockingQueue<ServerMessage> queue;
+    private final Runnable onDisconnect;
+    private Socket socket;
+    private InputStream in;
+    private OutputStream out;
+    private String uuid;
 
-	// Constructor ---------------------------------------------------------------
+    // Constructor ---------------------------------------------------------------
 
-	public TcpManager(String address, int port, Runnable onDisconnect) {
-		this.queue = new LinkedBlockingQueue<>();
-		this.onDisconnect = onDisconnect;
-		try {
-			this.socket = new Socket(address, port);
-			this.in = socket.getInputStream();
-			this.out = socket.getOutputStream();
-			Logger.log(LogLevel.INFO, "Connected to server at " + address + ":" + port);
-		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "Failed to connect to server", e);
-			App.handleFatalError();
-		}
-	}
+    public TcpManager(String address, int port, Runnable onDisconnect) {
+        this.queue = new LinkedBlockingQueue<>();
+        this.onDisconnect = onDisconnect;
+        try {
+            this.socket = new Socket(address, port);
+            this.in = socket.getInputStream();
+            this.out = socket.getOutputStream();
+            Logger.log(LogLevel.INF, "Connected to server at " + address + ":" + port);
+        } catch (IOException e) {
+            Logger.log(LogLevel.ERR, "Failed to connect to server", e);
+            App.handleFatalError();
+        }
+    }
 
-	// Message Listener ----------------------------------------------------------
+    // Message Listener ----------------------------------------------------------
 
-	@Override
-	public void run() {
-		try {
-			ServerMessage msg;
-			while ((msg = ProtoUtil.receiveServerMessage(this.in)) != null) {
-				queue.add(msg);
-			}
-		} catch (IOException e) {
-			Logger.log(LogLevel.ERROR, "An error occurred while receiving message.", e);
-		} finally {
-			close();
-			if (onDisconnect != null) {
-				onDisconnect.run();
-			}
-		}
-	}
+    @Override
+    public void run() {
+        try {
+            ServerMessage msg;
+            while ((msg = ProtoUtil.receiveServerMessage(this.in)) != null) {
+                queue.add(msg);
+            }
+        } catch (IOException e) {
+            Logger.log(LogLevel.ERR, "An error occurred while receiving message.", e);
+        } finally {
+            close();
+            if (onDisconnect != null) {
+                onDisconnect.run();
+            }
+        }
+    }
 
-	// Public --------------------------------------------------------------------
+    // Public --------------------------------------------------------------------
 
-	/**
-	 * Connects to the server with the given username. Sends a greeting message to
-	 * the server.
-	 */
-	public void connect(String username, int udpPort) {
-		Logger.log(LogLevel.DEBUG, "Greeting server with username: " + username);
-		ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).setUpdPort(udpPort).build()).build();
-		ProtoUtil.sendClientMessage(message, out);
-	}
+    /**
+     * Connects to the server with the given username. Sends a greeting message to
+     * the server.
+     */
+    public void connect(String username, int udpPort) {
+        Logger.log(LogLevel.DBG, "Greeting server with username: " + username);
+        ClientMessage message = ClientMessage.newBuilder().setClientHello(ClientHello.newBuilder().setUsername(username).setUpdPort(udpPort).build()).build();
+        ProtoUtil.sendClientMessage(message, out);
+    }
 
-	public void close() {
-		try {
-			if (socket != null && !socket.isClosed()) {
-				socket.close();
-			}
-		} catch (IOException e) {
-			Logger.log(LogLevel.WARN, "Failed to close TCP manager.", e);
-		}
-	}
+    public void close() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            Logger.log(LogLevel.WRN, "Failed to close TCP manager.", e);
+        }
+    }
 
-	/**
-	 * Polls the queue for a message from the server. Returns null if no message is
-	 * available.
-	 *
-	 * @return The next message from the server, or null if no message is available.
-	 */
-	public ServerMessage poll() {
-		return queue.poll();
-	}
+    /**
+     * Polls the queue for a message from the server. Returns null if no message is
+     * available.
+     *
+     * @return The next message from the server, or null if no message is available.
+     */
+    public ServerMessage poll() {
+        return queue.poll();
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
-	public String getIP() {
-		if (socket != null && socket.isConnected()) {
-			return socket.getInetAddress().getHostAddress();
-		}
-		return null;
-	}
+    public String getIP() {
+        if (socket != null && socket.isConnected()) {
+            return socket.getInetAddress().getHostAddress();
+        }
+        return null;
+    }
 
-	// Message senders -----------------------------------------------------------
+    // Message senders -----------------------------------------------------------
 
-	public void sendCommand(ClientCommandType type) {
-		if (!validUuid("Cannot send command to server")) {
-			return;
-		}
-		Logger.log(LogLevel.DEBUG, "Sending command to server: " + type);
-		ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).setUuid(uuid).build();
-		ProtoUtil.sendClientMessage(message, out);
-	}
+    public void sendCommand(ClientCommandType type) {
+        if (!validUuid("Cannot send command to server")) {
+            return;
+        }
+        Logger.log(LogLevel.DBG, "Sending command to server: " + type);
+        ClientMessage message = ClientMessage.newBuilder().setClientCommand(ClientCommand.newBuilder().setRequestType(type).build()).setUuid(uuid).build();
+        ProtoUtil.sendClientMessage(message, out);
+    }
 
-	public void sendInvite(String otherUuid) {
-		if (!validUuid("Cannot invite player")) {
-			return;
-		}
-		ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInvite(ClientInvite.newBuilder().setInvitee(otherUuid)).build();
-		ProtoUtil.sendClientMessage(message, out);
-	}
+    public void sendInvite(String otherUuid) {
+        if (!validUuid("Cannot invite player")) {
+            return;
+        }
+        ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInvite(ClientInvite.newBuilder().setInvitee(otherUuid)).build();
+        ProtoUtil.sendClientMessage(message, out);
+    }
 
-	public void respondToInvite(String otherUuid, boolean accepted) {
-		if (!validUuid("Cannot respond to invite")) {
-			return;
-		}
-		ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInviteResponse(ClientInviteResponse.newBuilder().setInvitee(otherUuid).setAccepted(accepted)).build();
-		ProtoUtil.sendClientMessage(message, out);
-	}
+    public void respondToInvite(String otherUuid, boolean accepted) {
+        if (!validUuid("Cannot respond to invite")) {
+            return;
+        }
+        ClientMessage message = ClientMessage.newBuilder().setUuid(uuid).setClientInviteResponse(ClientInviteResponse.newBuilder().setInvitee(otherUuid).setAccepted(accepted)).build();
+        ProtoUtil.sendClientMessage(message, out);
+    }
 
-	// Private -------------------------------------------------------------------
+    // Private -------------------------------------------------------------------
 
-	private boolean validUuid(String errorMessage) {
-		if (uuid == null || uuid.isEmpty()) {
-			Logger.log(LogLevel.WARN, "UUID not set. " + errorMessage);
-			return false;
-		}
-		return true;
-	}
+    private boolean validUuid(String errorMessage) {
+        if (uuid == null || uuid.isEmpty()) {
+            Logger.log(LogLevel.WRN, "UUID not set. " + errorMessage);
+            return false;
+        }
+        return true;
+    }
 }

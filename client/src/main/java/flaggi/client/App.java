@@ -79,18 +79,18 @@ public class App implements Updatable {
     // Static -------------------------------------------------------------------
 
     public static void handleFatalError() {
-        Logger.log(LogLevel.ERROR, "FATAL ERROR DETECTED! SHUTTING DOWN...");
+        Logger.log(LogLevel.ERR, "FATAL ERROR DETECTED! SHUTTING DOWN...");
         System.exit(1);
     }
 
     // Events -------------------------------------------------------------------
 
     public void shutdown() {
-        Logger.log(LogLevel.INFO, "Shutting down...");
+        Logger.log(LogLevel.INF, "Shutting down...");
         if (tcpManager != null) {
             tcpManager.close();
         }
-        Logger.log(LogLevel.INFO, "Shut down");
+        Logger.log(LogLevel.INF, "Shut down");
         System.exit(0);
     }
 
@@ -127,24 +127,24 @@ public class App implements Updatable {
     }
 
     public void invitePlayer(String otherUuid) {
-        Logger.log(LogLevel.DEBUG, "Inviting player: " + otherUuid);
+        Logger.log(LogLevel.DBG, "Inviting player: " + otherUuid);
         this.tcpManager.sendInvite(otherUuid);
     }
 
     public void respondToInvite(String otherUuid, boolean accept) {
-        Logger.log(LogLevel.DEBUG, "Responding to invite from " + otherUuid + " with " + (accept ? "accept" : "deny"));
+        Logger.log(LogLevel.DBG, "Responding to invite from " + otherUuid + " with " + (accept ? "accept" : "deny"));
         this.tcpManager.respondToInvite(otherUuid, accept);
     }
 
     // External events ----------------------------------------------------------
 
     public String joinServer(String name, String ipInput) {
-        Logger.log(LogLevel.DEBUG, "Join server button pressed.");
+        Logger.log(LogLevel.DBG, "Join server button pressed.");
         setConfigField("username", name);
         setConfigField("server.ip", ipInput);
         Entry<String, Integer> ip = verifyServerIp(ipInput);
         if (ip.getValue() == null) {
-            Logger.log(LogLevel.ERROR, ip.getKey() + " for ip input '" + ipInput + "'");
+            Logger.log(LogLevel.ERR, ip.getKey() + " for ip input '" + ipInput + "'");
             return ip.getKey();
         }
         this.tcpManager = new TcpManager(ip.getKey(), ip.getValue(), this::disconnectFromServer);
@@ -175,7 +175,7 @@ public class App implements Updatable {
         try {
             Constants.CONFIG.setField(key, val);
         } catch (IOException e) {
-            Logger.log(LogLevel.ERROR, "An error occured while setting property value", e);
+            Logger.log(LogLevel.ERR, "An error occured while setting property value", e);
             handleFatalError();
         }
     }
@@ -201,7 +201,7 @@ public class App implements Updatable {
             } else if (message.hasIdleClientList()) {
                 this.gpanel.getWidgetsOfClass(LobbyUi.class).forEach(x -> x.setClients(message.getIdleClientList().getClientListMap()));
             } else {
-                Logger.log(LogLevel.WARN, "Polled an unknown message type: " + message);
+                Logger.log(LogLevel.WRN, "Polled an unknown message type: " + message);
             }
         }
     }
@@ -211,7 +211,7 @@ public class App implements Updatable {
     private void initializeLogger() {
         Logger.setLogFile(Constants.LOG_FILE);
         Logger.setLogLevelsToIgnore(Constants.IGNORED_LOG_LEVES);
-        Logger.log(LogLevel.INFO, "Application start");
+        Logger.log(LogLevel.INF, "Application start");
         if (Constants.LOG_MEM_USAGE) {
             Logger.logMemoryUsage(Constants.MEM_LOG_INTERVAL_SEC);
         }
@@ -276,8 +276,8 @@ public class App implements Updatable {
 
     private void handleServerHello(ServerHello msg) {
         this.uuid = msg.getUuid();
-        Logger.log(LogLevel.DEBUG, "Received uuid from server: " + msg.getUuid());
-        Logger.log(LogLevel.DEBUG, "Received UDP port from server: " + msg.getUdpPort());
+        Logger.log(LogLevel.DBG, "Received uuid from server: " + msg.getUuid());
+        Logger.log(LogLevel.DBG, "Received UDP port from server: " + msg.getUdpPort());
         this.tcpManager.setUuid(uuid);
         this.udpManager.setAdress(tcpManager.getIP(), (int) msg.getUdpPort());
         gotoLobby();

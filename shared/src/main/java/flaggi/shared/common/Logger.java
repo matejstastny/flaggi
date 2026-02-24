@@ -32,14 +32,16 @@ public class Logger {
 
 	// Log types -----------------------------------------------------------------
 
+	public static final String DATE_COLOR = TermColors.BLACK;
+
 	public enum LogLevel {
-		INFO(TermColors.GREEN), //
-		WARN(TermColors.YELLOW), //
-		ERROR(TermColors.RED), //
-		DEBUG(TermColors.BLUE), //
+		INF(TermColors.GREEN), //
+		WRN(TermColors.YELLOW), //
+		ERR(TermColors.RED), //
+		DBG(TermColors.BLUE), //
 		TCP(TermColors.PURPLE), //
 		UDP(TermColors.CYAN), //
-		MEMORY(TermColors.CYAN);
+		MEM(TermColors.CYAN);
 
 		private final String color;
 
@@ -65,8 +67,9 @@ public class Logger {
 				fw.write("");
 			}
 		} catch (IOException e) {
-			log(LogLevel.WARN, "IO Exception caught when setting log file.", e);
+			log(LogLevel.WRN, "IO Exception caught when setting log file.", e);
 		}
+		log(LogLevel.DBG, "Log created at: " + path);
 	}
 
 	public static void setLogLevelsToIgnore(LogLevel... logLevels) {
@@ -86,7 +89,7 @@ public class Logger {
 
 		String timestamp = DATE_FORMAT.format(new Date());
 		String paddedLevel = String.format("%-" + (getMaxLogLevelLength() + 2) + "s", "[" + level.name() + "]");
-		String logMessage = String.format("%s%s %s %s %s", level.getColor(), timestamp, paddedLevel, TermColors.WHITE, message);
+		String logMessage = String.format("%s%s %s%s %s %s", DATE_COLOR, timestamp, level.getColor(), paddedLevel, TermColors.WHITE, message);
 
 		System.out.println(logMessage);
 
@@ -100,7 +103,7 @@ public class Logger {
 			try (FileWriter fw = new FileWriter(logFile, true)) {
 				fw.write(String.format("%s %s %s %s%n", timestamp, paddedLevel, "", message));
 			} catch (IOException caughtE) {
-				log(LogLevel.WARN, "IO Exception caught when writing into log file.", caughtE);
+				log(LogLevel.WRN, "IO Exception caught when writing into log file.", caughtE);
 			}
 		}
 	}
@@ -112,7 +115,7 @@ public class Logger {
 	public static void logMemoryUsage(double intervalSeconds) {
 		long usedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024);
 		long maxMemory = Runtime.getRuntime().maxMemory() / (1024 * 1024);
-		log(LogLevel.MEMORY, String.format("Mem: %d MB / %d MB", usedMemory, maxMemory));
+		log(LogLevel.MEM, String.format("Mem: %d MB / %d MB", usedMemory, maxMemory));
 		new Timer().schedule(new java.util.TimerTask() {
 			@Override
 			public void run() {
@@ -142,7 +145,7 @@ public class Logger {
 			break;
 		}
 
-		log(LogLevel.MEMORY, String.format("Max memory: %.2f %s", maxMemory, unitLabel));
+		log(LogLevel.MEM, String.format("Max memory: %.2f %s", maxMemory, unitLabel));
 	}
 	// Private -------------------------------------------------------------------
 
@@ -154,6 +157,7 @@ public class Logger {
 		public static final String PURPLE = "\033[0;35m";
 		public static final String CYAN = "\033[0;36m";
 		public static final String WHITE = "\033[0;37m";
+		public static final String BLACK = "\u001B[30m";
 	}
 
 	private static int getMaxLogLevelLength() {

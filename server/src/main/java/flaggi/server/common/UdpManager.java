@@ -27,106 +27,106 @@ import flaggi.shared.common.Logger.LogLevel;
 
 public class UdpManager implements Runnable {
 
-	private final int port;
-	private final DatagramSocket socket;
-	private final BlockingQueue<ClientStateUpdate> messageQueue;
-	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
+    private final int port;
+    private final DatagramSocket socket;
+    private final BlockingQueue<ClientStateUpdate> messageQueue;
+    private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
 
-	// Constructor --------------------------------------------------------------
+    // Constructor --------------------------------------------------------------
 
-	public UdpManager(int port, BlockingQueue<ClientStateUpdate> messageQueue) {
-		DatagramSocket tempSocket = null;
-		this.port = port;
-		this.messageQueue = messageQueue;
-		try {
-			tempSocket = new DatagramSocket();
-		} catch (SocketException e) {
-			Logger.log(LogLevel.ERROR, "Failed to initialize Datagram Socket", e);
-			Server.handleFatalError();
-		}
-		this.socket = tempSocket;
-	}
+    public UdpManager(int port, BlockingQueue<ClientStateUpdate> messageQueue) {
+        DatagramSocket tempSocket = null;
+        this.port = port;
+        this.messageQueue = messageQueue;
+        try {
+            tempSocket = new DatagramSocket();
+        } catch (SocketException e) {
+            Logger.log(LogLevel.ERR, "Failed to initialize Datagram Socket", e);
+            Server.handleFatalError();
+        }
+        this.socket = tempSocket;
+    }
 
-	@Override
-	public void run() {
-		try (DatagramSocket socket = new DatagramSocket(port)) {
-			Logger.log(LogLevel.INFO, "UDP listener started on port " + port);
-			byte[] buffer = new byte[1024];
-			while (true) {
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-				socket.receive(packet);
-				if (rateLimiter.shouldProcessPacket(packet)) {
-					processPacket(packet);
-				}
-			}
-		} catch (Exception e) {
-			Logger.log(LogLevel.ERROR, "An error occurred in UdpListener.", e);
-			Server.handleFatalError();
-		}
-	}
+    @Override
+    public void run() {
+        try (DatagramSocket socket = new DatagramSocket(port)) {
+            Logger.log(LogLevel.INF, "UDP listener started on port " + port);
+            byte[] buffer = new byte[1024];
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                socket.receive(packet);
+                if (rateLimiter.shouldProcessPacket(packet)) {
+                    processPacket(packet);
+                }
+            }
+        } catch (Exception e) {
+            Logger.log(LogLevel.ERR, "An error occurred in UdpListener.", e);
+            Server.handleFatalError();
+        }
+    }
 
-	// Public -------------------------------------------------------------------
+    // Public -------------------------------------------------------------------
 
-	public void close() {
-		if (socket != null || socket.isClosed()) {
-			socket.close();
-			Logger.log(LogLevel.INFO, "UDP socket closed");
-		}
-	}
+    public void close() {
+        if (socket != null || socket.isClosed()) {
+            socket.close();
+            Logger.log(LogLevel.INF, "UDP socket closed");
+        }
+    }
 
-	public void send(ServerStateUpdate message, InetAddress address, int port) {
-		if (message == null) {
-			throw new IllegalArgumentException("Message cannot be null");
-		}
-		try {
-			byte[] messageBytes = message.toByteArray();
-			DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, port);
-			socket.send(packet);
-			Logger.log(LogLevel.UDP, "Sent UDP ServerUpdate to client on " + address + ":" + port + ": \n" + message);
-		} catch (IOException e) {
-			Logger.log(LogLevel.WARN, "IOException occurred while sending message to server: " + e.getMessage(), e);
-		}
-	}
+    public void send(ServerStateUpdate message, InetAddress address, int port) {
+        if (message == null) {
+            throw new IllegalArgumentException("Message cannot be null");
+        }
+        try {
+            byte[] messageBytes = message.toByteArray();
+            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, port);
+            socket.send(packet);
+            Logger.log(LogLevel.UDP, "Sent UDP ServerUpdate to client on " + address + ":" + port + ": \n" + message);
+        } catch (IOException e) {
+            Logger.log(LogLevel.WRN, "IOException occurred while sending message to server: " + e.getMessage(), e);
+        }
+    }
 
-	// Private ------------------------------------------------------------------
+    // Private ------------------------------------------------------------------
 
-	private void processPacket(DatagramPacket packet) {
-		try {
-			ClientStateUpdate message = ClientStateUpdate.parseFrom(packet.getData());
-			if (message == null) {
-				Logger.log(LogLevel.WARN, "Received null ClientStateUpdate from " + packet.getAddress());
-				return;
-			}
-			messageQueue.offer(message);
-		} catch (Exception e) {
-			Logger.log(LogLevel.WARN, "Failed to process UDP packet from " + packet.getAddress() + ":" + packet.getPort(), e);
-		}
-	}
+    private void processPacket(DatagramPacket packet) {
+        try {
+            ClientStateUpdate message = ClientStateUpdate.parseFrom(packet.getData());
+            if (message == null) {
+                Logger.log(LogLevel.WRN, "Received null ClientStateUpdate from " + packet.getAddress());
+                return;
+            }
+            messageQueue.offer(message);
+        } catch (Exception e) {
+            Logger.log(LogLevel.WRN, "Failed to process UDP packet from " + packet.getAddress() + ":" + packet.getPort(), e);
+        }
+    }
 
-	// Limiter ------------------------------------------------------------------
+    // Limiter ------------------------------------------------------------------
 
-	/**
-	 * Limits the rate at what UDP packets from clients can be accepted.
-	 */
-	private static class PacketRateLimiter {
-		private final Map<InetAddress, Long> lastPacketTimes = new ConcurrentHashMap<>();
-		private final long minIntervalMillis;
+    /**
+     * Limits the rate at what UDP packets from clients can be accepted.
+     */
+    private static class PacketRateLimiter {
+        private final Map<InetAddress, Long> lastPacketTimes = new ConcurrentHashMap<>();
+        private final long minIntervalMillis;
 
-		public PacketRateLimiter(long minIntervalMillis) {
-			this.minIntervalMillis = minIntervalMillis;
-		}
+        public PacketRateLimiter(long minIntervalMillis) {
+            this.minIntervalMillis = minIntervalMillis;
+        }
 
-		public boolean shouldProcessPacket(DatagramPacket packet) {
-			InetAddress address = packet.getAddress();
-			long currentTime = System.currentTimeMillis();
-			long lastTime = lastPacketTimes.getOrDefault(address, 0L);
+        public boolean shouldProcessPacket(DatagramPacket packet) {
+            InetAddress address = packet.getAddress();
+            long currentTime = System.currentTimeMillis();
+            long lastTime = lastPacketTimes.getOrDefault(address, 0L);
 
-			if (currentTime - lastTime > minIntervalMillis) {
-				lastPacketTimes.put(address, currentTime);
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
+            if (currentTime - lastTime > minIntervalMillis) {
+                lastPacketTimes.put(address, currentTime);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 }
