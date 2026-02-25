@@ -13,7 +13,7 @@
         "dockerfile": "Dockerfile"
     },
     "remoteUser": "flaggi",
-    "appPort": [54321, "54322:54322/udp"],
+    // "appPort": [54321, "54322:54322/udp"],
     "workspaceFolder": "/workspaces/flaggi",
     "customizations": {
         "vscode": {
