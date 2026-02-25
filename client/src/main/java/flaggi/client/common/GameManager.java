@@ -30,77 +30,77 @@ import flaggi.shared.ui.GPanel.AbstractInteractableHandler;
 
 public class GameManager implements Closeable, Updatable {
 
-    private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
-    private final String uuid;
-    private final String gameUuid;
-    private DebugOverlay debugOverlay;
-    private UdpManager udpManager;
-    private GameUi gameUi;
-    private GPanel gpanel;
+	private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
+	private final String uuid;
+	private final String gameUuid;
+	private DebugOverlay debugOverlay;
+	private UdpManager udpManager;
+	private GameUi gameUi;
+	private GPanel gpanel;
 
-    // Constructor --------------------------------------------------------------
+	// Constructor --------------------------------------------------------------
 
-    public GameManager(ServerJoinGame message, UdpManager udpManager, String uuid, GPanel gpanel) {
-        this.gameUuid = message.getGameUuid();
-        this.udpManager = udpManager;
-        this.gpanel = gpanel;
-        this.uuid = uuid;
-        addInteractHandeler();
-        setupGameUi(message.getRoomWidth(), message.getRoomHeight());
-        debugOverlay = new DebugOverlay();
-        gpanel.add(debugOverlay);
-    }
+	public GameManager(ServerJoinGame message, UdpManager udpManager, String uuid, GPanel gpanel) {
+		this.gameUuid = message.getGameUuid();
+		this.udpManager = udpManager;
+		this.gpanel = gpanel;
+		this.uuid = uuid;
+		addInteractHandeler();
+		setupGameUi(message.getRoomWidth(), message.getRoomHeight());
+		debugOverlay = new DebugOverlay();
+		gpanel.add(debugOverlay);
+	}
 
-    @Override
-    public void close() {
-        this.gpanel.setInteractableHandler(null);
-    }
+	@Override
+	public void close() {
+		this.gpanel.setInteractableHandler(null);
+	}
 
-    // Update -------------------------------------------------------------------
+	// Update -------------------------------------------------------------------
 
-    @Override
-    public void update() {
-        ServerStateUpdate latest = udpManager.getLatestUpdate();
-        this.debugOverlay.update(latest);
-        // this.gameUi.updateGameUi(latest);
+	@Override
+	public void update() {
+		ServerStateUpdate latest = udpManager.getLatestUpdate();
+		this.debugOverlay.update(latest);
+		// this.gameUi.updateGameUi(latest);
 
-        // ClientStateUpdate outgoingUpdate;
-        // while ((outgoingUpdate = outgoing.poll()) != null) {
-        // udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).setPlayerUuid(uuid).build());
-        // }
-    }
+		// ClientStateUpdate outgoingUpdate;
+		// while ((outgoingUpdate = outgoing.poll()) != null) {
+		// udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).setPlayerUuid(uuid).build());
+		// }
+	}
 
-    // UI -----------------------------------------------------------------------
+	// UI -----------------------------------------------------------------------
 
-    private void setupGameUi(int width, int height) {
-        // this.gpanel.removeWidgetsOfClass(GameUi.class);
-        // this.gameUi = new GameUi(new int[] { width, height });
-        gpanel.add(new DebugGame());
-        Logger.log(LogLevel.DBG, "Set up game UI with room size [" + width + ", " + height + "]");
-        // this.gpanel.add(gameUi);
-    }
+	private void setupGameUi(int width, int height) {
+		// this.gpanel.removeWidgetsOfClass(GameUi.class);
+		// this.gameUi = new GameUi(new int[] { width, height });
+		gpanel.add(new DebugGame());
+		Logger.log(LogLevel.DBG, "Set up game UI with room size [" + width + ", " + height + "]");
+		// this.gpanel.add(gameUi);
+	}
 
-    // Input handeling ----------------------------------------------------------
+	// Input handeling ----------------------------------------------------------
 
-    private void sendClientMouseUpdate(MouseEvent e) {
-        // TODO
-    }
+	private void sendClientMouseUpdate(MouseEvent e) {
+		// TODO
+	}
 
-    private void sendClientKeyAction(KeyEvent e) {
-        // TODO
-    }
+	private void sendClientKeyAction(KeyEvent e) {
+		// TODO
+	}
 
-    private void addInteractHandeler() {
-        this.gpanel.setInteractableHandler(new AbstractInteractableHandler() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                sendClientMouseUpdate(e);
-            }
+	private void addInteractHandeler() {
+		this.gpanel.setInteractableHandler(new AbstractInteractableHandler() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				sendClientMouseUpdate(e);
+			}
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                sendClientKeyAction(e);
-            }
-        });
-    }
+			@Override
+			public void keyReleased(KeyEvent e) {
+				sendClientKeyAction(e);
+			}
+		});
+	}
 }

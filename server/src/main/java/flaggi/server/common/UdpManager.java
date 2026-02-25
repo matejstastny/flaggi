@@ -39,7 +39,7 @@ public class UdpManager implements Runnable {
 		this.port = port;
 		this.messageQueue = messageQueue;
 		try {
-			tempSocket = new DatagramSocket();
+			tempSocket = new DatagramSocket(port);
 		} catch (SocketException e) {
 			Logger.log(LogLevel.ERR, "Failed to initialize Datagram Socket", e);
 			Server.handleFatalError();
@@ -49,19 +49,20 @@ public class UdpManager implements Runnable {
 
 	@Override
 	public void run() {
-		try (DatagramSocket socket = new DatagramSocket(port)) {
-			Logger.log(LogLevel.INF, "UDP listener started on port " + port);
-			byte[] buffer = new byte[1024];
-			while (true) {
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+		Logger.log(LogLevel.INF, "UDP listener started on port " + port);
+		byte[] buffer = new byte[1024];
+		while (true) {
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+			try {
 				socket.receive(packet);
-				if (rateLimiter.shouldProcessPacket(packet)) {
-					processPacket(packet);
-				}
+			} catch (Exception e) {
+				Logger.log(LogLevel.ERR, "An error occurred in UdpListener.", e);
+				Server.handleFatalError();
+				return;
 			}
-		} catch (Exception e) {
-			Logger.log(LogLevel.ERR, "An error occurred in UdpListener.", e);
-			Server.handleFatalError();
+			if (rateLimiter.shouldProcessPacket(packet)) {
+				processPacket(packet);
+			}
 		}
 	}
 

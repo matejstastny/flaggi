@@ -29,75 +29,75 @@ import flaggi.shared.util.ImageUtil;
 
 public class GameUi extends Renderable {
 
-    private int[] roomSize;
-    private List<ServerGameObject> objects;
-    private int cameraX, cameraY;
+	private int[] roomSize;
+	private List<ServerGameObject> objects;
+	private int cameraX, cameraY;
 
-    // Constructor --------------------------------------------------------------
+	// Constructor --------------------------------------------------------------
 
-    public GameUi(int[] roomSize) {
-        super(ZIndex.GAME, PanelRegion.FULLSCREEN, UiTags.GAME);
-        this.roomSize = roomSize;
-    }
+	public GameUi(int[] roomSize) {
+		super(ZIndex.GAME, PanelRegion.FULLSCREEN, UiTags.GAME);
+		this.roomSize = roomSize;
+	}
 
-    // Public -------------------------------------------------------------------
+	// Public -------------------------------------------------------------------
 
-    public void updateGameUi(ServerStateUpdate update) {
-        if (update == null) {
-            return;
-        }
-        // TODO Upate UT
-    }
+	public void updateGameUi(ServerStateUpdate update) {
+		if (update == null) {
+			return;
+		}
+		// TODO Upate UT
+	}
 
-    // Rendering ----------------------------------------------------------------
+	// Rendering ----------------------------------------------------------------
 
-    @Override
-    public void render(VhGraphics g, Container focusCycleRootAncestor) {
-        // renderFloor(g, focusCycleRootAncestor);
-        // objects.forEach(object -> renderServerGameObject(object, g,
-        // focusCycleRootAncestor));
-    }
+	@Override
+	public void render(VhGraphics g, Container focusCycleRootAncestor) {
+		// renderFloor(g, focusCycleRootAncestor);
+		// objects.forEach(object -> renderServerGameObject(object, g,
+		// focusCycleRootAncestor));
+	}
 
-    private void renderServerGameObject(ServerGameObject object, Graphics2D g, Container focusCycleRootAncestor) {
-        // TODO
-        // if (object == null) {
-        // return;
-        // }
-        // Image sprite = getSprite(object.getSpriteName(), object.getAnimationName(),
-        // object.getFrame());
-        // if (sprite != null) {
-        // int xPos = object.getX() - cameraX;
-        // int yPos = object.getY() - cameraY;
-        // g.drawImage(sprite, xPos, yPos, focusCycleRootAncestor);
-        // }
-    }
+	private void renderServerGameObject(ServerGameObject object, Graphics2D g, Container focusCycleRootAncestor) {
+		// TODO
+		// if (object == null) {
+		// return;
+		// }
+		// Image sprite = getSprite(object.getSpriteName(), object.getAnimationName(),
+		// object.getFrame());
+		// if (sprite != null) {
+		// int xPos = object.getX() - cameraX;
+		// int yPos = object.getY() - cameraY;
+		// g.drawImage(sprite, xPos, yPos, focusCycleRootAncestor);
+		// }
+	}
 
-    private void renderFloor(Graphics2D g, Container focusCycleRootAncestor) {
-        Image floorSprite;
-        try {
-            floorSprite = ImageUtil.createRepeatedImage(getSprite("floor", "default", 0), roomSize[0], roomSize[1]);
-        } catch (IOException e) {
-            floorSprite = null;
-            Logger.log(LogLevel.ERR, "Failed to create repeated floor sprite: " + e.getMessage());
-        }
-        if (floorSprite != null) {
-            g.drawImage(floorSprite, -cameraX, -cameraY, focusCycleRootAncestor);
-        }
-    }
+	private void renderFloor(Graphics2D g, Container focusCycleRootAncestor) {
+		Image floorSprite;
+		try {
+			floorSprite = ImageUtil.createRepeatedImage(getSprite("floor", "default", 0), roomSize[0], roomSize[1]);
+		} catch (IOException e) {
+			floorSprite = null;
+			Logger.log(LogLevel.ERR, "Failed to create repeated floor sprite: " + e.getMessage());
+		}
+		if (floorSprite != null) {
+			g.drawImage(floorSprite, -cameraX, -cameraY, focusCycleRootAncestor);
+		}
+	}
 
-    // Helpers ------------------------------------------------------------------
+	// Helpers ------------------------------------------------------------------
 
-    private Image getSprite(String spriteName, String animationName, int frameIndex) {
-        String path = Constants.SPRITES_RES_DIR + "/" + spriteName + "/" + animationName + "/" + frameIndex + ".png";
-        Image sprite = null;
-        try {
-            sprite = ImageUtil.getImageFromResource(path);
-        } catch (IOException e) {
-            sprite = null;
-        }
-        if (sprite == null) {
-            Logger.log(LogLevel.ERR, "Failed to load sprite: " + path);
-        }
-        return sprite;
-    }
+	private Image getSprite(String spriteName, String animationName, int frameIndex) {
+		String path = Constants.SPRITES_RES_DIR + "/" + spriteName + "/" + animationName + "/" + frameIndex + ".png";
+		Image sprite = null;
+		try {
+			sprite = ImageUtil.getImageFromResource(path);
+		} catch (IOException e) {
+			sprite = null;
+		}
+		if (sprite == null) {
+			Logger.log(LogLevel.ERR, "Failed to load sprite: " + path);
+		}
+		return sprite;
+	}
 }

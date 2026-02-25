@@ -42,7 +42,7 @@ public class DebugOverlay extends Renderable {
 		g.setFont(Constants.FONT, 5);
 		int height = g.raw().getFontMetrics().getHeight() + px(0.5);
 		for (int i = 0; i < data.size(); i++) {
-			g.drawString(data.get(i), 2, height * i);
+			g.drawString(data.get(i), 2, height * (i + 1));
 		}
 	}
 }
