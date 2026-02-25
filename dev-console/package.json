@@ -1,7 +1,8 @@
 {
     "name": "flaggi-dev-console",
+    "productName": "Flaggi Dev Console",
     "version": "1.0.0",
-    "description": "Flaggi development console for easy project testing",
+    "description": "Flaggi development console",
     "main": "main.js",
     "scripts": {
         "start": "electron ."

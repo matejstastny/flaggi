@@ -1,0 +1,126 @@
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Design tokens ───────────────────────────────────────────────────────────
+   Red/blue flaggi theme on deep navy background.
+   Red   = action, alert, accent, player 1
+   Blue  = info, secondary, player 2
+   Navy  = base background layers
+*/
+:root {
+    /* Base */
+    --bg: #0a0d14;
+    --surface: #111520;
+    --surface-2: #181d2e;
+    --border: #1e2438;
+    --border-2: #252c42;
+
+    /* Text */
+    --text: #dde3f0;
+    --muted: #4a5680;
+    --muted-2: #6370a0;
+
+    /* Brand */
+    --red: #e03040;
+    --red-dim: #7a1520;
+    --red-glow: rgba(224, 48, 64, 0.25);
+    --blue: #2060d0;
+    --blue-bright: #4080f0;
+    --blue-dim: #0d2a60;
+    --blue-glow: rgba(64, 128, 240, 0.25);
+
+    /* Semantic */
+    --ok: #22b45a;
+    --warn: #d4900a;
+    --err: var(--red);
+    --accent: var(--red);
+
+    /* Misc */
+    --radius: 6px;
+    --radius-lg: 10px;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+html,
+body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 12px;
+    padding-top: 42px;
+    /* macOS traffic lights */
+    gap: 10px;
+    -webkit-app-region: drag;
+}
+
+/* Interactive elements must opt out of drag */
+button,
+input,
+select,
+.log,
+canvas,
+a {
+    -webkit-app-region: no-drag;
+}
+
+/* ── Shared panel ────────────────────────────────────────────────────────── */
+.panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface-2);
+}
+
+.panel-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+}
+
+.panel-badge {
+    font-size: 10px;
+    background: var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    color: var(--muted-2);
+    font-family: "JetBrains Mono", monospace;
+}
+
+.panel-badge-right {
+    margin-left: auto;
+}
+
+.spacer {
+    flex: 1;
+}

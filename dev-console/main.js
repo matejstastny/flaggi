@@ -2,48 +2,50 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
 
-// ── CONFIG ──────────────────────────────────────────────────────────────────
+// ── CONFIG ───────────────────────────────────────────────────────────────────
 const FLAGGI_ROOT  = path.resolve(__dirname, "..");
 const WRAPPER_SH   = path.join(FLAGGI_ROOT, "scripts", "run-wrapper.sh");
 
 const SERVER_READY_PATTERN    = /Application start/;
 const SERVER_READY_TIMEOUT_MS = 60_000;
-// ────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
 let win;
 let procs      = { server: null, client1: null, client2: null };
 let isBuilding = false;
 const logWatchers = {};
 
-// ── Window ───────────────────────────────────────────────────────────────────
+// ── Window ────────────────────────────────────────────────────────────────────
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1100,
-    height: 820,
-    minWidth: 800,
-    minHeight: 600,
+    width: 1200,
+    height: 860,
+    minWidth: 900,
+    minHeight: 640,
     title: "Flaggi Dev",
-    backgroundColor: "#0f1117",
+    icon: path.join(__dirname, "assets", "icon.png"),
+    backgroundColor: "#0a0d14",
     titleBarStyle: "hidden",
-    trafficLightPosition: { x: 12, y: 12 },
+    trafficLightPosition: { x: 14, y: 14 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
     },
   });
-  win.loadFile("index.html");
+
+  win.loadFile(path.join(__dirname, "renderer", "index.html"));
   // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
-app.on("before-quit", () => killAll());
-app.on("window-all-closed", () => { killAll(); app.quit(); });
+app.on("before-quit",        () => killAll());
+app.on("window-all-closed",  () => { killAll(); app.quit(); });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function send(channel, data) {
   const watchers = logWatchers[channel];
@@ -51,10 +53,9 @@ function send(channel, data) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, data);
 }
 
-function setStatus(s)      { send("status", s); }
-function setButtonState(s) { send("button-state", s); }
-// Send a timestamp to display in a panel header badge
-function setPanelStamp(panel, stamp) { send("panel-stamp", { panel, stamp }); }
+const setStatus      = (s)      => send("status", s);
+const setButtonState = (s)      => send("button-state", s);
+const setPanelStamp  = (p, ts)  => send("panel-stamp", { panel: p, stamp: ts });
 
 function timestamp() {
   return new Date().toLocaleTimeString([], {
@@ -74,9 +75,9 @@ function killAll() {
   }
 }
 
-function exitMessage(code, signal) {
+function exitMessage(code) {
   if (code === null || code === undefined) return "[process stopped]\n";
-  if (code === 0) return "[process exited cleanly]\n";
+  if (code === 0)                          return "[process exited cleanly]\n";
   return `[process exited with code ${code}]\n`;
 }
 
@@ -87,16 +88,10 @@ function spawnProc(args, logChannel, onClose) {
     env: { ...process.env },
   });
 
-  proc.stdout.on("data", (d) => send(logChannel, d.toString()));
-  proc.stderr.on("data", (d) => send(logChannel, d.toString()));
-  proc.on("close", (code, signal) => {
-    send(logChannel, "\n" + exitMessage(code, signal));
-    onClose?.(code);
-  });
-  proc.on("error", (err) => {
-    send(logChannel, `\n[spawn error: ${err.message}]\n`);
-    onClose?.(-1);
-  });
+  proc.stdout.on("data",    (d)      => send(logChannel, d.toString()));
+  proc.stderr.on("data",    (d)      => send(logChannel, d.toString()));
+  proc.on("close",          (code)   => { send(logChannel, "\n" + exitMessage(code)); onClose?.(code); });
+  proc.on("error",          (err)    => { send(logChannel, `\n[spawn error: ${err.message}]\n`); onClose?.(-1); });
 
   return proc;
 }
@@ -112,10 +107,7 @@ function waitForPattern(logChannel, pattern, timeoutMs) {
       clearTimeout(timer);
     };
 
-    const watcher = (data) => {
-      if (pattern.test(data)) { cleanup(); resolve(true); }
-    };
-
+    const watcher = (data) => { if (pattern.test(data)) { cleanup(); resolve(true); } };
     logWatchers[logChannel].push(watcher);
     const timer = setTimeout(() => { cleanup(); resolve(false); }, timeoutMs);
   });
@@ -129,7 +121,6 @@ async function rebuild() {
   setButtonState("building");
   setStatus("stopping");
 
-  // Clear panel stamps on rebuild
   setPanelStamp("server",  null);
   setPanelStamp("client1", null);
   setPanelStamp("client2", null);
@@ -137,10 +128,9 @@ async function rebuild() {
   killAll();
   await sleep(600);
 
-  // ── Step 1: build + start server ─────────────────────────────────────────
+  // Step 1: build + start server
   setStatus("building");
-  const serverStamp = timestamp();
-  setPanelStamp("server", serverStamp);
+  setPanelStamp("server", timestamp());
 
   let serverReady       = false;
   let serverExitedEarly = false;
@@ -148,7 +138,7 @@ async function rebuild() {
   procs.server = spawnProc(
     ["bash", WRAPPER_SH, "server"],
     "server-log",
-    (code) => { if (!serverReady) serverExitedEarly = true; }
+    () => { if (!serverReady) serverExitedEarly = true; }
   );
 
   const matched = await Promise.race([
@@ -170,7 +160,7 @@ async function rebuild() {
 
   serverReady = true;
 
-  // ── Step 2: launch clients ────────────────────────────────────────────────
+  // Step 2: launch clients (jar already built, skip rebuild)
   setStatus("starting-clients");
   const clientStamp = timestamp();
   setPanelStamp("client1", clientStamp);
@@ -185,7 +175,7 @@ async function rebuild() {
   isBuilding = false;
 }
 
-// ── IPC from renderer ─────────────────────────────────────────────────────────
+// ── IPC ───────────────────────────────────────────────────────────────────────
 
 ipcMain.on("rebuild",       () => rebuild());
 ipcMain.on("kill-all",      () => {

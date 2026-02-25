@@ -1,0 +1,152 @@
+/* ── Game state panel ────────────────────────────────────────────────────── */
+#game-panel {
+    height: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    border-top: 1px solid var(--border);
+}
+
+/* Minimap side */
+#minimap-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    border-right: 1px solid var(--border);
+}
+
+#minimap-canvas {
+    flex: 1;
+    width: 100%;
+    display: block;
+    image-rendering: pixelated;
+}
+
+/* Player cards side */
+#player-cards {
+    width: 360px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#cards-inner {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    align-content: flex-start;
+}
+
+#cards-inner::-webkit-scrollbar {
+    width: 4px;
+}
+
+#cards-inner::-webkit-scrollbar-thumb {
+    background: var(--border-2);
+    border-radius: 2px;
+}
+
+/* ── Player card ─────────────────────────────────────────────────────────── */
+.player-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius);
+    padding: 9px 11px;
+    width: calc(50% - 4px);
+    min-width: 140px;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.card-name {
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--muted-2);
+    font-size: 10px;
+    font-family: "JetBrains Mono", monospace;
+}
+
+.card-label {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.card-val {
+    color: var(--text);
+}
+
+/* HP bar */
+.hp-bar-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border-2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.15s, background 0.15s;
+}
+
+/* Key chips */
+.keys-wrap {
+    display: flex;
+    gap: 3px;
+}
+
+.key-chip {
+    background: var(--border);
+    border: 1px solid var(--border-2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    color: var(--muted-2);
+    font-family: "JetBrains Mono", monospace;
+    transition: background 0.08s, color 0.08s;
+    min-width: 20px;
+    text-align: center;
+}
+
+.key-chip.active {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+    box-shadow: 0 0 6px var(--red-glow);
+}
+
+/* Empty state */
+#no-game {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 11px;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+/* Tick badge monospace */
+#tick-badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+}
