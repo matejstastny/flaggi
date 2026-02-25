@@ -3,21 +3,23 @@ const { spawn } = require("child_process");
 const path = require("path");
 
 // ── CONFIG ──────────────────────────────────────────────────────────────────
-// flaggi-dev lives inside the repo root, so repo root is one level up
-const FLAGGI_ROOT = path.resolve(__dirname, "..");
-const RUN_SH     = path.join(FLAGGI_ROOT, "scripts", "run.sh");
-const LIB_CONFIG = path.join(FLAGGI_ROOT, "scripts", "lib/config.sh");
-const LIB_SHARED = path.join(FLAGGI_ROOT, "scripts", "lib/shared.sh");
 
-// Edit this to match whatever your server prints when it's bound and listening.
-const SERVER_READY_PATTERN = /Application start/;
+const FLAGGI_ROOT = path.resolve(__dirname, "..");
+const RUN_SH      = path.join(FLAGGI_ROOT, "scripts", "run.sh");
+
+const SERVER_READY_PATTERN    = /Application start/;
 const SERVER_READY_TIMEOUT_MS = 30_000;
+
+// Matches the "Launching <jar>..." line in run.sh output, e.g:
+//   [INFO] Launching flaggi-server-1.0.0.jar...
+// We grab the jar name from there and look for it under DIR_SERVER_TEMP.
+const LAUNCHING_PATTERN = /Launching (.+\.jar)/;
 // ────────────────────────────────────────────────────────────────────────────
 
 let win;
 let procs      = { server: null, client1: null, client2: null };
 let isBuilding = false;
-const logWatchers = {}; // { "server-log": [fn, ...], ... }
+const logWatchers = {};
 
 // ── Window ───────────────────────────────────────────────────────────────────
 
@@ -29,6 +31,8 @@ function createWindow() {
     minHeight: 600,
     title: "Flaggi Dev",
     backgroundColor: "#0f1117",
+    titleBarStyle: "hidden",
+    trafficLightPosition: { x: 12, y: 12 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -89,17 +93,6 @@ function spawnProc(args, logChannel, onClose) {
   return proc;
 }
 
-// Source the lib scripts and call get_shadowjar_path, same as run.sh does
-function getShadowjarPath() {
-  return new Promise((resolve) => {
-    const script = `source "${LIB_CONFIG}"; source "${LIB_SHARED}"; get_shadowjar_path`;
-    const proc = spawn("bash", ["-c", script], { cwd: FLAGGI_ROOT });
-    let out = "";
-    proc.stdout.on("data", (d) => (out += d));
-    proc.on("close", (code) => resolve(code === 0 ? out.trim() : null));
-  });
-}
-
 // ── Pattern watcher ───────────────────────────────────────────────────────────
 
 function waitForPattern(logChannel, pattern, timeoutMs) {
@@ -109,10 +102,18 @@ function waitForPattern(logChannel, pattern, timeoutMs) {
     const done = () => {
       logWatchers[logChannel] = logWatchers[logChannel].filter((f) => f !== watcher);
       clearTimeout(timer);
-      resolve();
+      resolve(null);
     };
 
-    const watcher = (data) => { if (pattern.test(data)) done(); };
+    const watcher = (data) => {
+      const m = data.match(pattern);
+      if (m) {
+        logWatchers[logChannel] = logWatchers[logChannel].filter((f) => f !== watcher);
+        clearTimeout(timer);
+        resolve(m); // resolve with match object so callers can extract groups
+      }
+    };
+
     logWatchers[logChannel].push(watcher);
     const timer = setTimeout(done, timeoutMs);
   });
@@ -129,13 +130,12 @@ async function rebuild() {
   killAll();
   await sleep(600);
 
-  // Step 1: run.sh server — this builds the shadowjar then starts the server.
-  // We wait until the server prints its ready string before launching clients.
   setStatus("building");
   send("server-log", `\n─── BUILD + SERVER  [${timestamp()}] ─────────────────\n`);
 
   let serverReady       = false;
   let serverExitedEarly = false;
+  let capturedJarName   = null;
 
   procs.server = spawnProc(["bash", RUN_SH, "server"], "server-log", (code) => {
     if (!serverReady) {
@@ -146,8 +146,13 @@ async function rebuild() {
     }
   });
 
-  await Promise.race([
+  // Concurrently watch for two patterns in the server log:
+  //   1. "Launching <jar>.jar..." — so we know the jar name/location
+  //   2. SERVER_READY_PATTERN     — so we know the server is up
+  const [launchMatch] = await Promise.all([
+    waitForPattern("server-log", LAUNCHING_PATTERN, SERVER_READY_TIMEOUT_MS),
     waitForPattern("server-log", SERVER_READY_PATTERN, SERVER_READY_TIMEOUT_MS),
+    // bail-out poller
     new Promise((resolve) => {
       const t = setInterval(() => {
         if (serverExitedEarly) { clearInterval(t); resolve(); }
@@ -158,17 +163,21 @@ async function rebuild() {
   if (serverExitedEarly) return;
   serverReady = true;
 
-  // Step 2: find the jar that was just built
-  const jarPath = await getShadowjarPath();
+  // The jar was moved to DIR_SERVER_TEMP by run.sh.
+  // We grab the name from the log line and find it via `find`.
+  if (launchMatch && launchMatch[1]) {
+    capturedJarName = launchMatch[1]; // e.g. "flaggi-server-1.0.0.jar"
+  }
+
+  const jarPath = await resolveClientJar(capturedJarName);
   if (!jarPath) {
-    send("server-log", "\n[ERROR: could not resolve jar path — check lib/shared.sh]\n");
+    send("server-log", "\n[ERROR: could not find client jar — check build output]\n");
     setStatus("error");
     setButtonState("idle");
     isBuilding = false;
     return;
   }
 
-  // Step 3: launch clients directly from the jar — no rebuild
   setStatus("starting-clients");
   const stamp = timestamp();
   send("client1-log", `─── CLIENT 1  [${stamp}] ──────────────────────────────\n`);
@@ -181,6 +190,23 @@ async function rebuild() {
   setStatus("running");
   setButtonState("idle");
   isBuilding = false;
+}
+
+// Find the client jar. The shadowjar is a single fat jar — for server, run.sh
+// moves it into DIR_SERVER_TEMP. The original build output dir still has it
+// (or we find it via `find`). We locate any flaggi*.jar under the repo root,
+// excluding the server temp dir.
+function resolveClientJar(capturedJarName) {
+  return new Promise((resolve) => {
+    // Use `find` to locate the jar under build/libs, excluding server-temp
+    const proc = spawn("bash", ["-c",
+      `find "${FLAGGI_ROOT}" -name "*.jar" -path "*/build/libs/*" | head -1`
+    ], { cwd: FLAGGI_ROOT });
+
+    let out = "";
+    proc.stdout.on("data", (d) => (out += d));
+    proc.on("close", () => resolve(out.trim() || null));
+  });
 }
 
 // ── IPC from renderer ─────────────────────────────────────────────────────────
