@@ -4,22 +4,18 @@ const path = require("path");
 
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 
-const FLAGGI_ROOT = path.resolve(__dirname, "..");
-const RUN_SH      = path.join(FLAGGI_ROOT, "scripts", "run.sh");
+const FLAGGI_ROOT  = path.resolve(__dirname, "..");
+const WRAPPER_SH   = path.join(FLAGGI_ROOT, "scripts", "run-wrapper.sh");
 
+// Must match something your server logs when it's ready to accept connections
 const SERVER_READY_PATTERN    = /Application start/;
-const SERVER_READY_TIMEOUT_MS = 30_000;
-
-// Matches the "Launching <jar>..." line in run.sh output, e.g:
-//   [INFO] Launching flaggi-server-1.0.0.jar...
-// We grab the jar name from there and look for it under DIR_SERVER_TEMP.
-const LAUNCHING_PATTERN = /Launching (.+\.jar)/;
+const SERVER_READY_TIMEOUT_MS = 60_000;
 // ────────────────────────────────────────────────────────────────────────────
 
 let win;
 let procs      = { server: null, client1: null, client2: null };
 let isBuilding = false;
-const logWatchers = {};
+const logWatchers = {}; // channel → [fn, ...]
 
 // ── Window ───────────────────────────────────────────────────────────────────
 
@@ -60,7 +56,9 @@ function setStatus(s)      { send("status", s); }
 function setButtonState(s) { send("button-state", s); }
 
 function timestamp() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit", minute: "2-digit", second: "2-digit"
+  });
 }
 
 // ── Process management ────────────────────────────────────────────────────────
@@ -78,7 +76,7 @@ function killAll() {
 function spawnProc(args, logChannel, onClose) {
   const proc = spawn(args[0], args.slice(1), {
     cwd: FLAGGI_ROOT,
-    detached: true,
+    detached: true, // needed for negative-pid group kill
     env: { ...process.env },
   });
 
@@ -88,34 +86,35 @@ function spawnProc(args, logChannel, onClose) {
     send(logChannel, `\n[process exited with code ${code}]\n`);
     onClose?.(code);
   });
-  proc.on("error", (err) => send(logChannel, `\n[spawn error: ${err.message}]\n`));
+  proc.on("error", (err) => {
+    send(logChannel, `\n[spawn error: ${err.message}]\n`);
+    onClose?.(-1);
+  });
 
   return proc;
 }
 
 // ── Pattern watcher ───────────────────────────────────────────────────────────
 
+// Resolves true if pattern matched, false if timed out or failed
 function waitForPattern(logChannel, pattern, timeoutMs) {
   return new Promise((resolve) => {
     if (!logWatchers[logChannel]) logWatchers[logChannel] = [];
 
-    const done = () => {
+    const cleanup = () => {
       logWatchers[logChannel] = logWatchers[logChannel].filter((f) => f !== watcher);
       clearTimeout(timer);
-      resolve(null);
     };
 
     const watcher = (data) => {
-      const m = data.match(pattern);
-      if (m) {
-        logWatchers[logChannel] = logWatchers[logChannel].filter((f) => f !== watcher);
-        clearTimeout(timer);
-        resolve(m); // resolve with match object so callers can extract groups
+      if (pattern.test(data)) {
+        cleanup();
+        resolve(true);
       }
     };
 
     logWatchers[logChannel].push(watcher);
-    const timer = setTimeout(done, timeoutMs);
+    const timer = setTimeout(() => { cleanup(); resolve(false); }, timeoutMs);
   });
 }
 
@@ -130,83 +129,57 @@ async function rebuild() {
   killAll();
   await sleep(600);
 
+  // ── Step 1: build + start server ─────────────────────────────────────────
   setStatus("building");
   send("server-log", `\n─── BUILD + SERVER  [${timestamp()}] ─────────────────\n`);
 
   let serverReady       = false;
   let serverExitedEarly = false;
-  let capturedJarName   = null;
 
-  procs.server = spawnProc(["bash", RUN_SH, "server"], "server-log", (code) => {
-    if (!serverReady) {
-      serverExitedEarly = true;
-      setStatus("error");
-      setButtonState("idle");
-      isBuilding = false;
+  procs.server = spawnProc(
+    ["bash", WRAPPER_SH, "server"],
+    "server-log",
+    (code) => {
+      if (!serverReady) {
+        serverExitedEarly = true;
+      }
     }
-  });
+  );
 
-  // Concurrently watch for two patterns in the server log:
-  //   1. "Launching <jar>.jar..." — so we know the jar name/location
-  //   2. SERVER_READY_PATTERN     — so we know the server is up
-  const [launchMatch] = await Promise.all([
-    waitForPattern("server-log", LAUNCHING_PATTERN, SERVER_READY_TIMEOUT_MS),
+  // Wait for server ready signal, but also watch for early exit
+  const matched = await Promise.race([
     waitForPattern("server-log", SERVER_READY_PATTERN, SERVER_READY_TIMEOUT_MS),
-    // bail-out poller
+    // Poll for early exit
     new Promise((resolve) => {
       const t = setInterval(() => {
-        if (serverExitedEarly) { clearInterval(t); resolve(); }
-      }, 150);
+        if (serverExitedEarly) { clearInterval(t); resolve(false); }
+      }, 100);
     }),
   ]);
 
-  if (serverExitedEarly) return;
-  serverReady = true;
-
-  // The jar was moved to DIR_SERVER_TEMP by run.sh.
-  // We grab the name from the log line and find it via `find`.
-  if (launchMatch && launchMatch[1]) {
-    capturedJarName = launchMatch[1]; // e.g. "flaggi-server-1.0.0.jar"
-  }
-
-  const jarPath = await resolveClientJar(capturedJarName);
-  if (!jarPath) {
-    send("server-log", "\n[ERROR: could not find client jar — check build output]\n");
+  if (!matched || serverExitedEarly) {
+    send("server-log", "\n[Server failed to start — not launching clients]\n");
     setStatus("error");
     setButtonState("idle");
     isBuilding = false;
     return;
   }
 
+  serverReady = true;
+
+  // ── Step 2: launch clients with --skip-build (jar already built) ──────────
   setStatus("starting-clients");
   const stamp = timestamp();
   send("client1-log", `─── CLIENT 1  [${stamp}] ──────────────────────────────\n`);
   send("client2-log", `─── CLIENT 2  [${stamp}] ──────────────────────────────\n`);
 
-  procs.client1 = spawnProc(["java", "-jar", jarPath], "client1-log");
-  await sleep(500);
-  procs.client2 = spawnProc(["java", "-jar", jarPath], "client2-log");
+  procs.client1 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client1-log");
+  await sleep(500); // small stagger
+  procs.client2 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client2-log");
 
   setStatus("running");
   setButtonState("idle");
   isBuilding = false;
-}
-
-// Find the client jar. The shadowjar is a single fat jar — for server, run.sh
-// moves it into DIR_SERVER_TEMP. The original build output dir still has it
-// (or we find it via `find`). We locate any flaggi*.jar under the repo root,
-// excluding the server temp dir.
-function resolveClientJar(capturedJarName) {
-  return new Promise((resolve) => {
-    // Use `find` to locate the jar under build/libs, excluding server-temp
-    const proc = spawn("bash", ["-c",
-      `find "${FLAGGI_ROOT}" -name "*.jar" -path "*/build/libs/*" | head -1`
-    ], { cwd: FLAGGI_ROOT });
-
-    let out = "";
-    proc.stdout.on("data", (d) => (out += d));
-    proc.on("close", () => resolve(out.trim() || null));
-  });
 }
 
 // ── IPC from renderer ─────────────────────────────────────────────────────────
