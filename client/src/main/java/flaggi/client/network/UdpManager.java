@@ -55,7 +55,7 @@ public class UdpManager implements Runnable {
 
 	@Override
 	public void run() {
-		Logger.log(LogLevel.DBG, "UDP Manager at " + socket.getLocalPort());
+		Logger.log(LogLevel.DBG, "Listening for UDP at port " + socket.getLocalPort());
 		byte[] buffer = new byte[1024];
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
@@ -63,7 +63,6 @@ public class UdpManager implements Runnable {
 				socket.receive(packet);
 				ServerStateUpdate update = ServerStateUpdate.parseFrom(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
 				Logger.log(LogLevel.UDP, "Received server update:\n" + update.toString());
-				Logger.log(LogLevel.DBG, "UDP MANAGER UPDATE");
 				this.latestUpdate = update;
 			} catch (SocketTimeoutException e) {
 			} catch (SocketException e) {
