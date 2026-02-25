@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import flaggi.proto.ClientMessages.ClientStateUpdate;
@@ -37,6 +38,7 @@ import flaggi.shared.util.FileUtil;
 
 public class GameManager implements Closeable, Updatable {
 
+	private final Map<String, ClientStateUpdate> latestClientInputs = new ConcurrentHashMap<>();
 	private BlockingQueue<ClientStateUpdate> incoming = new LinkedBlockingQueue<>();
 	private Map<String, GameManager> activeGames;
 	private final UdpManager udpManager;
@@ -44,6 +46,7 @@ public class GameManager implements Closeable, Updatable {
 	private final MapData mapData;
 	private final String gameUuid;
 	private Client[] clients;
+	private int tick = 0;
 
 	// Constructor --------------------------------------------------------------
 
@@ -69,6 +72,7 @@ public class GameManager implements Closeable, Updatable {
 
 	@Override
 	public void update() {
+		tick++;
 		ClientStateUpdate update;
 		while ((update = incoming.poll()) != null) {
 			processClientUpdate(update);
@@ -102,6 +106,7 @@ public class GameManager implements Closeable, Updatable {
 
 	private void sendUpdatesToClients() {
 		Map<String, ServerStateUpdate> updates = gameData.getServerUpdateData();
+		DebugServer.publish(updates, latestClientInputs, tick);
 		for (String uuid : updates.keySet()) {
 			Client c = getClient(uuid);
 			udpManager.send(updates.get(uuid), c.address(), c.udpPort());
@@ -109,6 +114,7 @@ public class GameManager implements Closeable, Updatable {
 	}
 
 	private void processClientUpdate(ClientStateUpdate update) {
+		latestClientInputs.put(update.getPlayerUuid(), update);
 		// TODO process update
 		Logger.log(LogLevel.DBG, "Processed update " + update);
 	}

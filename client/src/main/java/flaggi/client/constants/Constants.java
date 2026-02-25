@@ -65,7 +65,7 @@ public class Constants {
 
 	// Debug --------------------------------------------------------------------
 
-	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TCP };
+	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TCP, LogLevel.UDP };
 	public static boolean LOG_MEM_USAGE = false;
 	public static int MEM_LOG_INTERVAL_SEC = 3;
 	public static boolean HITBOXES_ENABLED = false;

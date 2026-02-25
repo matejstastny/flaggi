@@ -43,17 +43,15 @@
             height: 100vh;
             padding: 12px;
             padding-top: 40px;
-            /* leave room for macOS traffic lights */
             gap: 10px;
             -webkit-app-region: drag;
-            /* make the whole app draggable... */
         }
 
-        /* ...but not interactive elements */
         button,
         .log,
         input,
-        select {
+        select,
+        canvas {
             -webkit-app-region: no-drag;
         }
 
@@ -82,7 +80,6 @@
             padding: 3px 10px;
             font-size: 11px;
             color: var(--muted);
-            transition: color 0.2s;
         }
 
         #status-dot {
@@ -169,8 +166,17 @@
             border: 1px solid var(--border);
         }
 
-        /* ── Log panels ── */
-        #panels {
+        /* ── Main layout ── */
+        #main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            gap: 10px;
+        }
+
+        /* ── Log panels row ── */
+        #log-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
@@ -216,18 +222,18 @@
         .log {
             flex: 1;
             overflow-y: auto;
+            overflow-x: auto;
             padding: 8px 10px;
             font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
             font-size: 11px;
             line-height: 1.55;
-            white-space: pre-wrap;
-            word-break: break-all;
+            white-space: pre;
             color: #94a3b8;
-            scroll-behavior: smooth;
         }
 
         .log::-webkit-scrollbar {
             width: 5px;
+            height: 5px;
         }
 
         .log::-webkit-scrollbar-track {
@@ -238,6 +244,153 @@
             background: var(--border);
             border-radius: 3px;
         }
+
+        /* ── Game state panel ── */
+        #game-panel {
+            height: 220px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+        }
+
+        #game-panel .panel-header {
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Minimap side */
+        #minimap-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            border-right: 1px solid var(--border);
+        }
+
+        #minimap-canvas {
+            flex: 1;
+            width: 100%;
+            image-rendering: pixelated;
+        }
+
+        /* Player cards side */
+        #player-cards {
+            width: 340px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #cards-inner {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            align-content: flex-start;
+        }
+
+        #cards-inner::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #cards-inner::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .player-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            width: calc(50% - 4px);
+            min-width: 130px;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-name {
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        .card-label {
+            color: var(--muted);
+        }
+
+        .card-val {
+            color: var(--text);
+        }
+
+        .hp-bar-track {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--green);
+            transition: width 0.15s;
+        }
+
+        .keys-wrap {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
+        .key-chip {
+            background: var(--border);
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 9px;
+            color: var(--text);
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        .key-chip.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        #no-game {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 11px;
+            font-style: italic;
+        }
+
+        #tick-badge {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 10px;
+        }
     </style>
 </head>
 
@@ -246,57 +399,71 @@
 
         <div id="toolbar">
             <h1>⚑ FLAGGI DEV</h1>
-
             <div id="status-pill" class="status-stopped">
                 <div id="status-dot"></div>
                 <span id="status-text">stopped</span>
             </div>
-
             <div class="spacer"></div>
-
             <button id="btn-clear">Clear logs</button>
             <button id="btn-stop">Stop all</button>
             <button id="btn-rebuild">▶ Rebuild</button>
         </div>
 
-        <div id="panels">
-            <div class="panel" id="panel-server">
-                <div class="panel-header">
-                    <span class="panel-label">Server</span>
-                    <span class="panel-badge" id="server-lines">0 lines</span>
+        <div id="main">
+
+            <div id="log-row">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Server</span>
+                        <span class="panel-badge" id="server-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-server"></div>
                 </div>
-                <div class="log" id="log-server"></div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Client 1</span>
+                        <span class="panel-badge" id="c1-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-c1"></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Client 2</span>
+                        <span class="panel-badge" id="c2-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-c2"></div>
+                </div>
             </div>
 
-            <div class="panel" id="panel-c1">
-                <div class="panel-header">
-                    <span class="panel-label">Client 1</span>
-                    <span class="panel-badge" id="c1-lines">0 lines</span>
+            <!-- Game state panel -->
+            <div class="panel" id="game-panel">
+                <div id="minimap-wrap">
+                    <div class="panel-header">
+                        <span class="panel-label">Game State</span>
+                        <span class="panel-badge" id="tick-badge">no game</span>
+                    </div>
+                    <canvas id="minimap-canvas"></canvas>
                 </div>
-                <div class="log" id="log-c1"></div>
+                <div id="player-cards">
+                    <div class="panel-header">
+                        <span class="panel-label">Players</span>
+                    </div>
+                    <div id="cards-inner">
+                        <div id="no-game">No active game</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="panel" id="panel-c2">
-                <div class="panel-header">
-                    <span class="panel-label">Client 2</span>
-                    <span class="panel-badge" id="c2-lines">0 lines</span>
-                </div>
-                <div class="log" id="log-c2"></div>
-            </div>
         </div>
-
     </div>
 
     <script>
+        // ── Status / button wiring ────────────────────────────────────────────────
+
         const statusLabels = {
-            stopped: "stopped",
-            stopping: "stopping…",
-            building: "building…",
-            "starting-server": "starting server…",
-            "starting-clients": "starting clients…",
-            running: "running",
-            error: "build failed",
-            "server-crashed": "server crashed",
+            stopped: "stopped", stopping: "stopping…", building: "building…",
+            "starting-server": "starting server…", "starting-clients": "starting clients…",
+            running: "running", error: "build failed", "server-crashed": "server crashed",
         };
 
         const pill = document.getElementById("status-pill");
@@ -310,22 +477,18 @@
             "client1-log": document.getElementById("log-c1"),
             "client2-log": document.getElementById("log-c2"),
         };
-
         const lineCountEls = {
             "server-log": document.getElementById("server-lines"),
             "client1-log": document.getElementById("c1-lines"),
             "client2-log": document.getElementById("c2-lines"),
         };
-
         const lineCounts = { "server-log": 0, "client1-log": 0, "client2-log": 0 };
 
-        // ── ANSI → HTML ──────────────────────────────────────────────────────────
-        // Maps standard SGR codes to CSS. Supports foreground (30-37, 90-97),
-        // background (40-47), bold (1), dim (2), reset (0).
+        // ── ANSI → HTML ───────────────────────────────────────────────────────────
+
         const ANSI_FG = {
             30: "#4a4a4a", 31: "#ef4444", 32: "#22c55e", 33: "#eab308",
             34: "#3b82f6", 35: "#a855f7", 36: "#06b6d4", 37: "#e2e8f0",
-            // bright variants
             90: "#64748b", 91: "#f87171", 92: "#4ade80", 93: "#facc15",
             94: "#60a5fa", 95: "#c084fc", 96: "#22d3ee", 97: "#f8fafc",
         };
@@ -334,83 +497,55 @@
             44: "#1e3a5f", 45: "#581c87", 46: "#164e63", 47: "#374151",
         };
 
-        let _ansiOpenSpans = 0;
+        let _openSpans = 0;
 
         function colorize(raw) {
-            // 1. Escape HTML entities first
-            let text = raw
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-
-            // 2. Process ANSI escape sequences: ESC[ ... m
-            //    Also handle the bare \x1b without bracket (strip it)
-            let result = "";
-            // Split on ESC[ sequences
+            let text = raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             const parts = text.split(/\x1b\[/);
-            result += parts[0]; // text before first escape
-
+            let result = parts[0];
             for (let i = 1; i < parts.length; i++) {
                 const part = parts[i];
                 const mIdx = part.indexOf("m");
-                if (mIdx === -1) {
-                    // Not a valid SGR sequence, just output as-is
-                    result += part;
-                    continue;
-                }
-
+                if (mIdx === -1) { result += part; continue; }
                 const codes = part.slice(0, mIdx).split(";").map(Number);
                 const rest = part.slice(mIdx + 1);
-
                 let style = "";
                 for (const code of codes) {
                     if (code === 0 || isNaN(code)) {
-                        // Reset — close all open spans
-                        while (_ansiOpenSpans > 0) {
-                            result += "</span>";
-                            _ansiOpenSpans--;
-                        }
+                        while (_openSpans > 0) { result += "</span>"; _openSpans--; }
                     } else if (code === 1) {
                         style += "font-weight:bold;";
                     } else if (code === 2) {
                         style += "opacity:0.6;";
                     } else if (ANSI_FG[code]) {
                         style += `color:${ANSI_FG[code]};`;
-                    } else if (ANSI_BG[code]) {
-                        style += `background:${ANSI_BG[code]};`;
-                    }
+                    } else if (ANSI_BG[code]) { style += `background:${ANSI_BG[code]};`; }
                 }
-
-                if (style) {
-                    result += `<span style="${style}">`;
-                    _ansiOpenSpans++;
-                }
-
+                if (style) { result += `<span style="${style}">`; _openSpans++; }
                 result += rest;
             }
-
             return result;
         }
-        // ─────────────────────────────────────────────────────────────────────────
 
         function appendLog(channel, text) {
             const el = logEls[channel];
             if (!el) return;
-
             const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
             const span = document.createElement("span");
             span.innerHTML = colorize(text);
             el.appendChild(span);
-
             const lines = (text.match(/\n/g) || []).length;
             lineCounts[channel] += lines;
             lineCountEls[channel].textContent = lineCounts[channel] + " lines";
-
             if (atBottom) el.scrollTop = el.scrollHeight;
         }
 
         function setStatus(s) {
-            pill.className = "status-" + (s === "running" ? "running" : s.includes("build") ? "building" : s === "error" || s === "server-crashed" ? "error" : "stopped");
+            pill.className = "status-" + (
+                s === "running" ? "running" :
+                    s.includes("build") || s.includes("start") ? "building" :
+                        s === "error" || s === "server-crashed" ? "error" : "stopped"
+            );
             statusText.textContent = statusLabels[s] ?? s;
         }
 
@@ -426,7 +561,6 @@
             }
         }
 
-        // Wire up IPC
         window.api.onLog("server-log", (d) => appendLog("server-log", d));
         window.api.onLog("client1-log", (d) => appendLog("client1-log", d));
         window.api.onLog("client2-log", (d) => appendLog("client2-log", d));
@@ -442,6 +576,307 @@
                 lineCountEls[ch].textContent = "0 lines";
             }
         });
+
+        // ── Game State Visualizer ─────────────────────────────────────────────────
+
+        const canvas = document.getElementById("minimap-canvas");
+        const ctx = canvas.getContext("2d");
+        const tickBadge = document.getElementById("tick-badge");
+        const cardsEl = document.getElementById("cards-inner");
+        const noGame = document.getElementById("no-game");
+
+        const SKIN_COLORS = {
+            SKIN_BLUE: "#3b82f6",
+            SKIN_RED: "#ef4444",
+            SKIN_JESTER: "#a855f7",
+            SKIN_VENOM: "#22c55e",
+        };
+
+        const KEY_LABELS = {
+            KEY_UP: "↑", KEY_DOWN: "↓", KEY_LEFT: "←", KEY_RIGHT: "→", KEY_SHOOT: "✦",
+        };
+
+        const ALL_KEYS = ["KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT", "KEY_SHOOT"];
+
+        let gameState = null;
+        let worldBounds = { minX: 0, maxX: 1000, minY: 0, maxY: 1000 };
+
+        // Poll the debug HTTP endpoint
+        async function pollState() {
+            try {
+                const res = await fetch("http://127.0.0.1:54323/state", { signal: AbortSignal.timeout(400) });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.players && data.players.length > 0) {
+                    gameState = data;
+                    updateWorldBounds(data);
+                    renderMinimap();
+                    renderCards();
+                } else {
+                    gameState = null;
+                    renderEmpty();
+                }
+            } catch (_) {
+                // Server not running — silent fail
+            }
+        }
+
+        function updateWorldBounds(data) {
+            // Dynamically fit the minimap to where objects actually are
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (const p of data.players) {
+                minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+                for (const o of (p.others || [])) {
+                    minX = Math.min(minX, o.x); maxX = Math.max(maxX, o.x);
+                    minY = Math.min(minY, o.y); maxY = Math.max(maxY, o.y);
+                }
+            }
+            const pad = 80;
+            worldBounds = {
+                minX: minX - pad, maxX: maxX + pad,
+                minY: minY - pad, maxY: maxY + pad,
+            };
+        }
+
+        function worldToCanvas(wx, wy) {
+            const cw = canvas.clientWidth || canvas.width;
+            const ch = canvas.clientHeight || canvas.height;
+            const sx = (wx - worldBounds.minX) / (worldBounds.maxX - worldBounds.minX);
+            const sy = (wy - worldBounds.minY) / (worldBounds.maxY - worldBounds.minY);
+            return { x: sx * cw, y: sy * ch };
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            // Subtract header height
+            const headerH = canvas.parentElement.querySelector(".panel-header")?.offsetHeight || 32;
+            canvas.width = Math.max(rect.width, 10);
+            canvas.height = Math.max(rect.height - headerH, 10);
+        }
+
+        function renderEmpty() {
+            resizeCanvas();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#1a1d27";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#64748b";
+            ctx.font = "11px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("No active game", canvas.width / 2, canvas.height / 2);
+            tickBadge.textContent = "no game";
+            noGame.style.display = "flex";
+        }
+
+        function renderMinimap() {
+            resizeCanvas();
+            noGame.style.display = "none";
+            tickBadge.textContent = "tick " + (gameState.tick ?? "?");
+
+            ctx.fillStyle = "#0f1117";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid lines
+            ctx.strokeStyle = "#2a2d3a";
+            ctx.lineWidth = 0.5;
+            const gridStep = 100;
+            for (let wx = Math.ceil(worldBounds.minX / gridStep) * gridStep; wx < worldBounds.maxX; wx += gridStep) {
+                const { x } = worldToCanvas(wx, 0);
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let wy = Math.ceil(worldBounds.minY / gridStep) * gridStep; wy < worldBounds.maxY; wy += gridStep) {
+                const { y } = worldToCanvas(0, wy);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Collect all objects across all player views (deduplicate by position)
+            const drawn = new Set();
+
+            for (const player of gameState.players) {
+                // Draw "me"
+                const key = `${Math.round(player.x)},${Math.round(player.y)}`;
+                if (!drawn.has(key)) {
+                    drawn.add(key);
+                    drawPlayer(player.x, player.y, player.hp, player.skin, player.username, player.mouse, true);
+                }
+
+                // Draw others
+                for (const obj of (player.others || [])) {
+                    const ok = `${Math.round(obj.x)},${Math.round(obj.y)}`;
+                    if (!drawn.has(ok)) {
+                        drawn.add(ok);
+                        if (obj.type === "PLAYER") {
+                            drawPlayer(obj.x, obj.y, obj.hp, null, obj.username, null, false);
+                        } else if (obj.type === "FLAG") {
+                            drawFlag(obj.x, obj.y);
+                        } else if (obj.type === "BULLET") {
+                            drawBullet(obj.x, obj.y);
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawPlayer(wx, wy, hp, skin, username, mouse, isMe) {
+            const { x, y } = worldToCanvas(wx, wy);
+            const r = isMe ? 7 : 6;
+            const color = SKIN_COLORS[skin] || "#94a3b8";
+
+            // Glow for local player
+            if (isMe) {
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 10;
+            }
+
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = isMe ? "#fff" : "#2a2d3a";
+            ctx.lineWidth = isMe ? 1.5 : 1;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // HP bar above player
+            const barW = 20, barH = 3;
+            const hpFrac = Math.max(0, Math.min(1, (hp ?? 100) / 100));
+            ctx.fillStyle = "#2a2d3a";
+            ctx.fillRect(x - barW / 2, y - r - 6, barW, barH);
+            ctx.fillStyle = hpFrac > 0.5 ? "#22c55e" : hpFrac > 0.25 ? "#eab308" : "#ef4444";
+            ctx.fillRect(x - barW / 2, y - r - 6, barW * hpFrac, barH);
+
+            // Mouse aim line (for local player)
+            if (mouse && isMe) {
+                const { x: mx, y: my } = worldToCanvas(wx + (mouse.x - 400), wy + (mouse.y - 300));
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(mx, my);
+                ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Username label
+            if (username) {
+                ctx.fillStyle = "#94a3b8";
+                ctx.font = "9px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(username, x, y + r + 10);
+            }
+        }
+
+        function drawFlag(wx, wy) {
+            const { x, y } = worldToCanvas(wx, wy);
+            ctx.fillStyle = "#eab308";
+            ctx.beginPath();
+            ctx.moveTo(x, y - 8);
+            ctx.lineTo(x + 6, y - 4);
+            ctx.lineTo(x, y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#64748b";
+            ctx.fillRect(x - 0.5, y - 8, 1, 12);
+        }
+
+        function drawBullet(wx, wy) {
+            const { x, y } = worldToCanvas(wx, wy);
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#f97316";
+            ctx.fill();
+        }
+
+        // ── Player cards ──────────────────────────────────────────────────────────
+
+        function renderCards() {
+            if (!gameState || !gameState.players.length) {
+                noGame.style.display = "flex";
+                cardsEl.innerHTML = "";
+                cardsEl.appendChild(noGame);
+                return;
+            }
+
+            noGame.style.display = "none";
+
+            // Reuse existing cards to avoid flicker
+            const existing = new Map([...cardsEl.querySelectorAll(".player-card")].map(el => [el.dataset.uuid, el]));
+            const seen = new Set();
+
+            for (const p of gameState.players) {
+                seen.add(p.uuid);
+                let card = existing.get(p.uuid);
+                if (!card) {
+                    card = document.createElement("div");
+                    card.className = "player-card";
+                    card.dataset.uuid = p.uuid;
+                    cardsEl.appendChild(card);
+                }
+                updateCard(card, p);
+            }
+
+            // Remove cards for players no longer in game
+            for (const [uuid, el] of existing) {
+                if (!seen.has(uuid)) el.remove();
+            }
+        }
+
+        function updateCard(card, p) {
+            const hp = Math.max(0, Math.min(100, p.hp ?? 100));
+            const hpColor = hp > 50 ? "#22c55e" : hp > 25 ? "#eab308" : "#ef4444";
+            const skinColor = SKIN_COLORS[p.skin] || "#94a3b8";
+            const heldKeys = new Set(p.keys || []);
+
+            card.innerHTML = `
+      <div class="card-name" style="color:${skinColor}">${esc(p.username || p.uuid.slice(0, 8))}</div>
+      <div class="card-row">
+        <span class="card-label">HP</span>
+        <div class="hp-bar-track"><div class="hp-bar-fill" style="width:${hp}%;background:${hpColor}"></div></div>
+        <span class="card-val">${Math.round(hp)}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">XY</span>
+        <span class="card-val">${Math.round(p.x)}, ${Math.round(p.y)}</span>
+        <span class="card-label" style="margin-left:6px">🚩</span>
+        <span class="card-val">${p.flagCount ?? 0}</span>
+      </div>
+      <div class="card-row">
+        <span class="card-label">🖱</span>
+        <span class="card-val">${p.mouse?.x ?? 0}, ${p.mouse?.y ?? 0}</span>
+      </div>
+      <div class="card-row">
+        <div class="keys-wrap">
+          ${ALL_KEYS.map(k => `<span class="key-chip ${heldKeys.has(k) ? "active" : ""}">${KEY_LABELS[k]}</span>`).join("")}
+        </div>
+      </div>
+      <div class="card-row" style="color:var(--muted);font-size:9px">${esc(p.skin?.replace("SKIN_", "") || "?")} · ${esc(p.animation?.replace("ANIM_", "") || "?")}</div>
+    `;
+        }
+
+        function esc(s) {
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Poll every 250ms when running, 2s when not
+        let pollInterval = null;
+
+        function startPolling() {
+            stopPolling();
+            pollState();
+            pollInterval = setInterval(pollState, 250);
+        }
+
+        function stopPolling() {
+            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+            renderEmpty();
+        }
+
+        window.api.onStatus((s) => {
+            if (s === "running") startPolling();
+            else if (s === "stopped" || s === "stopping" || s === "error") stopPolling();
+        });
+
+        // Initial empty state
+        renderEmpty();
     </script>
 </body>
 

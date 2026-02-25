@@ -49,7 +49,7 @@ public class Constants {
 
 	// Debug --------------------------------------------------------------------
 
-	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TCP };
+	public static LogLevel[] IGNORED_LOG_LEVES = { LogLevel.TCP, LogLevel.UDP };
 
 	// Network ------------------------------------------------------------------
 
