@@ -74,6 +74,12 @@ public class Logger {
 
 	public static void setLogLevelsToIgnore(LogLevel... logLevels) {
 		ignore = logLevels;
+		String log = "";
+		for (LogLevel logLevel : logLevels) {
+			log += logLevel.toString() + ", ";
+		}
+		log = log.isEmpty() ? "Logging enabled for all levels" : "Ignored levels: " + log.substring(0, log.length() - 2);
+		log(LogLevel.DBG, log);
 	}
 
 	// Logging -------------------------------------------------------------------
