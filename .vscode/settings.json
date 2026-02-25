@@ -83,5 +83,5 @@
     "remote.autoForwardPorts": false,
     "yaml.format.proseWrap": "never",
     "yaml.format.trailingComma": true,
-    "insertDateString.formatDate": "MM-DD-YYYY"
+    "insertDateString.formatDate": "YYYY-MM-DD"
 }
