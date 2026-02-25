@@ -415,6 +415,7 @@
                 <div class="panel">
                     <div class="panel-header">
                         <span class="panel-label">Server</span>
+                        <span class="panel-badge" id="server-stamp" style="display:none"></span>
                         <span class="panel-badge" id="server-lines">0 lines</span>
                     </div>
                     <div class="log" id="log-server"></div>
@@ -422,6 +423,7 @@
                 <div class="panel">
                     <div class="panel-header">
                         <span class="panel-label">Client 1</span>
+                        <span class="panel-badge" id="client1-stamp" style="display:none"></span>
                         <span class="panel-badge" id="c1-lines">0 lines</span>
                     </div>
                     <div class="log" id="log-c1"></div>
@@ -429,6 +431,7 @@
                 <div class="panel">
                     <div class="panel-header">
                         <span class="panel-label">Client 2</span>
+                        <span class="panel-badge" id="client2-stamp" style="display:none"></span>
                         <span class="panel-badge" id="c2-lines">0 lines</span>
                     </div>
                     <div class="log" id="log-c2"></div>
@@ -566,6 +569,24 @@
         window.api.onLog("client2-log", (d) => appendLog("client2-log", d));
         window.api.onStatus(setStatus);
         window.api.onButtonState(setButtonState);
+
+        // Panel timestamps
+        const stampEls = {
+            server: document.getElementById("server-stamp"),
+            client1: document.getElementById("client1-stamp"),
+            client2: document.getElementById("client2-stamp"),
+        };
+        window.api.onPanelStamp(({ panel, stamp }) => {
+            const el = stampEls[panel];
+            if (!el) return;
+            if (stamp) {
+                el.textContent = stamp;
+                el.style.display = "";
+            } else {
+                el.textContent = "";
+                el.style.display = "none";
+            }
+        });
 
         btnRebuild.addEventListener("click", () => window.api.rebuild());
         btnStop.addEventListener("click", () => window.api.killAll());
@@ -867,6 +888,11 @@
 
         function stopPolling() {
             if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+            gameState = null;
+            // Clear player cards immediately
+            cardsEl.innerHTML = "";
+            cardsEl.appendChild(noGame);
+            noGame.style.display = "flex";
             renderEmpty();
         }
 
