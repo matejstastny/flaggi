@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------
+// DebugOverlay.java
+// --------------------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 2026-02-23 (YYYY-MM-DD)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// --------------------------------------------------------------------------------------------
+
 package flaggi.client.ui;
 
 import java.awt.Color;
@@ -40,9 +49,9 @@ public class DebugOverlay extends Renderable {
 	public void render(VhGraphics g, Container focusCycleRootAncestor) {
 		g.setColor(Color.BLACK);
 		g.setFont(Constants.FONT, 5);
-		int height = g.raw().getFontMetrics().getHeight() + px(0.5);
+		int height = g.raw().getFontMetrics().getHeight() + px(0.05);
 		for (int i = 0; i < data.size(); i++) {
-			g.drawString(data.get(i), 2, height * (i + 1));
+			g.drawString(data.get(i), 2, (height / 2) * (i + 1));
 		}
 	}
 }
