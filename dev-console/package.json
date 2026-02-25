@@ -1,0 +1,12 @@
+{
+    "name": "flaggi-dev-console",
+    "version": "1.0.0",
+    "description": "Flaggi development console for easy project testing",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "electron": "^28.0.0"
+    }
+}

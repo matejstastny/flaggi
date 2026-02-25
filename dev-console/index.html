@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flaggi Dev</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --blue: #3b82f6;
+    --accent: #6366f1;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* ── Toolbar ── */
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  #toolbar h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+
+  #status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  #status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.2s;
+  }
+
+  .status-running  #status-dot { background: var(--green); animation: pulse 2s infinite; }
+  .status-building #status-dot { background: var(--yellow); animation: pulse 0.8s infinite; }
+  .status-error    #status-dot { background: var(--red); }
+  .status-stopped  #status-dot { background: var(--muted); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .spacer { flex: 1; }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  #btn-rebuild {
+    background: var(--accent);
+    color: #fff;
+    min-width: 110px;
+  }
+
+  #btn-rebuild.building {
+    background: var(--yellow);
+    color: #000;
+  }
+
+  #btn-stop {
+    background: var(--surface);
+    color: var(--red);
+    border: 1px solid var(--border);
+  }
+
+  #btn-clear {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* ── Log panels ── */
+  #panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .panel-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-badge {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--muted);
+  }
+
+  .log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 10px;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    font-size: 11px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #94a3b8;
+    scroll-behavior: smooth;
+  }
+
+  .log::-webkit-scrollbar { width: 5px; }
+  .log::-webkit-scrollbar-track { background: transparent; }
+  .log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* colorize common log patterns */
+  .log .err  { color: var(--red); }
+  .log .warn { color: var(--yellow); }
+  .log .ok   { color: var(--green); }
+  .log .info { color: var(--blue); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="toolbar">
+    <h1>⚑ FLAGGI DEV</h1>
+
+    <div id="status-pill" class="status-stopped">
+      <div id="status-dot"></div>
+      <span id="status-text">stopped</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <button id="btn-clear">Clear logs</button>
+    <button id="btn-stop">Stop all</button>
+    <button id="btn-rebuild">▶ Rebuild</button>
+  </div>
+
+  <div id="panels">
+    <div class="panel" id="panel-server">
+      <div class="panel-header">
+        <span class="panel-label">Server</span>
+        <span class="panel-badge" id="server-lines">0 lines</span>
+      </div>
+      <div class="log" id="log-server"></div>
+    </div>
+
+    <div class="panel" id="panel-c1">
+      <div class="panel-header">
+        <span class="panel-label">Client 1</span>
+        <span class="panel-badge" id="c1-lines">0 lines</span>
+      </div>
+      <div class="log" id="log-c1"></div>
+    </div>
+
+    <div class="panel" id="panel-c2">
+      <div class="panel-header">
+        <span class="panel-label">Client 2</span>
+        <span class="panel-badge" id="c2-lines">0 lines</span>
+      </div>
+      <div class="log" id="log-c2"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const statusLabels = {
+    stopped:          "stopped",
+    stopping:         "stopping…",
+    building:         "building…",
+    "starting-server": "starting server…",
+    "starting-clients":"starting clients…",
+    running:          "running",
+    error:            "build failed",
+    "server-crashed": "server crashed",
+  };
+
+  const pill = document.getElementById("status-pill");
+  const statusText = document.getElementById("status-text");
+  const btnRebuild = document.getElementById("btn-rebuild");
+  const btnStop = document.getElementById("btn-stop");
+  const btnClear = document.getElementById("btn-clear");
+
+  const logEls = {
+    "server-log":  document.getElementById("log-server"),
+    "client1-log": document.getElementById("log-c1"),
+    "client2-log": document.getElementById("log-c2"),
+  };
+
+  const lineCountEls = {
+    "server-log":  document.getElementById("server-lines"),
+    "client1-log": document.getElementById("c1-lines"),
+    "client2-log": document.getElementById("c2-lines"),
+  };
+
+  const lineCounts = { "server-log": 0, "client1-log": 0, "client2-log": 0 };
+
+  function colorize(text) {
+    return text
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/(error|exception|failed|FAILED|BUILD FAILED)/gi, '<span class="err">$1</span>')
+      .replace(/(warning|WARN)/gi, '<span class="warn">$1</span>')
+      .replace(/(BUILD SUCCESSFUL|started|ready|listening)/gi, '<span class="ok">$1</span>')
+      .replace(/(INFO|DEBUG)/gi, '<span class="info">$1</span>');
+  }
+
+  function appendLog(channel, text) {
+    const el = logEls[channel];
+    if (!el) return;
+
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+    const span = document.createElement("span");
+    span.innerHTML = colorize(text);
+    el.appendChild(span);
+
+    const lines = (text.match(/\n/g) || []).length;
+    lineCounts[channel] += lines;
+    lineCountEls[channel].textContent = lineCounts[channel] + " lines";
+
+    if (atBottom) el.scrollTop = el.scrollHeight;
+  }
+
+  function setStatus(s) {
+    pill.className = "status-" + (s === "running" ? "running" : s.includes("build") ? "building" : s === "error" || s === "server-crashed" ? "error" : "stopped");
+    statusText.textContent = statusLabels[s] ?? s;
+  }
+
+  function setButtonState(state) {
+    if (state === "building") {
+      btnRebuild.textContent = "Building…";
+      btnRebuild.classList.add("building");
+      btnRebuild.disabled = true;
+    } else {
+      btnRebuild.textContent = "▶ Rebuild";
+      btnRebuild.classList.remove("building");
+      btnRebuild.disabled = false;
+    }
+  }
+
+  // Wire up IPC
+  window.api.onLog("server-log",  (d) => appendLog("server-log", d));
+  window.api.onLog("client1-log", (d) => appendLog("client1-log", d));
+  window.api.onLog("client2-log", (d) => appendLog("client2-log", d));
+  window.api.onStatus(setStatus);
+  window.api.onButtonState(setButtonState);
+
+  btnRebuild.addEventListener("click", () => window.api.rebuild());
+  btnStop.addEventListener("click", () => window.api.killAll());
+  btnClear.addEventListener("click", () => {
+    for (const [ch, el] of Object.entries(logEls)) {
+      el.innerHTML = "";
+      lineCounts[ch] = 0;
+      lineCountEls[ch].textContent = "0 lines";
+    }
+  });
+</script>
+</body>
+</html>

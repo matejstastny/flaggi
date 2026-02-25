@@ -25,3 +25,7 @@ distribution
 # Development server directory
 # A server for testing is setup in here
 server-temp
+
+# Node
+node_modules
+package-lock.json
