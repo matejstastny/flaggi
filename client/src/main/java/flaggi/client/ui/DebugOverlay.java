@@ -39,7 +39,7 @@ public class DebugOverlay extends Renderable {
 			data.add("Username: " + g.getUsername());
 			data.add("X position: " + g.getX());
 			data.add("Y position: " + g.getY());
-			data.add("Y position: " + g.getHp());
+			data.add("Hitpoints: " + g.getHp());
 		} catch (Exception e) {
 			data.add("N/A");
 		}
