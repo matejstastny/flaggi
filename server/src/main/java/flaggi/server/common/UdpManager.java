@@ -9,6 +9,7 @@
 
 package flaggi.server.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -93,7 +94,7 @@ public class UdpManager implements Runnable {
 
 	private void processPacket(DatagramPacket packet) {
 		try {
-			ClientStateUpdate message = ClientStateUpdate.parseFrom(packet.getData());
+			ClientStateUpdate message = ClientStateUpdate.parseFrom(new ByteArrayInputStream(packet.getData(), 0, packet.getLength()));
 			if (message == null) {
 				Logger.log(LogLevel.WRN, "Received null ClientStateUpdate from " + packet.getAddress());
 				return;

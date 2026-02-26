@@ -2,7 +2,7 @@
 // GameManager.java - Manages game state and logic on the client side
 // ------------------------------------------------------------------------------
 // Author: Matej Stastny
-// Date: 06-21-2025 (MM-DD-YYYY)
+// Date: 2025-06-21 (MM-DD-YYYY)
 // License: MIT
 // Link: https://github.com/matejstastny/flaggi
 // ------------------------------------------------------------------------------
@@ -12,13 +12,15 @@ package flaggi.client.common;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.Closeable;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.EnumSet;
+import java.util.Set;
 
 import flaggi.client.network.UdpManager;
 import flaggi.client.ui.DebugGame;
 import flaggi.client.ui.DebugOverlay;
-import flaggi.client.ui.GameUi;
+import flaggi.proto.ClientMessages.ClientKey;
+import flaggi.proto.ClientMessages.ClientKeyInput;
+import flaggi.proto.ClientMessages.ClientMouseInput;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.ServerJoinGame;
 import flaggi.proto.ServerMessages.ServerStateUpdate;
@@ -30,13 +32,18 @@ import flaggi.shared.ui.GPanel.AbstractInteractableHandler;
 
 public class GameManager implements Closeable, Updatable {
 
-	private final BlockingQueue<ClientStateUpdate> outgoing = new LinkedBlockingQueue<>();
 	private final String uuid;
 	private final String gameUuid;
+	private final UdpManager udpManager;
+	private final GPanel gpanel;
+
+	// Player inputs
+	private volatile Set<ClientKey> heldKeys = EnumSet.noneOf(ClientKey.class);
+	private volatile boolean inputDirty = false;
+	private volatile int mouseScreenX = 0;
+	private volatile int mouseScreenY = 0;
+
 	private DebugOverlay debugOverlay;
-	private UdpManager udpManager;
-	private GameUi gameUi;
-	private GPanel gpanel;
 
 	// Constructor --------------------------------------------------------------
 
@@ -45,7 +52,7 @@ public class GameManager implements Closeable, Updatable {
 		this.udpManager = udpManager;
 		this.gpanel = gpanel;
 		this.uuid = uuid;
-		addInteractHandeler();
+		addInteractHandler();
 		setupGameUi(message.getRoomWidth(), message.getRoomHeight());
 		debugOverlay = new DebugOverlay();
 		gpanel.add(debugOverlay);
@@ -61,13 +68,28 @@ public class GameManager implements Closeable, Updatable {
 	@Override
 	public void update() {
 		ServerStateUpdate latest = udpManager.getLatestUpdate();
-		this.debugOverlay.update(latest);
-		// this.gameUi.updateGameUi(latest);
+		if (latest != null) {
+			debugOverlay.update(latest);
+		}
 
-		// ClientStateUpdate outgoingUpdate;
-		// while ((outgoingUpdate = outgoing.poll()) != null) {
-		// udpManager.send(outgoingUpdate.toBuilder().setGameUuid(gameUuid).setPlayerUuid(uuid).build());
-		// }
+		if (!inputDirty) {
+			return;
+		}
+		inputDirty = false;
+
+		// TODO broken conversion
+		int worldMouseX = mouseScreenX;
+		int worldMouseY = mouseScreenY;
+		if (latest != null && latest.hasMe()) {
+			int screenCentreX = gpanel.getWidth() / 2;
+			int screenCentreY = gpanel.getHeight() / 2;
+			worldMouseX = (int) (latest.getMe().getX() + (mouseScreenX - screenCentreX));
+			worldMouseY = (int) (latest.getMe().getY() + (mouseScreenY - screenCentreY));
+		}
+
+		Set<ClientKey> keySnapshot = heldKeys;
+		ClientStateUpdate outgoing = ClientStateUpdate.newBuilder().setPlayerUuid(uuid).setGameUuid(gameUuid).setClientMouseInput(ClientMouseInput.newBuilder().setX(worldMouseX).setY(worldMouseY).build()).setClientKeyInput(ClientKeyInput.newBuilder().addAllHeldKeys(keySnapshot).build()).build();
+		udpManager.send(outgoing);
 	}
 
 	// UI -----------------------------------------------------------------------
@@ -83,24 +105,81 @@ public class GameManager implements Closeable, Updatable {
 	// Input handeling ----------------------------------------------------------
 
 	private void sendClientMouseUpdate(MouseEvent e) {
-		// TODO
+		mouseScreenX = e.getX();
+		mouseScreenY = e.getY();
+		inputDirty = true;
 	}
 
-	private void sendClientKeyAction(KeyEvent e) {
-		// TODO
+	private void onKeyPressed(KeyEvent e) {
+		ClientKey key = toClientKey(e.getKeyCode());
+		if (key == null)
+			return;
+
+		Set<ClientKey> updated = EnumSet.copyOf(heldKeys.isEmpty() ? EnumSet.noneOf(ClientKey.class) : heldKeys);
+		updated.add(key);
+		heldKeys = updated;
+		inputDirty = true;
 	}
 
-	private void addInteractHandeler() {
+	private void onKeyReleased(KeyEvent e) {
+		ClientKey key = toClientKey(e.getKeyCode());
+		if (key == null)
+			return;
+
+		Set<ClientKey> updated = EnumSet.copyOf(heldKeys.isEmpty() ? EnumSet.noneOf(ClientKey.class) : heldKeys);
+		updated.remove(key);
+		heldKeys = updated;
+		inputDirty = true;
+	}
+
+	private static ClientKey toClientKey(int keyCode) {
+		return switch (keyCode) {
+		case KeyEvent.VK_W, KeyEvent.VK_UP -> ClientKey.KEY_UP;
+		case KeyEvent.VK_S, KeyEvent.VK_DOWN -> ClientKey.KEY_DOWN;
+		case KeyEvent.VK_A, KeyEvent.VK_LEFT -> ClientKey.KEY_LEFT;
+		case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> ClientKey.KEY_RIGHT;
+		case KeyEvent.VK_SPACE, KeyEvent.VK_F -> ClientKey.KEY_SHOOT;
+		default -> null;
+		};
+	}
+
+	private void addInteractHandler() {
 		this.gpanel.setInteractableHandler(new AbstractInteractableHandler() {
+
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseMoved(MouseEvent e) {
 				sendClientMouseUpdate(e);
 			}
 
 			@Override
+			public void mouseDragged(MouseEvent e) {
+				sendClientMouseUpdate(e);
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				onKeyPressed(makeSyntheticShootEvent());
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				onKeyReleased(makeSyntheticShootEvent());
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				onKeyPressed(e);
+			}
+
+			@Override
 			public void keyReleased(KeyEvent e) {
-				sendClientKeyAction(e);
+				onKeyReleased(e);
 			}
 		});
+	}
+
+	private static KeyEvent makeSyntheticShootEvent() {
+		return new KeyEvent(new java.awt.Component() {
+		}, KeyEvent.KEY_PRESSED, 0, 0, KeyEvent.VK_F, KeyEvent.CHAR_UNDEFINED);
 	}
 }

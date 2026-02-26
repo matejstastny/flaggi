@@ -62,7 +62,7 @@ public class ClientHandler implements Runnable {
 			Logger.log(LogLevel.ERR, "An IOException occurred in ClientHandler", e);
 		} finally {
 			if (client != null) {
-				Logger.log(LogLevel.INF, "Client disconnected: " + client.name());
+				Logger.log(LogLevel.INF, "Client disconnected: " + client.username());
 				clients.remove(client.uuid());
 			}
 			try {

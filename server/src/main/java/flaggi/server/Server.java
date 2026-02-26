@@ -134,7 +134,7 @@ public class Server implements Updatable {
 		Map<String, String> idleClients = new HashMap<>();
 		for (Client client : clients.values()) {
 			if (!client.uuid().equals(uuid)) {
-				idleClients.put(client.uuid(), client.name());
+				idleClients.put(client.uuid(), client.username());
 			}
 		}
 		return idleClients;
@@ -215,7 +215,7 @@ public class Server implements Updatable {
 			GameManager g = new GameManager(gameUuid, gameClients, activeGames, udpManager);
 			this.activeGames.put(gameUuid, g);
 			this.updateLoop.add(g);
-			Logger.log(LogLevel.INF, "Game created with clients: " + gameClients[0].name() + " and " + gameClients[1].name());
+			Logger.log(LogLevel.INF, "Game created with clients: " + gameClients[0].username() + " and " + gameClients[1].username());
 			Logger.log(LogLevel.DBG, "Game UUID: " + gameUuid);
 		}
 	}

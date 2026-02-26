@@ -49,7 +49,7 @@ public class Client {
 		return uuid;
 	}
 
-	public String name() {
+	public String username() {
 		return name;
 	}
 
