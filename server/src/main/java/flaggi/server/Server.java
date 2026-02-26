@@ -29,6 +29,7 @@ import flaggi.proto.ServerMessages.IdleClientList;
 import flaggi.proto.ServerMessages.ServerInvite;
 import flaggi.proto.ServerMessages.ServerMessage;
 import flaggi.server.client.Client;
+import flaggi.server.common.DebugServer;
 import flaggi.server.common.GameManager;
 import flaggi.server.common.TcpListener;
 import flaggi.server.common.UdpManager;
@@ -64,6 +65,7 @@ public class Server implements Updatable {
 		this.tcpListener = new TcpListener(Constants.TCP_PORT, tcpMessageQueue, clients);
 		this.udpManager = new UdpManager(Constants.UDP_PORT, udpPacketQueue);
 		this.updateLoop = new UpdateLoop(Constants.UPDATE_INTERVAL_MS);
+		DebugServer.start();
 		this.threads = Executors.newFixedThreadPool(4);
 		this.updateLoop.add(this);
 		initializeThreads();
@@ -124,6 +126,7 @@ public class Server implements Updatable {
 			threads.shutdownNow();
 			Thread.currentThread().interrupt();
 		}
+		DebugServer.stop();
 		Logger.log(LogLevel.INF, "Server shut down.");
 	}
 

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flaggi Dev Console</title>
+
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/toolbar.css" />
+    <link rel="stylesheet" href="styles/panels.css" />
+    <link rel="stylesheet" href="styles/gamestate.css" />
+</head>
+
+<body>
+    <div id="app">
+
+        <!-- ── Toolbar ─────────────────────────────────────────────────────────── -->
+        <div id="toolbar">
+            <div id="app-name"><span class="flag-r">FLAG</span><span class="flag-b">GI</span><span
+                    class="flag-dev">DEV</span></div>
+
+            <div id="status-pill" class="s-stopped">
+                <div id="status-dot"></div>
+                <span id="status-text">stopped</span>
+            </div>
+
+            <div class="spacer"></div>
+
+            <button id="btn-clear">Clear logs</button>
+            <button id="btn-stop">Stop all</button>
+            <button id="btn-rebuild">▶ Rebuild</button>
+        </div>
+
+        <!-- ── Main content ────────────────────────────────────────────────────── -->
+        <div id="main" style="display:flex;flex-direction:column;flex:1;min-height:0;gap:10px;">
+
+            <!-- Log panels -->
+            <div id="log-row">
+
+                <div class="panel" id="panel-server">
+                    <div class="panel-header">
+                        <span class="panel-label">Server</span>
+                        <span class="panel-badge" id="server-stamp" style="display:none"></span>
+                        <span class="panel-badge panel-badge-right" id="server-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-server"></div>
+                </div>
+
+                <div class="panel" id="panel-client1">
+                    <div class="panel-header">
+                        <span class="panel-label">Client 1</span>
+                        <span class="panel-badge" id="client1-stamp" style="display:none"></span>
+                        <span class="panel-badge panel-badge-right" id="c1-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-c1"></div>
+                </div>
+
+                <div class="panel" id="panel-client2">
+                    <div class="panel-header">
+                        <span class="panel-label">Client 2</span>
+                        <span class="panel-badge" id="client2-stamp" style="display:none"></span>
+                        <span class="panel-badge panel-badge-right" id="c2-lines">0 lines</span>
+                    </div>
+                    <div class="log" id="log-c2"></div>
+                </div>
+
+            </div>
+
+            <!-- Game state panel -->
+            <div class="panel" id="game-panel">
+
+                <div id="minimap-wrap">
+                    <div class="panel-header">
+                        <span class="panel-label">Game State</span>
+                        <span class="panel-badge panel-badge-right" id="tick-badge">no game</span>
+                    </div>
+                    <canvas id="minimap-canvas"></canvas>
+                </div>
+
+                <div id="player-cards">
+                    <div class="panel-header">
+                        <span class="panel-label">Players</span>
+                    </div>
+                    <div id="cards-inner">
+                        <div id="no-game">No active game</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Load scripts in dependency order as classic scripts -->
+    <script src="scripts/ansi.js"></script>
+    <script src="scripts/logs.js"></script>
+    <script src="scripts/gamestate.js"></script>
+    <script src="scripts/ipc.js"></script>
+</body>
+
+</html>

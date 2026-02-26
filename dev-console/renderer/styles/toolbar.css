@@ -1,0 +1,134 @@
+#toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+#app-name {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+#app-name .flag-r {
+    color: var(--red);
+}
+
+#app-name .flag-b {
+    color: var(--blue-bright);
+}
+
+#app-name .flag-dev {
+    color: var(--muted-2);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    margin-left: 6px;
+    vertical-align: middle;
+    position: relative;
+    top: 1px;
+}
+
+#status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 999px;
+    padding: 3px 11px;
+    font-size: 11px;
+    color: var(--muted-2);
+}
+
+#status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+#status-pill.s-running #status-dot {
+    background: var(--ok);
+    animation: blink 2.4s infinite;
+}
+
+#status-pill.s-building #status-dot {
+    background: var(--warn);
+    animation: blink 0.7s infinite;
+}
+
+#status-pill.s-error #status-dot {
+    background: var(--red);
+}
+
+#status-pill.s-stopped #status-dot {
+    background: var(--muted);
+}
+
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.25;
+    }
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius);
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: filter 0.12s, transform 0.08s;
+    -webkit-app-region: no-drag;
+}
+
+button:hover {
+    filter: brightness(1.12);
+}
+
+button:active {
+    transform: scale(0.96);
+    filter: brightness(0.95);
+}
+
+button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    filter: none;
+}
+
+#btn-rebuild {
+    background: var(--blue);
+    color: #fff;
+    min-width: 108px;
+    box-shadow: 0 0 14px var(--blue-glow);
+}
+
+#btn-rebuild.building {
+    background: var(--warn);
+    color: #0a0d14;
+    box-shadow: none;
+}
+
+#btn-stop {
+    background: var(--surface-2);
+    color: var(--red);
+    border: 1px solid var(--border-2);
+}
+
+#btn-clear {
+    background: var(--surface-2);
+    color: var(--muted-2);
+    border: 1px solid var(--border);
+}
