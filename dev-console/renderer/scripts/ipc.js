@@ -37,6 +37,7 @@ window.api.onStatus((s) => {
     statusText.textContent = STATUS_LABELS[s] ?? s
 
     if (s === "running") startPolling()
+    if (s === "stopping") clearLogs()
     if (s === "stopped" || s === "error" || s === "stopping") stopPolling()
 })
 
