@@ -43,9 +43,11 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow()
-    if (app.dock) {
-        app.dock.setIcon(FLAGGI_ROOT, "assets", "icons", "console_icon.png")
-    }
+    // const path = require("path")
+    // if (app.dock) {
+    //     const iconPath = path.join(FLAGGI_ROOT, "assets", "icons", "flaggi.icns")
+    //     app.dock.setIcon(iconPath)
+    // }
 })
 app.setName("Flaggi Dev Console")
 app.on("before-quit", () => killAll())
