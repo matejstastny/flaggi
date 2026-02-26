@@ -219,7 +219,9 @@ public class App implements Updatable {
 
 	private GPanel getDefaultGpanel() {
 		int[] screenSize = ScreenUtil.getScreenDimensions();
-		GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
+		int w = (int) Math.round(screenSize[0] * 0.4);
+		int h = (int) Math.round(screenSize[1] * 0.4);
+		GPanel gp = new GPanel(w, h, Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
 		if (Constants.FRAMERATE >= 0) {
 			gp.setFpsCap(Constants.FRAMERATE);
 		}
