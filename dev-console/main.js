@@ -3,11 +3,13 @@ const { spawn } = require("child_process")
 const path = require("path")
 
 // ── CONFIG ───────────────────────────────────────────────────────────────────
+
 const FLAGGI_ROOT = path.resolve(__dirname, "..")
 const WRAPPER_SH = path.join(FLAGGI_ROOT, "scripts", "run-wrapper.sh")
 
 const SERVER_READY_PATTERN = /Application start/
 const SERVER_READY_TIMEOUT_MS = 60_000
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 let win
