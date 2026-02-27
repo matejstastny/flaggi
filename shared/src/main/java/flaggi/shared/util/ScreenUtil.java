@@ -12,7 +12,6 @@ package flaggi.shared.util;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 
 /**
  * Utility class for getting screen-related information such as dimensions.
@@ -34,8 +33,10 @@ public class ScreenUtil {
 	 * @return a {@code Position} object containing the screen's width and height.
 	 */
 	public static int[] getScreenDimensions() {
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		return new int[] { screenSize.width, screenSize.height };
+		// Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		// return new int[] { screenSize.width, screenSize.height };
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		return new int[] { gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight() };
 	}
 
 	/**

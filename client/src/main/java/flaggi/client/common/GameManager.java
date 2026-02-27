@@ -16,7 +16,6 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import flaggi.client.network.UdpManager;
-import flaggi.client.ui.DebugGame;
 import flaggi.client.ui.DebugOverlay;
 import flaggi.proto.ClientMessages.ClientKey;
 import flaggi.proto.ClientMessages.ClientKeyInput;
@@ -97,7 +96,6 @@ public class GameManager implements Closeable, Updatable {
 	private void setupGameUi(int width, int height) {
 		// this.gpanel.removeWidgetsOfClass(GameUi.class);
 		// this.gameUi = new GameUi(new int[] { width, height });
-		gpanel.add(new DebugGame());
 		Logger.log(LogLevel.DBG, "Set up game UI with room size [" + width + ", " + height + "]");
 		// this.gpanel.add(gameUi);
 	}

@@ -1,17 +1,23 @@
 Flaggi 2.0:
 ----------
 
+    ✔ MIGRATE TO DEVCONTAINER @done(26-02-26 23:09)
+    ✔ Fix APP_DATA path from old uname to my current one @done(26-02-26 23:08)
+    - Add env var to positionally launch windows from the console
+    - Fix devcontainer not having correct time (thats why tons of these todo dates are at midnight)
+
     Game loop and game rendering:
-        - Figure out how the server will have data about what sprites exist (GameUi:88) @started(25-08-18 22:32)
+        ✘ Figure out how the server will have data about what sprites exist (GameUi:88) @started(25-08-18 22:32) @cancelled(26-02-26 23:03) @wasted(27w3d31m21s)
+        - Render the game @started(26-02-26 23:05)
 
-    Input UDP sending:
-        - Fix px to vh conversion resulting in Infinity (GameManager:sendInputUpdate) @started(25-09-30 14:34)
+    ✔ Input UDP sending: @done(26-02-26 23:06)
+        ✔ Fix px to vh conversion resulting in Infinity (GameManager:sendInputUpdate) @started(25-09-30 14:34) @done(26-02-26 23:03) @lasted(21w2d8h29m50s)
         ✔ Handle input events internally, and send actions like move left, move right, jump, shoot etc. @done(25-10-01 13:50)
-        - Implement client update sender methods (GameManager)
-        - Implement Keybinder class (Keybinder)
+        ✔ Implement client update sender methods (GameManager) @done(26-02-26 23:03)
+        - Implement Keybinder class (Keybinder) @started(26-02-26 23:04)
 
-    Server-to-client UDP updates:
-        - Implement periodically sending position updates to client @started(25-10-01 13:54)
+    ✔ Server-to-client UDP updates: @done(26-02-26 23:06)
+        ✔ Implement periodically sending position updates to client @started(25-10-01 13:54) @done(26-02-26 23:04) @lasted(21w1d9h10m9s)
 
     README:
         - Update the README
@@ -20,29 +26,33 @@ Flaggi 2.0:
 After 2.0 is finished:
 ---------------------
 
+    ✔ Add a development console for easier testing @done(26-02-26 23:06)
+    - Make a leaderboard website
+    - Make a database
+
     1. Fixes:
         ✔ The run_dev script logs don't have a space before them, but the java app logs do @done(25-09-30 13:05)
         - When the client app window is resized by the user to 0, it throws and unhandeled exception
         - Fix server TCP manager starting after the UDP manager (should be the other way)
         - When exiting the client app the log says "shutting down". Replace to "exiting"
-        - Add a proper Kotlin formatter
+        ✔ Add a proper Kotlin formatter @done(26-02-26 23:04)
 
     2. Updates:
         ✔ Update to latest Java version @done(25-11-20 00:03)
         ✔ Update to latest Gradle version @done(25-11-20 00:04)
-        - Update the Java version in Dockerfile
+        - Update the Java version in the server Dockerfile
 
     3. Features:
-        - Add an intro Ascii banner to all script console outputs
-        - Add a config option to turn of stack traces in the console output
+        ✘ Add an intro Ascii banner to all script console outputs @cancelled(26-02-26 23:04) @reason(Script & log output redesigned)
+        ✘ Add a config option to turn of stack traces in the console output @cancelled(26-02-26 23:07)
 
     4. Documentation:
-        - Make Github pages wiki
+        - Make Github pages wiki (for devel notes) cancelled maybe?
 
     5. Scripts:
         ✔ Make the run_dev script work when called from another directory (not the scripts directory) @done(25-11-20 16:19)
         ✘ Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.) @cancelled(25-11-20 16:19)
-        - Fix package script & make it more clean
+        ✔ Fix package script & make it more clean @done(26-02-26 23:05)
 
     6. Testing:
         - Make tests. How? Beats me...

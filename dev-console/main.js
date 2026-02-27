@@ -100,11 +100,11 @@ function exitMessage(code) {
     return `[process exited with code ${code}]\n`
 }
 
-function spawnProc(args, logChannel, onClose) {
+function spawnProc(args, logChannel, onClose, extraEnv = {}) {
     const proc = spawn(args[0], args.slice(1), {
         cwd: FLAGGI_ROOT,
         detached: true,
-        env: { ...process.env }
+        env: { ...process.env, ...extraEnv }
     })
 
     proc.stdout.on("data", (d) => send(logChannel, d.toString()))
@@ -200,9 +200,13 @@ async function rebuild() {
     setPanelStamp("client1", clientStamp)
     setPanelStamp("client2", clientStamp)
 
-    procs.client1 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client1-log")
+    procs.client1 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client1-log", null, {
+        FLAGGI_DEV: "true"
+    })
     await sleep(500)
-    procs.client2 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client2-log")
+    procs.client2 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client2-log", null, {
+        FLAGGI_DEV: "true"
+    })
 
     setStatus("running")
     setButtonState("idle")

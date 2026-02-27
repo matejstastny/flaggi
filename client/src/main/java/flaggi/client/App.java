@@ -26,7 +26,6 @@ import flaggi.client.constants.UiTags;
 import flaggi.client.network.TcpManager;
 import flaggi.client.network.UdpManager;
 import flaggi.client.ui.ConfirmationWindow;
-import flaggi.client.ui.DebugGame;
 import flaggi.client.ui.LobbyUi;
 import flaggi.client.ui.MenuBackground;
 import flaggi.client.ui.MenuScreen;
@@ -60,7 +59,11 @@ public class App implements Updatable {
 	// Main ---------------------------------------------------------------------
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(App::new);
+		try {
+			SwingUtilities.invokeLater(App::new);
+		} catch (Exception e) {
+			handleFatalError();
+		}
 	}
 
 	public App() {
@@ -81,6 +84,11 @@ public class App implements Updatable {
 	public static void handleFatalError() {
 		Logger.log(LogLevel.ERR, "FATAL ERROR DETECTED! SHUTTING DOWN...");
 		System.exit(1);
+	}
+
+	public static boolean isDev() {
+		String env = System.getenv("FLAGGI_DEV");
+		return env != null && !env.isEmpty();
 	}
 
 	// Events -------------------------------------------------------------------
@@ -219,9 +227,11 @@ public class App implements Updatable {
 
 	private GPanel getDefaultGpanel() {
 		int[] screenSize = ScreenUtil.getScreenDimensions();
-		int w = (int) Math.round(screenSize[0] * 0.4);
-		int h = (int) Math.round(screenSize[1] * 0.4);
-		GPanel gp = new GPanel(w, h, Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
+		if (isDev()) {
+			screenSize[0] = (int) Math.round(screenSize[0] * 0.4);
+			screenSize[1] = (int) Math.round(screenSize[1] * 0.4);
+		}
+		GPanel gp = new GPanel(screenSize[0], screenSize[1], Constants.WINDOW_RESIZABLE, Constants.WINDOW_NAME);
 		if (Constants.FRAMERATE >= 0) {
 			gp.setFpsCap(Constants.FRAMERATE);
 		}
