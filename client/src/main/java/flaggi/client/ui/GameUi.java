@@ -9,13 +9,13 @@
 
 package flaggi.client.ui;
 
+import java.awt.Color;
 import java.awt.Container;
-import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.List;
 
-import flaggi.client.constants.Constants;
 import flaggi.client.constants.UiTags;
 import flaggi.client.constants.ZIndex;
 import flaggi.proto.ServerMessages.ServerGameObject;
@@ -29,75 +29,63 @@ import flaggi.shared.util.ImageUtil;
 
 public class GameUi extends Renderable {
 
-	private int[] roomSize;
+	private double camCenterX = 0, camCenterY = 0;
 	private List<ServerGameObject> objects;
-	private int cameraX, cameraY;
+	private ServerGameObject player;
+	private int[] roomSize;
+	private Image floor;
 
 	// Constructor --------------------------------------------------------------
 
 	public GameUi(int[] roomSize) {
 		super(ZIndex.GAME, PanelRegion.FULLSCREEN, UiTags.GAME);
 		this.roomSize = roomSize;
+		try {
+			this.floor = ImageUtil.createTiledImage(ImageUtil.getImageFromResource("sprites/floor-tile/floor-tile.png"), roomSize[0], roomSize[1]);
+		} catch (IOException e) {
+			Logger.log(LogLevel.WRN, "IOException while tiling floor image", e);
+		}
 	}
 
-	// Public -------------------------------------------------------------------
-
-	public void updateGameUi(ServerStateUpdate update) {
-		if (update == null) {
-			return;
-		}
-		// TODO Upate UT
+	public void update(ServerStateUpdate update) {
+		this.camCenterX = update.getMe().getX();
+		this.camCenterY = update.getMe().getY();
+		this.objects = update.getOtherList();
+		this.player = update.getMe();
 	}
 
 	// Rendering ----------------------------------------------------------------
 
 	@Override
 	public void render(VhGraphics g, Container focusCycleRootAncestor) {
-		// renderFloor(g, focusCycleRootAncestor);
-		// objects.forEach(object -> renderServerGameObject(object, g,
-		// focusCycleRootAncestor));
+		// UI ------------
+
+		// World ---------
+		AffineTransform original = g.raw().getTransform();
+		g.raw().translate(px(-camCenterX + 50), px(-camCenterY + 50));
+
+		renderFloor(g, focusCycleRootAncestor);
+		if (this.objects != null) {
+			this.objects.stream().forEach(o -> renderGameObject(o, g, focusCycleRootAncestor));
+		}
+		if (player != null) {
+			renderGameObject(player, g, focusCycleRootAncestor);
+		}
+
+		g.raw().setTransform(original);
 	}
 
-	private void renderServerGameObject(ServerGameObject object, Graphics2D g, Container focusCycleRootAncestor) {
-		// TODO
-		// if (object == null) {
-		// return;
-		// }
-		// Image sprite = getSprite(object.getSpriteName(), object.getAnimationName(),
-		// object.getFrame());
-		// if (sprite != null) {
-		// int xPos = object.getX() - cameraX;
-		// int yPos = object.getY() - cameraY;
-		// g.drawImage(sprite, xPos, yPos, focusCycleRootAncestor);
-		// }
+	private void renderFloor(VhGraphics g, Container focusCycleRootAncestor) {
+		g.setColor(Color.GRAY);
+		g.drawImage(this.floor, 0, 0, roomSize[0], roomSize[1]);
+		g.setColor(Color.RED);
 	}
 
-	private void renderFloor(Graphics2D g, Container focusCycleRootAncestor) {
-		Image floorSprite;
-		try {
-			floorSprite = ImageUtil.createRepeatedImage(getSprite("floor", "default", 0), roomSize[0], roomSize[1]);
-		} catch (IOException e) {
-			floorSprite = null;
-			Logger.log(LogLevel.ERR, "Failed to create repeated floor sprite: " + e.getMessage());
-		}
-		if (floorSprite != null) {
-			g.drawImage(floorSprite, -cameraX, -cameraY, focusCycleRootAncestor);
-		}
-	}
+	private void renderGameObject(ServerGameObject o, VhGraphics g, Container focusCycleRootAncestor) {
 
-	// Helpers ------------------------------------------------------------------
-
-	private Image getSprite(String spriteName, String animationName, int frameIndex) {
-		String path = Constants.SPRITES_RES_DIR + "/" + spriteName + "/" + animationName + "/" + frameIndex + ".png";
-		Image sprite = null;
-		try {
-			sprite = ImageUtil.getImageFromResource(path);
-		} catch (IOException e) {
-			sprite = null;
-		}
-		if (sprite == null) {
-			Logger.log(LogLevel.ERR, "Failed to load sprite: " + path);
-		}
-		return sprite;
+		// Hitbox KEEP ON BOTTOM
+		g.setColor(Color.RED);
+		g.setStroke(1);
+		g.drawRect(o.getX() + o.getCollX(), o.getY() + o.getCollY(), o.getCollWidth(), o.getCollWidth());
 	}
 }

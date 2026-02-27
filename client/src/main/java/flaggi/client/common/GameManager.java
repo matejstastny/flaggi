@@ -15,8 +15,10 @@ import java.io.Closeable;
 import java.util.EnumSet;
 import java.util.Set;
 
+import flaggi.client.constants.UiTags;
 import flaggi.client.network.UdpManager;
 import flaggi.client.ui.DebugOverlay;
+import flaggi.client.ui.GameUi;
 import flaggi.proto.ClientMessages.ClientKey;
 import flaggi.proto.ClientMessages.ClientKeyInput;
 import flaggi.proto.ClientMessages.ClientMouseInput;
@@ -43,6 +45,7 @@ public class GameManager implements Closeable, Updatable {
 	private volatile int mouseScreenY = 0;
 
 	private DebugOverlay debugOverlay;
+	private GameUi gameUi;
 
 	// Constructor --------------------------------------------------------------
 
@@ -52,13 +55,12 @@ public class GameManager implements Closeable, Updatable {
 		this.gpanel = gpanel;
 		this.uuid = uuid;
 		addInteractHandler();
-		setupGameUi(message.getRoomWidth(), message.getRoomHeight());
-		debugOverlay = new DebugOverlay();
-		gpanel.add(debugOverlay);
+		setupUi(message.getRoomWidth(), message.getRoomHeight());
 	}
 
 	@Override
 	public void close() {
+		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.GAME, false);
 		this.gpanel.setInteractableHandler(null);
 	}
 
@@ -67,8 +69,11 @@ public class GameManager implements Closeable, Updatable {
 	@Override
 	public void update() {
 		ServerStateUpdate latest = udpManager.getLatestUpdate();
-		if (latest != null) {
+		if (latest != null && debugOverlay != null) {
 			debugOverlay.update(latest);
+		}
+		if (latest != null && gameUi != null) {
+			gameUi.update(latest);
 		}
 
 		if (!inputDirty) {
@@ -93,11 +98,16 @@ public class GameManager implements Closeable, Updatable {
 
 	// UI -----------------------------------------------------------------------
 
-	private void setupGameUi(int width, int height) {
-		// this.gpanel.removeWidgetsOfClass(GameUi.class);
-		// this.gameUi = new GameUi(new int[] { width, height });
+	private void setupUi(int width, int height) {
+		this.gpanel.removeWidgetsOfClass(DebugOverlay.class);
+		this.gpanel.removeWidgetsOfClass(GameUi.class);
+
+		this.gameUi = new GameUi(new int[] { width, height });
+		this.debugOverlay = new DebugOverlay();
+
 		Logger.log(LogLevel.DBG, "Set up game UI with room size [" + width + ", " + height + "]");
-		// this.gpanel.add(gameUi);
+		this.gpanel.add(gameUi, debugOverlay);
+		this.gpanel.toggleTaggedWidgetsVisibility(UiTags.GAME, true);
 	}
 
 	// Input handeling ----------------------------------------------------------

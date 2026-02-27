@@ -54,7 +54,7 @@ public class ImageUtil {
 	 * @return the repeated image.
 	 * @throws IOException if there is an error reading the image.
 	 */
-	public static BufferedImage createRepeatedImage(Image image, int width, int height) throws IOException {
+	public static BufferedImage createTiledImage(Image image, int width, int height) throws IOException {
 		BufferedImage originalImage = imageToBufferedImage(image);
 		BufferedImage repeatedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = repeatedImage.createGraphics();

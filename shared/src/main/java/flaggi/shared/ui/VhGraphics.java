@@ -9,6 +9,7 @@
 
 package flaggi.shared.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -30,6 +31,10 @@ public class VhGraphics {
 		return (int) (vh * pxPerVh);
 	}
 
+	public void drawRect(double x, double y, double w, double h) {
+		g.drawRect(px(x), px(y), px(w), px(h));
+	}
+
 	public void fillRect(double x, double y, double w, double h) {
 		g.fillRect(px(x), px(y), px(w), px(h));
 	}
@@ -44,6 +49,10 @@ public class VhGraphics {
 
 	public void setFont(Font font, int style, double sizevh) {
 		g.setFont(font.deriveFont(style, px(sizevh)));
+	}
+
+	public void setStroke(int w) {
+		g.setStroke(new BasicStroke(px(w)));
 	}
 
 	public void drawImage(Image img, double x, double y, double w, double h) {

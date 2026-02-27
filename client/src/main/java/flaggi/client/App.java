@@ -152,7 +152,7 @@ public class App implements Updatable {
 		setConfigField("server.ip", ipInput);
 		Entry<String, Integer> ip = verifyServerIp(ipInput);
 		if (ip.getValue() == null) {
-			Logger.log(LogLevel.ERR, ip.getKey() + " for ip input '" + ipInput + "'");
+			Logger.log(LogLevel.WRN, ip.getKey() + " for ip input '" + ipInput + "'");
 			return ip.getKey();
 		}
 		this.tcpManager = new TcpManager(ip.getKey(), ip.getValue(), this::disconnectFromServer);
@@ -246,8 +246,7 @@ public class App implements Updatable {
 				new MenuScreen(Constants.MENU_NAME_FIELD, Constants.MENU_IP_FIELD, this::joinServer), //
 				new MenuBackground(), //
 				this.toasts, //
-				this.confirmationWindow, //
-				new DebugGame());
+				this.confirmationWindow);
 		updatableWidgets.forEach(u -> this.gpanel.add((Renderable) u));
 		updatableWidgets.forEach(u -> updateLoop.add(u));
 		this.gpanel.toggleWidgetsVisibility(false);
