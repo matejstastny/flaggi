@@ -99,24 +99,46 @@ public class FileUtil {
 							JarEntry entry = entries.nextElement();
 							String entryName = entry.getName();
 
-							if (entryName.startsWith(path) && !entryName.equals(path)) {
-								String relativeName = entryName.substring(path.length());
+							if (!entryName.startsWith(path) || entryName.equals(path))
+								continue;
 
-								// Skip nested entries
+							String relativeName = entryName.substring(path.length());
+
+							if (extension != null && extension.isEmpty()) {
+								// Directories only — infer from any entry that has a path separator,
+								// because JAR directory entries ("idle/") are skipped by contains("/")
+								if (relativeName.contains("/")) {
+									String dirName = relativeName.substring(0, relativeName.indexOf('/'));
+									if (!dirName.isEmpty() && !results.contains(dirName)) {
+										results.add(dirName);
+									}
+								}
+							} else {
+								// Files only — skip nested entries
 								if (relativeName.contains("/"))
 									continue;
-
-								if (extension != null && extension.isEmpty()) {
-									// Directories only
-									if (entry.isDirectory()) {
+								if (!entry.isDirectory()) {
+									if (extension == null || relativeName.endsWith(extension)) {
 										results.add(relativeName);
 									}
-								} else {
-									// Files only
-									if (!entry.isDirectory()) {
-										if (extension == null || relativeName.endsWith("." + extension)) {
-											results.add(relativeName);
-										}
+								}
+							}
+						}
+					}
+				} else if ("file".equals(resource.getProtocol())) {
+					File dir = new File(resource.toURI());
+					File[] files = dir.listFiles();
+					if (files != null) {
+						for (File file : files) {
+							String name = file.getName();
+							if (extension != null && extension.isEmpty()) {
+								if (file.isDirectory()) {
+									results.add(name);
+								}
+							} else {
+								if (file.isFile()) {
+									if (extension == null || name.endsWith(extension)) {
+										results.add(name);
 									}
 								}
 							}
@@ -124,7 +146,7 @@ public class FileUtil {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 
