@@ -73,7 +73,11 @@ public class GameManager implements Closeable, Updatable {
 			debugOverlay.update(latest);
 		}
 		if (latest != null && gameUi != null) {
-			gameUi.update(latest);
+			gameUi.update(latest, heldKeys);
+		}
+
+		if (!heldKeys.isEmpty()) {
+			inputDirty = true;
 		}
 
 		if (!inputDirty) {
@@ -81,7 +85,6 @@ public class GameManager implements Closeable, Updatable {
 		}
 		inputDirty = false;
 
-		// TODO broken conversion
 		int worldMouseX = mouseScreenX;
 		int worldMouseY = mouseScreenY;
 		if (latest != null && latest.hasMe()) {
