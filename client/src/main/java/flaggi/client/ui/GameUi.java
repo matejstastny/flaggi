@@ -42,9 +42,11 @@ public class GameUi extends Renderable {
 	private static final double ZOOM = 0.5;
 	private static final int SPRITE_FPS = 8;
 
-	private volatile double serverX = 0, serverY = 0;
-	private volatile long lastUpdateNs = System.nanoTime();
+	private final Object posLock = new Object();
+	private double clientX = 0, clientY = 0;
+	private long lastRenderNs = System.nanoTime();
 	private volatile Set<ClientKey> heldKeys = EnumSet.noneOf(ClientKey.class);
+	private static final double SNAP_THRESHOLD_SQ = 60.0 * 60.0;
 
 	private List<ServerGameObject> objects;
 	private ServerGameObject player;
@@ -78,9 +80,19 @@ public class GameUi extends Renderable {
 	}
 
 	public void update(ServerStateUpdate update, Set<ClientKey> heldKeys) {
-		this.serverX = update.getMe().getX();
-		this.serverY = update.getMe().getY();
-		this.lastUpdateNs = System.nanoTime();
+		double sx = update.getMe().getX();
+		double sy = update.getMe().getY();
+		synchronized (posLock) {
+			double errX = sx - clientX;
+			double errY = sy - clientY;
+			if (errX * errX + errY * errY > SNAP_THRESHOLD_SQ) {
+				clientX = sx;
+				clientY = sy;
+			} else {
+				clientX += errX * 0.25;
+				clientY += errY * 0.25;
+			}
+		}
 		this.heldKeys = heldKeys;
 		this.objects = update.getOtherList();
 		this.player = update.getMe();
@@ -92,8 +104,12 @@ public class GameUi extends Renderable {
 	public void render(VhGraphics g, Container focusCycleRootAncestor) {
 		AffineTransform original = g.raw().getTransform();
 
-		double[] pred = (player != null) ? predictedPosition() : new double[] { serverX, serverY };
-		double predX = pred[0], predY = pred[1];
+		advanceClientPosition();
+		double predX, predY;
+		synchronized (posLock) {
+			predX = clientX;
+			predY = clientY;
+		}
 
 		int cx = px(50), cy = px(50);
 		g.raw().translate(cx, cy);
@@ -112,9 +128,12 @@ public class GameUi extends Renderable {
 		g.raw().setTransform(original);
 	}
 
-	private double[] predictedPosition() {
+	// Advance clientX/Y by held-key velocity × elapsed render-frame time.
+	// Called only from the EDT, so lastRenderNs needs no synchronization.
+	private void advanceClientPosition() {
 		long now = System.nanoTime();
-		double dtTicks = (now - lastUpdateNs) / 1_000_000.0 / 16.0;
+		double dtTicks = (now - lastRenderNs) / 1_000_000.0 / 16.0;
+		lastRenderNs = now;
 
 		Set<ClientKey> keys = this.heldKeys;
 		double dx = 0, dy = 0;
@@ -131,7 +150,10 @@ public class GameUi extends Renderable {
 			dx = Math.signum(dx) * d;
 			dy = Math.signum(dy) * d;
 		}
-		return new double[] { serverX + dx * dtTicks, serverY + dy * dtTicks };
+		synchronized (posLock) {
+			clientX += dx * dtTicks;
+			clientY += dy * dtTicks;
+		}
 	}
 
 	private void renderLocalPlayer(double x, double y, VhGraphics g, Container root) {
