@@ -49,7 +49,6 @@ import javax.swing.SwingUtilities;
 
 import flaggi.shared.common.Logger;
 import flaggi.shared.common.Logger.LogLevel;
-import flaggi.shared.ui.GPanel.InteractableHandler;
 
 /**
  * <h2>GPanel</h2> A Swing-based JPanel with custom rendering, a managed

@@ -31,7 +31,7 @@ public class UdpManager implements Runnable {
 	private final int port;
 	private final DatagramSocket socket;
 	private final BlockingQueue<ClientStateUpdate> messageQueue;
-	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(50));
+	private final PacketRateLimiter rateLimiter = new PacketRateLimiter(TimeUnit.MILLISECONDS.toMillis(16));
 
 	// Constructor --------------------------------------------------------------
 

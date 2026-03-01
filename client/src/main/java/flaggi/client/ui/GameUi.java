@@ -42,6 +42,10 @@ public class GameUi extends Renderable {
 	private static final double ZOOM = 0.5;
 	private static final int SPRITE_FPS = 8;
 
+	// Mirrors server Hitboxes
+	private static final double PLAYER_HB_OX = -2.5, PLAYER_HB_OY = -2.5, PLAYER_HB_W = 5, PLAYER_HB_H = 5;
+	private static final double TREE_HB_OX = -5, TREE_HB_OY = -5, TREE_HB_W = 10, TREE_HB_H = 10;
+
 	private final Object posLock = new Object();
 	private double clientX = 0, clientY = 0;
 	private long lastRenderNs = System.nanoTime();
@@ -88,9 +92,6 @@ public class GameUi extends Renderable {
 			if (errX * errX + errY * errY > SNAP_THRESHOLD_SQ) {
 				clientX = sx;
 				clientY = sy;
-			} else {
-				clientX += errX * 0.25;
-				clientY += errY * 0.25;
 			}
 		}
 		this.heldKeys = heldKeys;
@@ -128,7 +129,9 @@ public class GameUi extends Renderable {
 		g.raw().setTransform(original);
 	}
 
-	// Advance clientX/Y by held-key velocity × elapsed render-frame time.
+	// Advance clientX/Y by held-key velocity × elapsed render-frame time,
+	// with AABB collision against trees and room boundary clamping
+	// Mirrors server tryMove logic: diagonal → H-only → V-only
 	// Called only from the EDT, so lastRenderNs needs no synchronization.
 	private void advanceClientPosition() {
 		long now = System.nanoTime();
@@ -150,10 +153,53 @@ public class GameUi extends Renderable {
 			dx = Math.signum(dx) * d;
 			dy = Math.signum(dy) * d;
 		}
+
+		if (dx == 0 && dy == 0)
+			return;
+
+		double stepDx = dx * dtTicks;
+		double stepDy = dy * dtTicks;
+
 		synchronized (posLock) {
-			clientX += dx * dtTicks;
-			clientY += dy * dtTicks;
+			// Mirror server tryMove: diagonal → H-only → V-only
+			if (!clientCollidesWithObstacle(clientX + stepDx, clientY + stepDy)) {
+				clientX += stepDx;
+				clientY += stepDy;
+			} else if (!clientCollidesWithObstacle(clientX + stepDx, clientY)) {
+				clientX += stepDx;
+			} else if (!clientCollidesWithObstacle(clientX, clientY + stepDy)) {
+				clientY += stepDy;
+			}
+			// else: fully blocked — no movement
+
+			// Mirror server boundary clamp
+			clientX = Math.max(0, Math.min(roomSize[0], clientX));
+			clientY = Math.max(0, Math.min(roomSize[1], clientY));
 		}
+	}
+
+	// AABB check — mirrors server collidesWithObstacle(). Reads this.objects
+	// snapshot.
+	private boolean clientCollidesWithObstacle(double cx, double cy) {
+		double px1 = cx + PLAYER_HB_OX;
+		double py1 = cy + PLAYER_HB_OY;
+		double px2 = px1 + PLAYER_HB_W;
+		double py2 = py1 + PLAYER_HB_H;
+
+		List<ServerGameObject> objs = this.objects;
+		if (objs == null)
+			return false;
+		for (ServerGameObject o : objs) {
+			if (o.getType() != flaggi.proto.ServerMessages.GameObjectType.TREE)
+				continue;
+			double tx1 = o.getX() + TREE_HB_OX;
+			double ty1 = o.getY() + TREE_HB_OY;
+			double tx2 = tx1 + TREE_HB_W;
+			double ty2 = ty1 + TREE_HB_H;
+			if (px1 < tx2 && px2 > tx1 && py1 < ty2 && py2 > ty1)
+				return true;
+		}
+		return false;
 	}
 
 	private void renderLocalPlayer(double x, double y, VhGraphics g, Container root) {
