@@ -1,0 +1,84 @@
+// ------------------------------------------------------------------------------
+// client-messages.proto - Constructed by the CLIENT and processed by the SERVER
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 03-03-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
+
+syntax = "proto3";
+
+package flaggi;
+
+option java_package         = "flaggi.proto";
+option java_outer_classname = "ClientMessages";
+
+// Wrapper ----------------------------------------------------------------------
+
+message ClientMessage {
+    string uuid = 1;
+    oneof  message_type {
+        Ping                 ping                 = 2;
+        ClientHello          clientHello          = 3;
+        ClientCommand        clientCommand        = 4;
+        ClientInvite         clientInvite         = 5;
+        ClientInviteResponse clientInviteResponse = 6;
+    }
+}
+
+message ClientStateUpdate {
+    string           playerUuid       = 1;
+    string           gameUuid         = 2;
+    ClientMouseInput clientMouseInput = 3;
+    ClientKeyInput   clientKeyInput   = 4;
+}
+
+// Enums ------------------------------------------------------------------------
+
+enum ClientCommandType {
+    GET_IDLE_CLIENT_LIST = 0;
+}
+
+enum ClientKey {
+    KEY_UP    = 0;
+    KEY_DOWN  = 1;
+    KEY_LEFT  = 2;
+    KEY_RIGHT = 3;
+    KEY_SHOOT = 4;
+}
+
+// TCP Messages -----------------------------------------------------------------
+
+message Ping {
+    string ping = 1;
+}
+
+message ClientHello {
+    string username = 1;
+    int32  updPort  = 2;
+}
+
+message ClientCommand {
+    ClientCommandType requestType = 2;
+}
+
+message ClientInvite {
+    string invitee = 1;
+}
+
+message ClientInviteResponse {
+    string invitee  = 1;
+    bool   accepted = 2;
+}
+
+// UDP Messages -----------------------------------------------------------------
+
+message ClientMouseInput {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message ClientKeyInput {
+    repeated ClientKey heldKeys = 1;
+}

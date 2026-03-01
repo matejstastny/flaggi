@@ -1,0 +1,49 @@
+#log-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+}
+
+.log {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 8px 10px;
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    white-space: pre;
+    color: #5a6890;
+}
+
+.log::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.log::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.log::-webkit-scrollbar-thumb {
+    background: var(--border-2);
+    border-radius: 2px;
+}
+
+.log::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+#panel-server {
+    border-left: 2px solid var(--red-dim);
+}
+
+#panel-client1 {
+    border-left: 2px solid var(--blue-dim);
+}
+
+#panel-client2 {
+    border-left: 2px solid var(--blue-dim);
+}

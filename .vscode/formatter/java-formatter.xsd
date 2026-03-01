@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="profiles">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="profile">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="setting" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="id" type="xs:ID" use="required" />
+                                    <xs:attribute name="value" use="required" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="kind" use="required" />
+                        <xs:attribute name="name" use="required" />
+                        <xs:attribute name="version" type="xs:integer" use="required" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="version" type="xs:integer" use="required" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

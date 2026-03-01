@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, flaggi-2.0 ]
+  pull_request:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      java-cache: ${{ steps.setup-java.outputs.cache-hit }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+  server:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x gradlew
+      - run: ./gradlew :server:build --no-daemon
+
+  client:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x gradlew
+      - run: ./gradlew :client:build --no-daemon
+
+  shared:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x gradlew
+      - run: ./gradlew :shared:build --no-daemon

@@ -1,8 +1,90 @@
 {
-  "java.format.settings.url": "./.vscode/java-formatter.xml",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.import.gradle.enabled": true,
-  "java.project.referencedLibraries": [
-    "${workspaceFolder}/app/shared/build/libs/*.jar"
-  ]
+    // Formatters ---------------------------------------------------------------
+
+    "editor.formatOnSave": true,
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "always"
+        }
+    },
+    "[kotlin]": {
+        "editor.defaultFormatter": "mskelton.ktlint"
+    },
+    "[proto]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        },
+        "editor.semanticHighlighting.enabled": true
+    },
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "DotJoshJohnson.xml"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt"
+    },
+
+    // Java ---------------------------------------------------------------------
+
+    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.enabled": true,
+    "redhat.telemetry.enabled": false,
+    "gradle.nestedProjects": true,
+
+    "files.associations": {
+        "*.gradle.kts": "kotlin",
+        "*.sdkmanrc": "shellscript"
+    },
+
+    // Proto --------------------------------------------------------------------
+
+    "protobuf.protoc.path": "/usr/bin/protoc",
+    "protobuf.protoc.options": [
+        "--proto_path=${workspaceRoot}/shared/src/main/proto",
+        "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
+    ],
+    "protobuf.clangFormat.configPath": "${workspaceFolder}/.clang-format",
+    "protobuf.codegen.generateOnSave": true,
+    "protobuf.clangFormat.enabled": true,
+
+    // Tree exclude -------------------------------------------------------------
+
+    "files.exclude": {
+        "**/.gradle": true,
+        "gradlew": true,
+        "gradlew.bat": true,
+        "**/build": true,
+        "**/bin": true,
+        "**/.kotlin": true,
+        "flaggi-server-temp": true
+    },
+
+    // Other --------------------------------------------------------------------
+
+    "remote.autoForwardPorts": false,
+    "yaml.format.proseWrap": "never",
+    "yaml.format.trailingComma": true,
+    "insertDateString.formatDate": "YYYY-MM-DD"
 }

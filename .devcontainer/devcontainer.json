@@ -1,0 +1,45 @@
+// --------------------------------------------------------------------------------------------
+// devcontainer.json - dev container config for Flaggi
+// --------------------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 2025-11-23 (YYYY-MM-DD)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// --------------------------------------------------------------------------------------------
+
+{
+    "name": "flaggi",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "remoteUser": "flaggi",
+    // "appPort": [54321, "54322:54322/udp"],
+    "workspaceFolder": "/workspaces/flaggi",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "redhat.vscode-xml",
+                "ms-azuretools.vscode-docker",
+                "jeff-hykin.better-dockerfile-syntax",
+                "EditorConfig.EditorConfig",
+                "fabiospampinato.vscode-todo-plus",
+                "mkhl.shfmt",
+                "xaver.clang-format",
+                "esbenp.prettier-vscode",
+                "DotJoshJohnson.xml",
+                "redhat.vscode-yaml",
+                "DrBlury.protobuf-vsc",
+                "richardwillis.vscode-spotless-gradle",
+                "patbenatar.advanced-new-file",
+                "jsynowiec.vscode-insertdatestring",
+                "mskelton.ktlint",
+                "eamodio.gitlens"
+            ]
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": {}
+    }
+}
