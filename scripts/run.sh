@@ -18,7 +18,7 @@ source "$(dirname "$0")/lib/logging.sh"
 # Helpers ------------------------------------------------------------------------------------
 
 usage() {
-    echo "Usage: $0 <client|server|editor> [-h|--help] [-r|--rebuild]"
+    echo "Usage: $0 <client|server|editor> [-h|--help] [-r|--rebuild] [--skip-build]"
     exit 0
 }
 
@@ -26,12 +26,14 @@ usage() {
 
 TARGET_MODULE=""
 REBUILD="false"
+SKIP_BUILD="false"
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
     client | server | editor) TARGET_MODULE="$1" ;;
     -h | --help) usage ;;
     -r | --rebuild) REBUILD="true" ;;
+    --skip-build) SKIP_BUILD="true" ;;
     *) die "Unknown argument: $1" ;;
     esac
     shift
@@ -46,7 +48,9 @@ log info "Target: $TARGET_MODULE"
 
 check_java_ver "$JAVA_VERSION" || die "Java version check failed."
 
-run_shadowjar || die "shadowjar build failed."
+if [[ "$SKIP_BUILD" == "false" ]]; then
+    run_shadowjar || die "shadowjar build failed."
+fi
 JAR_FILE=$(get_shadowjar_path)
 
 if [[ "$TARGET_MODULE" == "server" ]]; then

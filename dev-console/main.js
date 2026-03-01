@@ -5,7 +5,7 @@ const path = require("path")
 // ── CONFIG ───────────────────────────────────────────────────────────────────
 
 const FLAGGI_ROOT = path.resolve(__dirname, "..")
-const WRAPPER_SH = path.join(FLAGGI_ROOT, "scripts", "run-wrapper.sh")
+const RUN_SCRIPT = path.join(FLAGGI_ROOT, "scripts", "run.sh")
 
 const SERVER_READY_PATTERN = /Application start/
 const SERVER_READY_TIMEOUT_MS = 60_000
@@ -168,7 +168,7 @@ async function rebuild() {
     let serverReady = false
     let serverExitedEarly = false
 
-    procs.server = spawnProc(["bash", WRAPPER_SH, "server"], "server-log", () => {
+    procs.server = spawnProc(["bash", RUN_SCRIPT, "server"], "server-log", () => {
         if (!serverReady) serverExitedEarly = true
     })
 
@@ -200,11 +200,11 @@ async function rebuild() {
     setPanelStamp("client1", clientStamp)
     setPanelStamp("client2", clientStamp)
 
-    procs.client1 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client1-log", null, {
+    procs.client1 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client1-log", null, {
         FLAGGI_DEV: "true"
     })
     await sleep(500)
-    procs.client2 = spawnProc(["bash", WRAPPER_SH, "client", "--skip-build"], "client2-log", null, {
+    procs.client2 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client2-log", null, {
         FLAGGI_DEV: "true"
     })
 
