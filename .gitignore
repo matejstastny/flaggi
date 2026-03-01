@@ -29,3 +29,6 @@ server-temp
 # Node
 node_modules
 package-lock.json
+
+# Claude
+.claude
