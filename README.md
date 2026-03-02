@@ -135,7 +135,7 @@ Sprites are loaded by the `Sprite` class using `FileUtil.listResourceFiles`, whi
 | Database | SQLite (JDBC) |
 | UI | Java Swing / AWT Graphics2D |
 | Dev console | Electron 28 |
-| Packaging | jlink + jpackage (macOS .dmg) |
+| Packaging | jlink + jpackage + create-dmg (macOS) / WiX 3 (Windows) |
 | CI | GitHub Actions |
 
 ---
@@ -147,6 +147,8 @@ Sprites are loaded by the `Sprite` class using `FileUtil.listResourceFiles`, whi
 - Java 21
 - Gradle (or use the `./gradlew` wrapper)
 - Node.js + npm (for the dev console only)
+- `create-dmg` (for macOS packaging only — `brew install create-dmg`)
+- WiX 3 (for Windows packaging only — see package section below)
 
 ### Compile check
 
@@ -184,7 +186,18 @@ The script builds a shadowJar automatically before launching. Pass `--rebuild` (
 scripts/package.sh client
 ```
 
-Produces a `.dmg` installer with an embedded diet JRE (via jlink + jpackage + create-dmg). Requires `create-dmg` to be installed.
+Produces a `.dmg` installer with an embedded diet JRE (via jlink + jpackage + create-dmg). The file is written to `dist/`. Requires `create-dmg` (`brew install create-dmg`).
+
+### Package for Windows
+
+```bash
+scripts/package.sh client
+```
+
+Produces a `.exe` installer with an embedded diet JRE (via jlink + jpackage + WiX 3). The file is written to `dist/`. Requires:
+
+- [WiX 3](https://github.com/wixtoolset/wix3/releases/latest) — jpackage does **not** support WiX 4+
+- `JAVA_HOME` and `WIX` set as system environment variables
 
 ---
 
