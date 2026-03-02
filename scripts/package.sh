@@ -46,7 +46,7 @@ DIR_APP_IMAGE="$PROJECT_ROOT/build/app-image"
 
 # jpackage extra flags
 MAC_JPACKAGE_OPTS=""
-WIN_JPACKAGE_OPTS="--win-menu --win-dir-chooser --win-shortcut"
+WIN_JPACKAGE_OPTS="--win-per-user-install --win-menu --win-shortcut"
 
 # =============================================================================
 # Helpers
