@@ -3,11 +3,6 @@
 # --------------------------------------------------------------------------------------------
 # attach-container.sh - attaches to vscode devcontainer
 # --------------------------------------------------------------------------------------------
-# Author: Matej Stastny
-# Date: 2025-11-23 (YYYY-MM-DD)
-# License: MIT
-# Link: https://github.com/matejstastny/flaggi
-# --------------------------------------------------------------------------------------------
 
 source "$(dirname "$0")/lib/logging.sh"
 
@@ -19,8 +14,8 @@ CONTAINER_ID=$(
 )
 
 if [ -z "$CONTAINER_ID" ]; then
-    log error "No running dev container found for flaggi"
-    log error "Make sure VS Code has reopened the project in the container"
+    log_err "No running dev container found for flaggi"
+    log_err "Make sure VS Code has reopened the project in the container"
     exit 1
 fi
 

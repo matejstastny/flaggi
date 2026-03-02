@@ -1,32 +1,18 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------
-# logging.sh — Logging Functions
-# --------------------------------------------------------------------------------------------
-# Author: Matej Stastny
-# Date: 2025-09-12 (YYYY-MM-DD)
-# License: MIT
-# Link: https://github.com/matejstastny/flaggi
+# logging.sh — ANSI logging functions
 # --------------------------------------------------------------------------------------------
 
-log() {
-    local level="$1"
-    shift
-    local label
+if [[ -t 1 ]]; then
+    _R="\033[0m" _BOLD="\033[1m"
+    _RED="\033[31m" _GREEN="\033[32m" _YELLOW="\033[33m" _CYAN="\033[36m"
+else
+    _R="" _BOLD="" _RED="" _GREEN="" _YELLOW="" _CYAN=""
+fi
 
-    case "$level" in
-    info) label="INFO" ;;
-    done) label="DONE" ;;
-    prompt) label="INPT" ;;
-    warn) label="WARN" ;;
-    error) label="ERROR" ;;
-    *) label="LOG  " ;;
-    esac
-
-    echo "[$label] $*" >&2
-}
-
-die() {
-    log "error" "$*"
-    exit 1
-}
+log_inf() { echo -e "${_CYAN}[INF]${_R} $*"; }
+log_ok()  { echo -e "${_GREEN}[OK ]${_R} $*"; }
+log_wrn() { echo -e "${_YELLOW}[WRN]${_R} $*"; }
+log_err() { echo -e "${_RED}[ERR]${_R} $*" >&2; }
+die()     { log_err "$*"; exit 1; }
