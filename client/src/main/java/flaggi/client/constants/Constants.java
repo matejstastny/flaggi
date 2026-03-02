@@ -81,7 +81,7 @@ public class Constants {
 
 	private static ConfigManager getConfigManager() {
 		try {
-			return new ConfigManager(String.join(File.separator, FileUtil.getJarExecDirectory(), "config.properties"), "/configs/config.properties");
+			return new ConfigManager(String.join(File.separator, FileUtil.getApplicationDataFolder(), Constants.APP_DATA_DIR_NAME, "config.properties"), "/configs/config.properties");
 		} catch (IOException e) {
 			Logger.log(LogLevel.ERR, "An IOException occured when initializing the ConfigManager", e);
 			App.handleFatalError();
