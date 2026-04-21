@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This document covers the basics for ge
 
 1. Fork the repository
 2. Clone your fork
-3. Set up the development environment — see the [docs](https://matejstastny.github.io/flaggi/building/dev-environment/)
+3. Set up the development environment - see the [docs](https://matejstastny.github.io/flaggi/building/dev-environment/)
 4. Create a branch for your change
 
 ## Development
@@ -35,7 +35,7 @@ For a compile-only check:
 ## Submitting Changes
 
 1. Make sure your code compiles cleanly
-2. Keep commits focused — one logical change per commit
+2. Keep commits focused - one logical change per commit
 3. Write clear commit messages
 4. Open a pull request against `main`
 5. Describe what your PR does and why
@@ -43,13 +43,13 @@ For a compile-only check:
 ## Project Structure
 
 ```
-client/      — Java Swing game client
-server/      — Game server (TCP + UDP)
-shared/      — Shared protos, game objects, utilities
-editor/      — Map/level editor (WIP)
-dev-console/ — Electron dev launcher
-scripts/     — Build and run helpers
-docs/        — Astro Starlight documentation site
+client/      - Java Swing game client
+server/      - Game server (TCP + UDP)
+shared/      - Shared protos, game objects, utilities
+editor/      - Map/level editor (WIP)
+dev-console/ - Electron dev launcher
+scripts/     - Build and run helpers
+docs/        - Astro Starlight documentation site
 ```
 
 For detailed architecture docs, see the [developer documentation](https://matejstastny.github.io/flaggi/introduction/).

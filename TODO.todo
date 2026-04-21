@@ -22,7 +22,7 @@ Flaggi:
         ✔ run_dev script logs missing a space before them (unlike the Java app logs) @done(25-09-30 13:05)
         - When the client app window is resized to 0, it throws an unhandled exception
         - Fix server TCP manager starting after the UDP manager (should be the other way around)
-        - When exiting the client app the log says "shutting down" — replace with "exiting"
+        - When exiting the client app the log says "shutting down" - replace with "exiting"
 
     Infrastructure:
         ✔ Add a development console for easier testing @done(26-02-26 23:06)

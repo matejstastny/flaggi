@@ -11,17 +11,17 @@ The client is a Java Swing desktop application responsible for rendering the gam
 
 ## Key classes
 
-| Class | Purpose |
-|-------|---------|
-| `GameUi` | Main game renderer — camera, sprites, HUD |
-| `GameManager` | Game state, input handling, client-side prediction |
-| `Sprite` | Tick-based sprite animation system |
-| `TcpManager` | TCP connection to server (lobby, commands) |
-| `UdpManager` | UDP state updates (sending input, receiving world state) |
-| `GPanel` | Custom Swing panel with update loop |
-| `LoginUi` | Login screen |
-| `LobbyUi` | Lobby and player list |
-| `DebugOverlay` | FPS, tick, position stats overlay |
+| Class          | Purpose                                                  |
+| -------------- | -------------------------------------------------------- |
+| `GameUi`       | Main game renderer - camera, sprites, HUD                |
+| `GameManager`  | Game state, input handling, client-side prediction       |
+| `Sprite`       | Tick-based sprite animation system                       |
+| `TcpManager`   | TCP connection to server (lobby, commands)               |
+| `UdpManager`   | UDP state updates (sending input, receiving world state) |
+| `GPanel`       | Custom Swing panel with update loop                      |
+| `LoginUi`      | Login screen                                             |
+| `LobbyUi`      | Lobby and player list                                    |
+| `DebugOverlay` | FPS, tick, position stats overlay                        |
 
 ## Architecture flow
 

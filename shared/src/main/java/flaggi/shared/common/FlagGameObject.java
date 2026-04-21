@@ -19,9 +19,9 @@ public class FlagGameObject extends GameObject {
 	}
 
 	public enum FlagState {
-		AT_BASE, // resting at home base — can be stolen by enemy
+		AT_BASE, // resting at home base - can be stolen by enemy
 		CARRIED, // picked up and held by a player
-		DROPPED // dropped mid-field — either team can interact
+		DROPPED // dropped mid-field - either team can interact
 	}
 
 	private final Team team;

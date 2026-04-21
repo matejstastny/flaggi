@@ -56,7 +56,7 @@ public class Sprite {
 	private final Map<String, Animation> animations = new HashMap<>();
 	private String currentAnimation = DEFAULT_ANIMATION;
 
-	// Tick-based animation state — no threads, no races.
+	// Tick-based animation state - no threads, no races.
 	private int tickCounter = 0;
 	private int currentFrameIndex = 0;
 	private int ticksPerFrame;
@@ -96,11 +96,11 @@ public class Sprite {
 			throw new IOException("Sprite folder not found: " + basePath);
 		}
 
-		// List subfolders — these are animation names (e.g. "idle", "walk-up").
+		// List subfolders - these are animation names (e.g. "idle", "walk-up").
 		List<String> subfolders = FileUtil.listResourceFiles(basePath, "");
 
 		if (subfolders.isEmpty()) {
-			// STATIC SPRITE: no subfolders — load PNGs directly from the folder.
+			// STATIC SPRITE: no subfolders - load PNGs directly from the folder.
 			Animation anim = loadAnimation(basePath);
 			animations.put(DEFAULT_ANIMATION, anim);
 			currentAnimation = DEFAULT_ANIMATION;

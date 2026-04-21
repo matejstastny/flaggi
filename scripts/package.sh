@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# package.sh — Build a native installer using jpackage + jlink
+# package.sh - Build a native installer using jpackage + jlink
 #
 # Usage:
 #   ./package.sh [client] [OPTIONS]
@@ -160,7 +160,7 @@ require_cmd jpackage "Ensure JAVA_HOME points to a full JDK, not a JRE."
 
 JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F. '{print $1}')
 [[ "$JAVA_VERSION" -ge "$JAVA_MIN_VERSION" ]] ||
-    die "Java $JAVA_VERSION detected — Java $JAVA_MIN_VERSION+ is required."
+    die "Java $JAVA_VERSION detected - Java $JAVA_MIN_VERSION+ is required."
 log_inf "Java version: ${_BOLD}$JAVA_VERSION${_R}"
 
 case "$OS" in

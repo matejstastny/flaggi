@@ -10,4 +10,4 @@ For documentation, downloads, and more, visit the **[Flaggi website](https://mat
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT - see [LICENSE](./LICENSE).

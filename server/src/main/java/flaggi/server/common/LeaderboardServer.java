@@ -38,7 +38,7 @@ public class LeaderboardServer {
 	}
 
 	/**
-	 * Builds the full HTML page as a string. No frameworks, no build step — just
+	 * Builds the full HTML page as a string. No frameworks, no build step - just
 	 * straightforward HTML.
 	 */
 	private static String buildPage(List<LeaderboardEntry> players, List<GameHistoryEntry> recentGames) {

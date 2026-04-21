@@ -30,16 +30,16 @@ Both `client` and `server` depend on `shared`. They do not depend on each other.
 
 ## Client packages
 
-| Package | Key files | Purpose |
-|---------|-----------|---------|
-| `flaggi.client` | `App.java` | Entry point |
-| `flaggi.client.ui` | `GameUi.java`, `LoginUi.java`, `LobbyUi.java` | UI panels |
-| `flaggi.client.common` | `GameManager.java`, `Sprite.java` | Game state, sprites |
+| Package                | Key files                                     | Purpose             |
+| ---------------------- | --------------------------------------------- | ------------------- |
+| `flaggi.client`        | `App.java`                                    | Entry point         |
+| `flaggi.client.ui`     | `GameUi.java`, `LoginUi.java`, `LobbyUi.java` | UI panels           |
+| `flaggi.client.common` | `GameManager.java`, `Sprite.java`             | Game state, sprites |
 
 ## Server packages
 
 | Package | Key files | Purpose |
-|---------|-----------|---------|
+| --- | --- | --- |
 | `flaggi.server` | `Server.java` | Entry point, message routing |
 | `flaggi.server.common` | `GameManager.java`, `GameData.java`, `TcpListener.java`, `UdpManager.java`, `DatabaseManager.java` | Core systems |
 | `flaggi.server.client` | `Client.java`, `ClientHandler.java` | Client connection management |
@@ -47,7 +47,7 @@ Both `client` and `server` depend on `shared`. They do not depend on each other.
 ## Shared packages
 
 | Package | Key files | Purpose |
-|---------|-----------|---------|
+| --- | --- | --- |
 | `flaggi.shared.common` | `GameObject.java`, `PlayerGameObject.java`, `BulletGameObject.java`, `FlagGameObject.java`, `Logger.java`, `UpdateLoop.java` | Game objects, logging, game loop |
 | `flaggi.shared.util` | `FileUtil.java`, `ImageUtil.java`, `NetUtil.java`, `FontUtil.java`, `ScreenUtil.java` | Utilities |
 | `flaggi.shared.ui` | `VhGraphics.java`, `GPanel.java`, `Renderable.java` | Rendering base classes |
@@ -58,6 +58,7 @@ Both `client` and `server` depend on `shared`. They do not depend on each other.
 ### `buildSrc/java-common.gradle.kts`
 
 A custom Gradle plugin applied to all modules. It configures:
+
 - Java 21 toolchain
 - Protobuf compilation (protoc 3.25.1)
 - Maven Central repository
@@ -67,9 +68,9 @@ A custom Gradle plugin applied to all modules. It configures:
 
 Each module's `build.gradle.kts` adds its own dependencies and configures the shadow JAR:
 
-- **client** — depends on `:shared`, main class `flaggi.client.App`, shadow plugin
-- **server** — depends on `:shared`, `sqlite-jdbc`, `javalin`, `slf4j-simple`, main class `flaggi.server.Server`
-- **shared** — library module (no shadow JAR), depends on `jackson-databind`, `json`, `protobuf-java`
+- **client** - depends on `:shared`, main class `flaggi.client.App`, shadow plugin
+- **server** - depends on `:shared`, `sqlite-jdbc`, `javalin`, `slf4j-simple`, main class `flaggi.server.Server`
+- **shared** - library module (no shadow JAR), depends on `jackson-databind`, `json`, `protobuf-java`
 
 ## Resources
 

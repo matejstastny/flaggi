@@ -78,7 +78,10 @@
         "**/build": true,
         "**/bin": true,
         "**/.kotlin": true,
-        "flaggi-server-temp": true
+        "docs/.astro": true,
+        "docs/dist": true,
+        "docs/node_modules": true,
+        ".claude": true
     },
 
     // Other --------------------------------------------------------------------

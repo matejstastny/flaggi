@@ -185,7 +185,7 @@ async function rebuild() {
     ])
 
     if (!matched || serverExitedEarly) {
-        send("server-log", "\n[Server failed to start — not launching clients]\n")
+        send("server-log", "\n[Server failed to start - not launching clients]\n")
         setStatus("error")
         setButtonState("idle")
         isBuilding = false

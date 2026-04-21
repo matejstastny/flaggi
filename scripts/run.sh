@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------------------------
-# run.sh — Builds a shadowJar and executes it
+# run.sh - Builds a shadowJar and executes it
 # Usage: run.sh <client|server|editor> [-h|--help] [-r|--rebuild] [--skip-build]
 # --------------------------------------------------------------------------------------------
 

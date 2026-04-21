@@ -7,9 +7,9 @@ Flaggi uses Protocol Buffers v3 for all network serialization. Proto definitions
 
 ## Proto files
 
-| File | Direction | Purpose |
-|------|-----------|---------|
-| `client-messages.proto` | Client → Server | Input, commands, invites |
+| File                    | Direction       | Purpose                    |
+| ----------------------- | --------------- | -------------------------- |
+| `client-messages.proto` | Client → Server | Input, commands, invites   |
 | `server-messages.proto` | Server → Client | State updates, game events |
 
 ## Client messages
@@ -33,7 +33,7 @@ message ClientMessage {
 
 ### `ClientStateUpdate` (UDP)
 
-Sent every tick over UDP — not wrapped in `ClientMessage`:
+Sent every tick over UDP - not wrapped in `ClientMessage`:
 
 ```protobuf
 message ClientStateUpdate {
@@ -62,12 +62,12 @@ enum ClientCommandType {
 
 ### Input mapping
 
-| Key | ClientKey |
-|-----|-----------|
-| W / Arrow Up | `KEY_UP` |
-| S / Arrow Down | `KEY_DOWN` |
-| A / Arrow Left | `KEY_LEFT` |
-| D / Arrow Right | `KEY_RIGHT` |
+| Key                     | ClientKey   |
+| ----------------------- | ----------- |
+| W / Arrow Up            | `KEY_UP`    |
+| S / Arrow Down          | `KEY_DOWN`  |
+| A / Arrow Left          | `KEY_LEFT`  |
+| D / Arrow Right         | `KEY_RIGHT` |
 | Space / F / Mouse Click | `KEY_SHOOT` |
 
 ## Server messages

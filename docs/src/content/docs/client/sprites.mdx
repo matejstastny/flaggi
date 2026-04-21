@@ -68,7 +68,7 @@ Resource loading uses `FileUtil.listResourceFiles()` which supports both filesys
 
 ### Animation timing
 
-Animation is tick-based — the caller must call `tick()` once per game loop iteration.
+Animation is tick-based - the caller must call `tick()` once per game loop iteration.
 
 ```
 ticksPerFrame = 60 / fps
@@ -78,12 +78,12 @@ For a sprite at 8 FPS running in a 60 Hz game loop, `ticksPerFrame = 7`, meaning
 
 ### Switching animations
 
-`setAnimation(name)` changes which animation is playing. The frame counter resets only when switching to a different animation — calling `setAnimation` with the already-active animation is a no-op.
+`setAnimation(name)` changes which animation is playing. The frame counter resets only when switching to a different animation - calling `setAnimation` with the already-active animation is a no-op.
 
 ### Rendering
 
-- `render(g2, x, y, root)` — draws the current frame **centered** on `(x, y)`
-- `renderTopLeft(g2, x, y, root)` — draws with the top-left corner at `(x, y)`
+- `render(g2, x, y, root)` - draws the current frame **centered** on `(x, y)`
+- `renderTopLeft(g2, x, y, root)` - draws with the top-left corner at `(x, y)`
 
 Both methods use `image-rendering: pixelated` equivalent (`Graphics2D` nearest-neighbor interpolation) to keep the pixel art crisp at any scale.
 
@@ -104,14 +104,14 @@ For a static sprite:
 
 ## API reference
 
-| Method | Description |
-|--------|-------------|
-| `Sprite(String name, int fps)` | Load sprite from resources |
-| `tick()` | Advance animation by one game tick |
-| `setAnimation(String name)` | Switch to a named animation |
-| `setFps(int fps)` | Change animation speed |
-| `freezeAtFrame(int index)` | Stop at a specific frame |
-| `render(g2, x, y, root)` | Draw centered at position |
-| `renderTopLeft(g2, x, y, root)` | Draw at top-left position |
-| `hasAnimation(String name)` | Check if animation exists |
-| `getCurrentAnimation()` | Get current animation name |
+| Method                          | Description                        |
+| ------------------------------- | ---------------------------------- |
+| `Sprite(String name, int fps)`  | Load sprite from resources         |
+| `tick()`                        | Advance animation by one game tick |
+| `setAnimation(String name)`     | Switch to a named animation        |
+| `setFps(int fps)`               | Change animation speed             |
+| `freezeAtFrame(int index)`      | Stop at a specific frame           |
+| `render(g2, x, y, root)`        | Draw centered at position          |
+| `renderTopLeft(g2, x, y, root)` | Draw at top-left position          |
+| `hasAnimation(String name)`     | Check if animation exists          |
+| `getCurrentAnimation()`         | Get current animation name         |

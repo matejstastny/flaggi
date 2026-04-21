@@ -11,42 +11,42 @@ The server uses SQLite (via JDBC) to persist player stats and game history. `Dat
 
 Tracks lifetime stats per player.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER PK | Auto-increment ID |
-| `name` | TEXT UNIQUE | Player username |
-| `total_kills` | INTEGER | Lifetime kills |
-| `total_deaths` | INTEGER | Lifetime deaths |
-| `total_wins` | INTEGER | Games won |
-| `total_losses` | INTEGER | Games lost |
-| `games_played` | INTEGER | Total games |
-| `first_seen` | TIMESTAMP | First connection |
-| `last_seen` | TIMESTAMP | Last connection |
+| Column         | Type        | Description       |
+| -------------- | ----------- | ----------------- |
+| `id`           | INTEGER PK  | Auto-increment ID |
+| `name`         | TEXT UNIQUE | Player username   |
+| `total_kills`  | INTEGER     | Lifetime kills    |
+| `total_deaths` | INTEGER     | Lifetime deaths   |
+| `total_wins`   | INTEGER     | Games won         |
+| `total_losses` | INTEGER     | Games lost        |
+| `games_played` | INTEGER     | Total games       |
+| `first_seen`   | TIMESTAMP   | First connection  |
+| `last_seen`    | TIMESTAMP   | Last connection   |
 
 ### `games`
 
 Records each completed game.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER PK | Auto-increment ID |
-| `winner_team` | TEXT | "RED" or "BLUE" |
-| `duration_secs` | INTEGER | Game duration |
-| `played_at` | TIMESTAMP | When the game was played |
+| Column          | Type       | Description              |
+| --------------- | ---------- | ------------------------ |
+| `id`            | INTEGER PK | Auto-increment ID        |
+| `winner_team`   | TEXT       | "RED" or "BLUE"          |
+| `duration_secs` | INTEGER    | Game duration            |
+| `played_at`     | TIMESTAMP  | When the game was played |
 
 ### `player_game_stats`
 
 Per-player breakdown for each game.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER PK | Auto-increment ID |
-| `player_id` | INTEGER FK | References `players.id` |
-| `game_id` | INTEGER FK | References `games.id` |
-| `team` | TEXT | "RED" or "BLUE" |
-| `kills` | INTEGER | Kills in this game |
-| `deaths` | INTEGER | Deaths in this game |
-| `won` | BOOLEAN | Whether this player's team won |
+| Column      | Type       | Description                    |
+| ----------- | ---------- | ------------------------------ |
+| `id`        | INTEGER PK | Auto-increment ID              |
+| `player_id` | INTEGER FK | References `players.id`        |
+| `game_id`   | INTEGER FK | References `games.id`          |
+| `team`      | TEXT       | "RED" or "BLUE"                |
+| `kills`     | INTEGER    | Kills in this game             |
+| `deaths`    | INTEGER    | Deaths in this game            |
+| `won`       | BOOLEAN    | Whether this player's team won |
 
 ## Operations
 
@@ -63,8 +63,9 @@ Called when a game ends. Wrapped in a transaction:
 ### `getLeaderboard()`
 
 Returns all players sorted by:
+
 1. Wins (descending)
-2. K/D ratio (descending) — with `CASE` to handle division by zero
+2. K/D ratio (descending) - with `CASE` to handle division by zero
 
 ### `getRecentGames(limit)`
 

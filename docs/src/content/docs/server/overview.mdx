@@ -11,21 +11,21 @@ The server is the authoritative source of truth for all game state. It handles n
 
 ## Key classes
 
-| Class | Purpose |
-|-------|---------|
-| `Server` | Root application — message routing, game lifecycle |
-| `GameManager` | Per-game logic — physics, collisions, scoring |
-| `GameData` | Per-game state — players, bullets, flags, obstacles |
-| `TcpListener` | Accepts TCP connections |
-| `UdpManager` | UDP state updates — sending and receiving |
-| `ClientHandler` | Per-client TCP message handler |
-| `Client` | Server-side client representation |
-| `DatabaseManager` | SQLite persistence for stats and leaderboards |
+| Class             | Purpose                                             |
+| ----------------- | --------------------------------------------------- |
+| `Server`          | Root application - message routing, game lifecycle  |
+| `GameManager`     | Per-game logic - physics, collisions, scoring       |
+| `GameData`        | Per-game state - players, bullets, flags, obstacles |
+| `TcpListener`     | Accepts TCP connections                             |
+| `UdpManager`      | UDP state updates - sending and receiving           |
+| `ClientHandler`   | Per-client TCP message handler                      |
+| `Client`          | Server-side client representation                   |
+| `DatabaseManager` | SQLite persistence for stats and leaderboards       |
 
 ## Architecture
 
 ```
-Server (Updatable — main loop)
+Server (Updatable - main loop)
 ├── TcpListener (thread)
 │   └── ClientHandler (thread per client)
 │       └── Client (state holder)
@@ -41,9 +41,9 @@ Server (Updatable — main loop)
 
 `Server.update()` is called every tick (~60 Hz):
 
-1. **Process TCP messages** — handle commands (`GET_IDLE_CLIENT_LIST`), invites, invite responses
-2. **Process UDP packets** — route `ClientStateUpdate` messages to the correct `GameManager`
-3. **Tick game managers** — each active game processes input, advances physics, and sends state updates
+1. **Process TCP messages** - handle commands (`GET_IDLE_CLIENT_LIST`), invites, invite responses
+2. **Process UDP packets** - route `ClientStateUpdate` messages to the correct `GameManager`
+3. **Tick game managers** - each active game processes input, advances physics, and sends state updates
 
 ## Game creation flow
 
@@ -56,6 +56,7 @@ Server (Updatable — main loop)
 ## Thread pool
 
 The server runs on a fixed thread pool of 4 threads:
+
 - TCP listener
 - UDP listener
 - Update loop
@@ -66,6 +67,7 @@ Message queues (`BlockingQueue`) bridge the async socket threads to the synchron
 ## Shutdown
 
 `Server.shutdown()` handles graceful exit:
+
 1. Closes all active games
 2. Shuts down the thread pool (with timeout)
 3. Closes network sockets

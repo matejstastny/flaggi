@@ -1,12 +1,12 @@
 ---
-// Custom landing page — consumer-facing download + intro
+// Custom landing page - consumer-facing download + intro
 ---
 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flaggi — Multiplayer Capture the Flag</title>
+    <title>Flaggi - Multiplayer Capture the Flag</title>
     <link rel="icon" type="image/png" href="/flaggi/favicon.png" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
@@ -724,7 +724,7 @@
               release.html_url +
               "' target='_blank' rel='noopener'>All downloads</a>";
           } else {
-            // No matching asset — link to release page
+            // No matching asset - link to release page
             spinner.style.display = "none";
             label.textContent = "View Latest Release";
             btn.href = release.html_url;
@@ -734,7 +734,7 @@
               "' target='_blank' rel='noopener'>See all available downloads</a>";
           }
         } catch (e) {
-          // API failed — link to releases page
+          // API failed - link to releases page
           spinner.style.display = "none";
           label.textContent = "View Releases on GitHub";
           btn.href =

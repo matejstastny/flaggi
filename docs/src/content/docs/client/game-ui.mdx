@@ -9,8 +9,8 @@ description: How GameUi renders the game world, camera, and sprites.
 
 The camera keeps the local player centered on screen. Every frame:
 
-1. **Translate** — shift the world so the local player is at screen center (`px(50), px(50)`)
-2. **Zoom** — scale by `ZOOM = 0.5` around the player's screen position, effectively zooming out to show more of the map
+1. **Translate** - shift the world so the local player is at screen center (`px(50), px(50)`)
+2. **Zoom** - scale by `ZOOM = 0.5` around the player's screen position, effectively zooming out to show more of the map
 
 ```java
 // Simplified camera transform
@@ -27,12 +27,12 @@ The floor is drawn as a repeating tile grid. The `floor-tile` sprite is tiled ac
 
 Each `ServerGameObject` in the update is rendered based on its type:
 
-| Type | Sprite | Behavior |
-|------|--------|----------|
-| `TREE` | `tree/tree.png` | Static, rendered at world position |
-| `BULLET` | `bullet/bullet.png` | Static, rendered at world position |
-| `FLAG` | `flag-blue/` or `flag-red/` | Selected by skin field |
-| `PLAYER` | `player-{skin}/` | Animated, directional, can flip |
+| Type     | Sprite                      | Behavior                           |
+| -------- | --------------------------- | ---------------------------------- |
+| `TREE`   | `tree/tree.png`             | Static, rendered at world position |
+| `BULLET` | `bullet/bullet.png`         | Static, rendered at world position |
+| `FLAG`   | `flag-blue/` or `flag-red/` | Selected by skin field             |
+| `PLAYER` | `player-{skin}/`            | Animated, directional, can flip    |
 
 ## Player rendering
 
@@ -45,22 +45,22 @@ Player sprites are cached in a `HashMap<String, Sprite>` keyed by username. On e
 
 ### Animation mapping
 
-| Proto enum | Sprite folder |
-|------------|---------------|
-| `ANIM_IDLE` | `idle` |
-| `ANIM_WALK_UP` | `walk-up` |
-| `ANIM_WALK_DOWN` | `walk-down` |
-| `ANIM_WALK_SIDE` | `walk-side` |
+| Proto enum           | Sprite folder   |
+| -------------------- | --------------- |
+| `ANIM_IDLE`          | `idle`          |
+| `ANIM_WALK_UP`       | `walk-up`       |
+| `ANIM_WALK_DOWN`     | `walk-down`     |
+| `ANIM_WALK_SIDE`     | `walk-side`     |
 | `ANIM_WALK_DIAGONAL` | `walk-diagonal` |
 
 ### Skin mapping
 
-| Proto enum | Sprite folder |
-|------------|---------------|
-| `SKIN_BLUE` | `player-blue` |
-| `SKIN_RED` | `player-red` |
+| Proto enum    | Sprite folder   |
+| ------------- | --------------- |
+| `SKIN_BLUE`   | `player-blue`   |
+| `SKIN_RED`    | `player-red`    |
 | `SKIN_JESTER` | `player-jester` |
-| `SKIN_VENOM` | `player-venom` |
+| `SKIN_VENOM`  | `player-venom`  |
 
 ## Client-side movement prediction
 
@@ -78,7 +78,7 @@ When the server's authoritative position arrives, it's compared to the predicted
 
 The client mirrors the server's hitbox definitions for accurate collision prediction:
 
-| Object | Offset X | Offset Y | Width | Height |
-|--------|----------|----------|-------|--------|
+| Object | Offset X       | Offset Y       | Width         | Height        |
+| ------ | -------------- | -------------- | ------------- | ------------- |
 | Player | `PLAYER_HB_OX` | `PLAYER_HB_OY` | `PLAYER_HB_W` | `PLAYER_HB_H` |
-| Tree | `TREE_HB_OX` | `TREE_HB_OY` | `TREE_HB_W` | `TREE_HB_H` |
+| Tree   | `TREE_HB_OX`   | `TREE_HB_OY`   | `TREE_HB_W`   | `TREE_HB_H`   |

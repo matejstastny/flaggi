@@ -14,14 +14,16 @@ npm start
 ```
 
 The toolbar provides:
-- **Rebuild** — build shadowJars and launch all components
-- **Stop all** — terminate running processes
-- **Clear logs** — reset log panels
+
+- **Rebuild** - build shadowJars and launch all components
+- **Stop all** - terminate running processes
+- **Clear logs** - reset log panels
 
 The console shows:
-- **Server log** — server stdout with color-coded log levels
-- **Client 1 & 2 logs** — client stdout
-- **Game state panel** — live minimap and player info cards
+
+- **Server log** - server stdout with color-coded log levels
+- **Client 1 & 2 logs** - client stdout
+- **Game state panel** - live minimap and player info cards
 
 ## Dev container
 
@@ -29,17 +31,18 @@ A Docker-based environment is provided in `.devcontainer/` for consistent builds
 
 ### Included tools
 
-| Tool | Purpose |
-|------|---------|
-| OpenJDK 21 | Java compilation and runtime |
-| Gradle | Build system |
-| protobuf-compiler | Proto code generation |
+| Tool                 | Purpose                                |
+| -------------------- | -------------------------------------- |
+| OpenJDK 21           | Java compilation and runtime           |
+| Gradle               | Build system                           |
+| protobuf-compiler    | Proto code generation                  |
 | clang / clang-format | C/C++ formatting (for any native code) |
-| ktlint | Kotlin linter |
+| ktlint               | Kotlin linter                          |
 
 ### VS Code extensions
 
 The container auto-installs:
+
 - Java Extension Pack
 - Gradle for Java
 - Protobuf support
