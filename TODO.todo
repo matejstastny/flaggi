@@ -4,8 +4,8 @@ Flaggi:
     Dev Environment:
         ✔ Migrate to devcontainer @done(26-02-26 23:09)
         ✔ Fix APP_DATA path from old uname to current one @done(26-02-26 23:08)
-        - Fix devcontainer not having correct time
         ✘ Add env var to positionally launch windows from the console @cancelled(26-04-21 20:27)
+        - Fix devcontainer not having correct time
 
     Game:
         ✘ Figure out how the server will have data about what sprites exist @started(25-08-18 22:32) @cancelled(26-02-26 23:03) @wasted(27w3d31m21s)
@@ -44,3 +44,8 @@ Flaggi:
         - Make a GitHub Pages wiki for dev notes with Astro and Starlight
         - Update the README after the new docs, so it just points to the wiki
         - Add CONTRIBUTING.md with contribution guidelines and code of conduct
+
+    Distribution:
+        - Make a release script that builds and packages the server and client, and creates a GitHub release with the artifacts
+        - Set up CI to run tests and build artifacts on push to main
+        - Setup more dist targets like Linux or Intel Mac (all standard ones)
