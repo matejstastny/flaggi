@@ -1,0 +1,117 @@
+---
+title: Sprite System
+description: How the tick-based sprite animation system works.
+---
+
+The `Sprite` class (`flaggi.client.common`) handles loading, animating, and rendering pixel-art sprites. It's tick-based (no threads) and supports both animated and static sprites.
+
+## Usage
+
+```java
+// Create a sprite at 8 FPS
+Sprite player = new Sprite("player-blue", 8);
+
+// Switch animation
+player.setAnimation("walk-up");
+
+// In the game loop:
+player.tick();                      // advance frame
+player.render(g2, x, y, root);     // draw centered at (x, y)
+```
+
+## Folder structure
+
+Sprites are loaded from `client/src/main/resources/sprites/`.
+
+### Animated sprites (with sub-animations)
+
+```
+player-blue/
+├── idle/
+│   ├── 0.png
+│   └── 1.png
+├── walk-up/
+│   ├── 0.png
+│   ├── 1.png
+│   ├── 2.png
+│   └── 3.png
+├── walk-down/
+│   └── ...
+├── walk-side/
+│   └── ...
+└── walk-diagonal/
+    └── ...
+```
+
+### Static sprites (single image)
+
+```
+tree/
+└── tree.png
+
+bullet/
+└── bullet.png
+```
+
+## How it works
+
+### Loading
+
+The constructor calls `loadAnimations(spriteName)` which:
+
+1. Checks if the sprite folder has subdirectories (animated) or just PNG files (static)
+2. **Animated**: loads each subdirectory as a named animation, with each `.png` file as a frame
+3. **Static**: loads all `.png` files as frames of a single `default` animation
+4. Frame files are sorted naturally (`0.png`, `1.png`, ..., `10.png`, `11.png`) to ensure correct ordering
+
+Resource loading uses `FileUtil.listResourceFiles()` which supports both filesystem access (development) and JAR resource loading (production).
+
+### Animation timing
+
+Animation is tick-based — the caller must call `tick()` once per game loop iteration.
+
+```
+ticksPerFrame = 60 / fps
+```
+
+For a sprite at 8 FPS running in a 60 Hz game loop, `ticksPerFrame = 7`, meaning the frame advances every 7 ticks.
+
+### Switching animations
+
+`setAnimation(name)` changes which animation is playing. The frame counter resets only when switching to a different animation — calling `setAnimation` with the already-active animation is a no-op.
+
+### Rendering
+
+- `render(g2, x, y, root)` — draws the current frame **centered** on `(x, y)`
+- `renderTopLeft(g2, x, y, root)` — draws with the top-left corner at `(x, y)`
+
+Both methods use `image-rendering: pixelated` equivalent (`Graphics2D` nearest-neighbor interpolation) to keep the pixel art crisp at any scale.
+
+## Creating new sprites
+
+To add a new animated sprite:
+
+1. Create a folder under `client/src/main/resources/sprites/` (e.g., `my-character/`)
+2. Add subdirectories for each animation (e.g., `idle/`, `walk-up/`)
+3. Put numbered PNG frames in each directory (`0.png`, `1.png`, ...)
+4. Use it: `new Sprite("my-character", 8)`
+
+For a static sprite:
+
+1. Create a folder (e.g., `my-prop/`)
+2. Put a single PNG file in it (e.g., `my-prop.png`)
+3. Use it: `new Sprite("my-prop", 1)`
+
+## API reference
+
+| Method | Description |
+|--------|-------------|
+| `Sprite(String name, int fps)` | Load sprite from resources |
+| `tick()` | Advance animation by one game tick |
+| `setAnimation(String name)` | Switch to a named animation |
+| `setFps(int fps)` | Change animation speed |
+| `freezeAtFrame(int index)` | Stop at a specific frame |
+| `render(g2, x, y, root)` | Draw centered at position |
+| `renderTopLeft(g2, x, y, root)` | Draw at top-left position |
+| `hasAnimation(String name)` | Check if animation exists |
+| `getCurrentAnimation()` | Get current animation name |

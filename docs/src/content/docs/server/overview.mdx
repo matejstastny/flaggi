@@ -1,0 +1,74 @@
+---
+title: Server Overview
+description: Architecture of the Flaggi game server.
+---
+
+The server is the authoritative source of truth for all game state. It handles network connections, matchmaking, game logic, and persistence.
+
+## Entry point
+
+`flaggi.server.Server` is the main class. It initializes logging, starts network listeners, and runs the update loop.
+
+## Key classes
+
+| Class | Purpose |
+|-------|---------|
+| `Server` | Root application — message routing, game lifecycle |
+| `GameManager` | Per-game logic — physics, collisions, scoring |
+| `GameData` | Per-game state — players, bullets, flags, obstacles |
+| `TcpListener` | Accepts TCP connections |
+| `UdpManager` | UDP state updates — sending and receiving |
+| `ClientHandler` | Per-client TCP message handler |
+| `Client` | Server-side client representation |
+| `DatabaseManager` | SQLite persistence for stats and leaderboards |
+
+## Architecture
+
+```
+Server (Updatable — main loop)
+├── TcpListener (thread)
+│   └── ClientHandler (thread per client)
+│       └── Client (state holder)
+├── UdpManager (thread)
+│   └── Rate limiter (per-IP)
+├── UpdateLoop (thread)
+│   └── GameManager[] (one per active game)
+│       └── GameData (game state)
+└── DatabaseManager (SQLite)
+```
+
+## Main loop
+
+`Server.update()` is called every tick (~60 Hz):
+
+1. **Process TCP messages** — handle commands (`GET_IDLE_CLIENT_LIST`), invites, invite responses
+2. **Process UDP packets** — route `ClientStateUpdate` messages to the correct `GameManager`
+3. **Tick game managers** — each active game processes input, advances physics, and sends state updates
+
+## Game creation flow
+
+1. Player A sends `ClientInvite` targeting Player B
+2. Server forwards `ServerInvite` to Player B
+3. Player B responds with `ClientInviteResponse` (accept/reject)
+4. If accepted: server creates a new `GameManager` with both clients, adds it to the update loop
+5. Both clients receive `ServerJoinGame` with the game UUID and room dimensions
+
+## Thread pool
+
+The server runs on a fixed thread pool of 4 threads:
+- TCP listener
+- UDP listener
+- Update loop
+- Spare (for cleanup, logging)
+
+Message queues (`BlockingQueue`) bridge the async socket threads to the synchronous game loop, ensuring all game logic runs on a single thread.
+
+## Shutdown
+
+`Server.shutdown()` handles graceful exit:
+1. Closes all active games
+2. Shuts down the thread pool (with timeout)
+3. Closes network sockets
+4. Flushes database
+
+A JVM shutdown hook is registered at startup to ensure cleanup on `Ctrl+C`.

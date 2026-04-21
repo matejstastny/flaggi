@@ -1,0 +1,86 @@
+---
+title: Networking
+description: How Flaggi's dual TCP + UDP networking stack works.
+---
+
+Flaggi uses two network channels per connected client — TCP for control messages and UDP for high-frequency game state.
+
+## Channel overview
+
+| Channel | Protocol | Port | Purpose |
+|---------|----------|------|---------|
+| Control | TCP (Javalin) | 54321 | Handshake, lobby, game events |
+| Game state | UDP | 54322 | Per-tick input and world state |
+
+TCP handles everything that needs reliability: initial connection, lobby management, game invites, and game-over signals. UDP handles the latency-sensitive game state — player input going up and world snapshots coming down — where occasional packet loss is acceptable.
+
+## Connection flow
+
+```
+Client                          Server
+  │                               │
+  │── TCP: ClientHello ──────────→│  username + UDP port
+  │←── TCP: ServerHello ─────────│  assigned UUID + server UDP port
+  │                               │
+  │── TCP: GET_IDLE_CLIENT_LIST ─→│
+  │←── TCP: IdleClientList ──────│  available players
+  │                               │
+  │── TCP: ClientInvite ─────────→│  invite target player
+  │           ┌───────────────────│── TCP: ServerInvite ──→ Target
+  │           │                   │←── TCP: InviteResponse ── Target
+  │←── TCP: ServerJoinGame ──────│  gameUuid + room size
+  │                               │
+  │── UDP: ClientStateUpdate ────→│  keys, mouse (every tick)
+  │←── UDP: ServerStateUpdate ───│  full world state (every tick)
+  │           ...                 │
+  │←── TCP: ServerEndGame ───────│  winner
+```
+
+## UDP game loop
+
+Both client and server tick at ~60 Hz (16ms intervals).
+
+### Client → Server (per tick)
+
+The client sends a `ClientStateUpdate` containing:
+- Player UUID and game UUID
+- Mouse position (in world coordinates)
+- Set of currently held keys (`KEY_UP`, `KEY_DOWN`, `KEY_LEFT`, `KEY_RIGHT`, `KEY_SHOOT`)
+
+Updates are only sent when input changes (dirty flag optimization).
+
+### Server → Client (per tick)
+
+The server sends a `ServerStateUpdate` containing:
+- `me` — the local player's `ServerGameObject` (position, HP, animation, flags)
+- `other` — all other objects in the game (other players, trees, bullets, flags)
+- `tick` — the current server tick number
+
+Each client receives a personalized update where their own player is in the `me` field.
+
+## Rate limiting
+
+The server's `UdpManager` enforces per-IP rate limiting: one packet per IP per 16ms minimum. This prevents bandwidth exhaustion from misbehaving or malicious clients.
+
+## Client-side prediction
+
+The client doesn't wait for the server to confirm movement. Instead, it predicts movement locally using the same collision logic as the server (`tryMove` with AABB checks). This keeps the game feeling responsive despite network latency.
+
+When the server's authoritative position differs too much from the client's prediction (> 60 pixels), the client snaps to the server position instead of smoothly interpolating.
+
+## Thread model
+
+### Server
+- **TCP listener thread** — accepts new connections
+- **Per-client handler thread** — reads TCP messages, queues them
+- **UDP listener thread** — receives datagrams, queues them
+- **Update loop thread** — processes queued messages, ticks game logic
+
+All mutable state uses `ConcurrentHashMap` and `CopyOnWriteArrayList` — no explicit locks.
+
+### Client
+- **Swing EDT** — rendering and input handling (single-threaded)
+- **UDP listener thread** — receives server state updates
+- **Update loop thread** — processes input, sends client updates
+
+Input fields use `volatile` for cross-thread visibility without locking.

@@ -1,0 +1,80 @@
+---
+title: Project Structure
+description: How the Flaggi codebase is organized across modules and packages.
+---
+
+Flaggi is a multi-module Gradle project using Kotlin DSL for build configuration. Each module has a specific role and well-defined boundaries.
+
+## Module overview
+
+```
+flaggi/
+├── client/         Java Swing game client
+├── server/         Game server (TCP + UDP)
+├── shared/         Shared protos, game objects, utilities
+├── editor/         Map/level editor (WIP, disabled)
+├── dev-console/    Electron dev launcher
+├── scripts/        run.sh, package.sh
+├── buildSrc/       Custom Gradle plugin (java-common)
+└── assets/         Banners and branding
+```
+
+## Dependency graph
+
+```
+client ──→ shared
+server ──→ shared
+```
+
+Both `client` and `server` depend on `shared`. They do not depend on each other. The `shared` module contains everything that needs to be identical on both sides: protobuf definitions, game object models, and utilities.
+
+## Client packages
+
+| Package | Key files | Purpose |
+|---------|-----------|---------|
+| `flaggi.client` | `App.java` | Entry point |
+| `flaggi.client.ui` | `GameUi.java`, `LoginUi.java`, `LobbyUi.java` | UI panels |
+| `flaggi.client.common` | `GameManager.java`, `Sprite.java` | Game state, sprites |
+
+## Server packages
+
+| Package | Key files | Purpose |
+|---------|-----------|---------|
+| `flaggi.server` | `Server.java` | Entry point, message routing |
+| `flaggi.server.common` | `GameManager.java`, `GameData.java`, `TcpListener.java`, `UdpManager.java`, `DatabaseManager.java` | Core systems |
+| `flaggi.server.client` | `Client.java`, `ClientHandler.java` | Client connection management |
+
+## Shared packages
+
+| Package | Key files | Purpose |
+|---------|-----------|---------|
+| `flaggi.shared.common` | `GameObject.java`, `PlayerGameObject.java`, `BulletGameObject.java`, `FlagGameObject.java`, `Logger.java`, `UpdateLoop.java` | Game objects, logging, game loop |
+| `flaggi.shared.util` | `FileUtil.java`, `ImageUtil.java`, `NetUtil.java`, `FontUtil.java`, `ScreenUtil.java` | Utilities |
+| `flaggi.shared.ui` | `VhGraphics.java`, `GPanel.java`, `Renderable.java` | Rendering base classes |
+| `flaggi.proto` | (generated) | Protobuf message classes |
+
+## Build system
+
+### `buildSrc/java-common.gradle.kts`
+
+A custom Gradle plugin applied to all modules. It configures:
+- Java 21 toolchain
+- Protobuf compilation (protoc 3.25.1)
+- Maven Central repository
+- Protobuf Java library dependency
+
+### Module build files
+
+Each module's `build.gradle.kts` adds its own dependencies and configures the shadow JAR:
+
+- **client** — depends on `:shared`, main class `flaggi.client.App`, shadow plugin
+- **server** — depends on `:shared`, `sqlite-jdbc`, `javalin`, `slf4j-simple`, main class `flaggi.server.Server`
+- **shared** — library module (no shadow JAR), depends on `jackson-databind`, `json`, `protobuf-java`
+
+## Resources
+
+Game resources are bundled in each module's `src/main/resources/`:
+
+- **Client**: sprites, fonts, UI images
+- **Server**: map definitions (JSON), server configuration
+- **Shared**: protobuf definitions in `src/main/proto/`

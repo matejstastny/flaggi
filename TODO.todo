@@ -41,9 +41,10 @@ Flaggi:
         ✘ Add a config option to suppress stack traces in console output @cancelled(26-02-26 23:07)
 
     Documentation:
-        - Make a GitHub Pages wiki for dev notes with Astro and Starlight
-        - Update the README after the new docs, so it just points to the wiki
-        - Add CONTRIBUTING.md with contribution guidelines and code of conduct
+        ✔ Make a GitHub Pages wiki for dev notes with Astro and Starlight @done(26-04-21 23:30)
+        ✔ Update the README after the new docs, so it just points to the wiki @done(26-04-21 23:30)
+        ✔ Add CONTRIBUTING.md with contribution guidelines and code of conduct @done(26-04-21 23:30)
+        ✔ Make a deploy CI to github pages @done(26-04-21 23:30)
 
     Distribution:
         - Make a release script that builds and packages the server and client, and creates a GitHub release with the artifacts
