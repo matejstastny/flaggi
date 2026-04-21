@@ -1,58 +1,46 @@
-Flaggi 2.0:
-----------
+Flaggi:
+-------
 
-    ✔ MIGRATE TO DEVCONTAINER @done(26-02-26 23:09)
-    ✔ Fix APP_DATA path from old uname to my current one @done(26-02-26 23:08)
-    - Add env var to positionally launch windows from the console
-    - Fix devcontainer not having correct time (thats why tons of these todo dates are at midnight)
+    Dev Environment:
+        ✔ Migrate to devcontainer @done(26-02-26 23:09)
+        ✔ Fix APP_DATA path from old uname to current one @done(26-02-26 23:08)
+        - Fix devcontainer not having correct time
+        ✘ Add env var to positionally launch windows from the console @cancelled(26-04-21 20:27)
 
-    Game loop and game rendering:
-        ✘ Figure out how the server will have data about what sprites exist (GameUi:88) @started(25-08-18 22:32) @cancelled(26-02-26 23:03) @wasted(27w3d31m21s)
+    Game:
+        ✘ Figure out how the server will have data about what sprites exist @started(25-08-18 22:32) @cancelled(26-02-26 23:03) @wasted(27w3d31m21s)
         - Render the game @started(26-02-26 23:05)
+        ✔ Input UDP sending @done(26-02-26 23:06)
+            ✔ Fix px to vh conversion resulting in Infinity (GameManager:sendInputUpdate) @started(25-09-30 14:34) @done(26-02-26 23:03) @lasted(21w2d8h29m50s)
+            ✔ Handle input events internally and send actions (move, jump, shoot, etc.) @done(25-10-01 13:50)
+            ✔ Implement client update sender methods (GameManager) @done(26-02-26 23:03)
+            - Implement Keybinder class @started(26-02-26 23:04)
+        ✔ Server-to-client UDP updates @done(26-02-26 23:06)
+            ✔ Implement periodically sending position updates to client @started(25-10-01 13:54) @done(26-02-26 23:04) @lasted(21w1d9h10m9s)
 
-    ✔ Input UDP sending: @done(26-02-26 23:06)
-        ✔ Fix px to vh conversion resulting in Infinity (GameManager:sendInputUpdate) @started(25-09-30 14:34) @done(26-02-26 23:03) @lasted(21w2d8h29m50s)
-        ✔ Handle input events internally, and send actions like move left, move right, jump, shoot etc. @done(25-10-01 13:50)
-        ✔ Implement client update sender methods (GameManager) @done(26-02-26 23:03)
-        - Implement Keybinder class (Keybinder) @started(26-02-26 23:04)
+    Bugs:
+        ✔ run_dev script logs missing a space before them (unlike the Java app logs) @done(25-09-30 13:05)
+        - When the client app window is resized to 0, it throws an unhandled exception
+        - Fix server TCP manager starting after the UDP manager (should be the other way around)
+        - When exiting the client app the log says "shutting down" — replace with "exiting"
 
-    ✔ Server-to-client UDP updates: @done(26-02-26 23:06)
-        ✔ Implement periodically sending position updates to client @started(25-10-01 13:54) @done(26-02-26 23:04) @lasted(21w1d9h10m9s)
-
-    README:
-        - Update the README
-
-
-After 2.0 is finished:
----------------------
-
-    ✔ Add a development console for easier testing @done(26-02-26 23:06)
-    - Make a leaderboard website
-    - Make a database
-
-    1. Fixes:
-        ✔ The run_dev script logs don't have a space before them, but the java app logs do @done(25-09-30 13:05)
-        - When the client app window is resized by the user to 0, it throws and unhandeled exception
-        - Fix server TCP manager starting after the UDP manager (should be the other way)
-        - When exiting the client app the log says "shutting down". Replace to "exiting"
-        ✔ Add a proper Kotlin formatter @done(26-02-26 23:04)
-
-    2. Updates:
+    Infrastructure:
+        ✔ Add a development console for easier testing @done(26-02-26 23:06)
         ✔ Update to latest Java version @done(25-11-20 00:03)
         ✔ Update to latest Gradle version @done(25-11-20 00:04)
+        ✔ Add a proper Kotlin formatter @done(26-02-26 23:04)
         - Update the Java version in the server Dockerfile
+        - Make a database
+        - Make a leaderboard website
 
-    3. Features:
-        ✘ Add an intro Ascii banner to all script console outputs @cancelled(26-02-26 23:04) @reason(Script & log output redesigned)
-        ✘ Add a config option to turn of stack traces in the console output @cancelled(26-02-26 23:07)
+    Scripts:
+        ✔ Make run_dev work when called from any directory @done(25-11-20 16:19)
+        ✔ Fix package script and clean it up @done(26-02-26 23:05)
+        ✘ Make run_dev print a component selection menu when run without arguments @cancelled(25-11-20 16:19)
+        ✘ Add an intro ASCII banner to all script console outputs @cancelled(26-02-26 23:04) @reason(Script & log output redesigned)
+        ✘ Add a config option to suppress stack traces in console output @cancelled(26-02-26 23:07)
 
-    4. Documentation:
-        - Make Github pages wiki (for devel notes) cancelled maybe?
-
-    5. Scripts:
-        ✔ Make the run_dev script work when called from another directory (not the scripts directory) @done(25-11-20 16:19)
-        ✘ Make the run_dev script when run without any arguments print a selection (1. Client 2. Server etc.) @cancelled(25-11-20 16:19)
-        ✔ Fix package script & make it more clean @done(26-02-26 23:05)
-
-    6. Testing:
-        - Make tests. How? Beats me...
+    Documentation:
+        - Make a GitHub Pages wiki for dev notes with Astro and Starlight
+        - Update the README after the new docs, so it just points to the wiki
+        - Add CONTRIBUTING.md with contribution guidelines and code of conduct
