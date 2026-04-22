@@ -35,10 +35,10 @@ export interface AnsiState {
 export function colorizeAnsi(raw: string, state: AnsiState): string {
     const text = raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     const parts = text.split(/\x1b\[/)
-    let result = parts[0] ?? ""
+    let result = parts[0]
 
     for (let i = 1; i < parts.length; i++) {
-        const part = parts[i] ?? ""
+        const part = parts[i]
         const mIdx = part.indexOf("m")
         if (mIdx === -1) {
             result += part

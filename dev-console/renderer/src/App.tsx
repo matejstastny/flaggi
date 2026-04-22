@@ -40,6 +40,10 @@ const KEY_LABEL: Record<string, string> = {
 }
 
 const ALL_KEYS = ["KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT", "KEY_SHOOT"]
+const GAME_VIEWPORT_CENTER_X = 400
+const GAME_VIEWPORT_CENTER_Y = 300
+const AIM_PROJECTION_SCALE = 0.3
+const WORLD_BOUNDS_PADDING = 100
 
 const initialLogState = () => ({
     "server-log": { chunks: [] as string[], lines: 0 },
@@ -389,7 +393,7 @@ function calculateBounds(data: DebugState): WorldBounds {
         }
     }
 
-    const pad = 100
+    const pad = WORLD_BOUNDS_PADDING
     return { minX: minX - pad, maxX: maxX + pad, minY: minY - pad, maxY: maxY + pad }
 }
 
@@ -498,8 +502,8 @@ function drawPlayer(
     ctx.fillRect(x - barW / 2, y - radius - 7, barW * hpFraction, barH)
 
     if (isLocal && player.mouse) {
-        const aimX = player.x + (player.mouse.x - 400) * 0.3
-        const aimY = player.y + (player.mouse.y - 300) * 0.3
+        const aimX = player.x + (player.mouse.x - GAME_VIEWPORT_CENTER_X) * AIM_PROJECTION_SCALE
+        const aimY = player.y + (player.mouse.y - GAME_VIEWPORT_CENTER_Y) * AIM_PROJECTION_SCALE
         const { x: aimCanvasX, y: aimCanvasY } = worldToCanvas(aimX, aimY, worldBounds, canvas)
         ctx.beginPath()
         ctx.moveTo(x, y)
