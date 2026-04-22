@@ -23,7 +23,9 @@
                 "richardwillis.vscode-spotless-gradle",
                 "patbenatar.advanced-new-file",
                 "mskelton.ktlint",
-                "eamodio.gitlens"
+                "eamodio.gitlens",
+                "astro-build.astro-vscode",
+                "unifiedjs.vscode-mdx"
             ]
         }
     },
