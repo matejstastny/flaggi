@@ -25,7 +25,8 @@
                 "mskelton.ktlint",
                 "eamodio.gitlens",
                 "astro-build.astro-vscode",
-                "unifiedjs.vscode-mdx"
+                "unifiedjs.vscode-mdx",
+                "github.vscode-github-actions"
             ]
         }
     },
