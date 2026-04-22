@@ -25,10 +25,10 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[xml]": {
-        "editor.defaultFormatter": "DotJoshJohnson.xml"
+        "editor.defaultFormatter": "redhat.vscode-xml"
     },
     "[yaml]": {
-        "editor.defaultFormatter": "redhat.vscode-yaml"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -37,6 +37,18 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[astro]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[shellscript]": {
@@ -54,8 +66,7 @@
     "gradle.nestedProjects": true,
 
     "files.associations": {
-        "*.gradle.kts": "kotlin",
-        "*.sdkmanrc": "shellscript"
+        "*.gradle.kts": "kotlin"
     },
 
     // Proto --------------------------------------------------------------------
@@ -86,8 +97,5 @@
 
     // Other --------------------------------------------------------------------
 
-    "remote.autoForwardPorts": false,
-    "yaml.format.proseWrap": "never",
-    "yaml.format.trailingComma": true,
-    "insertDateString.formatDate": "YYYY-MM-DD"
+    "remote.autoForwardPorts": false
 }
