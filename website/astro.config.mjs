@@ -35,7 +35,10 @@ export default defineConfig({
             sidebar: [
                 {
                     label: "Getting Started",
-                    items: [{ label: "Play the Game", slug: "getting-started/overview" }]
+                    items: [
+                        { label: "Play the Game", slug: "getting-started/overview" },
+                        { label: "Style Guide", slug: "getting-started/style-guide" }
+                    ]
                 },
                 {
                     label: "Developer Guide",
