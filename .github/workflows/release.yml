@@ -90,8 +90,8 @@ jobs:
 
                   APP_NAME="Flaggi"
                   JAR_FILE="client/build/libs/flaggi-client.jar"
-                  DIST_DIR="$PWD/dist"
-                  RUNTIME_DIR="$PWD/build/jre"
+                  DIST_DIR="dist"
+                  RUNTIME_DIR="build/jre"
 
                   test -f "$JAR_FILE"
 
@@ -107,21 +107,22 @@ jobs:
                     --no-header-files \
                     --no-man-pages
 
-                  EXTRA_ARGS=()
+                  JPACKAGE_ARGS=(
+                    --input client/build/libs
+                    --main-jar "flaggi-client.jar"
+                    --name "$APP_NAME"
+                    --app-version "$APP_VERSION"
+                    --type "${{ matrix.target.package_type }}"
+                    --dest "$DIST_DIR"
+                    --runtime-image "$RUNTIME_DIR"
+                    --icon "${{ matrix.target.icon }}"
+                  )
+
                   if [[ "${{ runner.os }}" == "Windows" ]]; then
-                    EXTRA_ARGS+=(--win-per-user-install --win-menu --win-shortcut)
+                    JPACKAGE_ARGS+=(--win-per-user-install --win-menu --win-shortcut)
                   fi
 
-                  jpackage \
-                    --input client/build/libs \
-                    --main-jar "flaggi-client.jar" \
-                    --name "$APP_NAME" \
-                    --app-version "$APP_VERSION" \
-                    --type "${{ matrix.target.package_type }}" \
-                    --dest "$DIST_DIR" \
-                    --runtime-image "$RUNTIME_DIR" \
-                    --icon "${{ matrix.target.icon }}" \
-                    "${EXTRA_ARGS[@]}"
+                  jpackage "${JPACKAGE_ARGS[@]}"
 
                   case "${{ matrix.target.name }}" in
                     windows)
