@@ -4,10 +4,7 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "[java]": {
-        "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "always"
-        }
+        "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
     },
     "[kotlin]": {
         "editor.defaultFormatter": "mskelton.ktlint"
