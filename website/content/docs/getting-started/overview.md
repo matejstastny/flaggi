@@ -3,11 +3,11 @@ title: Play the Game
 description: Quick-start instructions for running Flaggi as a player.
 ---
 
-# Play the game
-
 Flaggi is a local multiplayer capture-the-flag game. There is no public server, so one player runs the server and the others connect to it with the client.
 
-> [!TIP] If everyone is on the same machine, use `localhost:54321`. If you are on a LAN, use the host machine's local IP address instead.
+:::tip[Tip]
+If everyone is on the same machine, use `localhost:54321`. If you are on a LAN, use the host machine's local IP address instead.
+:::
 
 ## What you need
 

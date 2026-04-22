@@ -3,6 +3,8 @@ title: Developer Setup
 description: How to set up the development environment and run Flaggi locally.
 ---
 
+This is a guide on setting up your local environment for Flaggi development, including running the server and client, using the dev container, and building from source.
+
 ## Requirements
 
 - **Java 21** — full JDK, not just a JRE

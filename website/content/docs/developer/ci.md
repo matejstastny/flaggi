@@ -3,8 +3,6 @@ title: CI & Formatting
 description: Continuous integration, formatting checks, and release automation for Flaggi.
 ---
 
-# CI & formatting
-
 Flaggi uses GitHub Actions for build checks, formatting checks, and website deployment.
 
 ## Build workflow

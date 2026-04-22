@@ -3,6 +3,8 @@ title: Docs Website
 description: How the Flaggi docs website is structured and how to edit or add to it.
 ---
 
+The website is built with [Astro](https://astro.build/) and the documentation is built with [Starlight](https://starlight-docs.netlify.app/), allowing me to render markdown easily. It lives in the `website/` directory and is deployed separately from the game itself.
+
 ## Local preview
 
 ```bash title="Docs terminal"

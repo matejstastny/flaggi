@@ -66,16 +66,6 @@ enum ClientCommandType {
 }
 ```
 
-### Input mapping
-
-| Key                     | ClientKey   |
-| ----------------------- | ----------- |
-| W / Arrow Up            | `KEY_UP`    |
-| S / Arrow Down          | `KEY_DOWN`  |
-| A / Arrow Left          | `KEY_LEFT`  |
-| D / Arrow Right         | `KEY_RIGHT` |
-| Space / F / Mouse Click | `KEY_SHOOT` |
-
 ## Server messages
 
 ### `ServerMessage` (TCP wrapper)
