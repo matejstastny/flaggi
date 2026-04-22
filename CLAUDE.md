@@ -45,7 +45,7 @@ Each language has a dedicated formatter, all enforced in CI:
 
 | Language | Formatter | Config location | Run |
 | --- | --- | --- | --- |
-| Java | google-java-format | `buildSrc/.../java-common.gradle.kts` (Spotless) | `./gradlew spotlessApply` |
+| Java | palantir-java-format | `buildSrc/.../java-common.gradle.kts` (Spotless) | `./gradlew spotlessApply` |
 | JS/TS/CSS/JSON/YAML/MD/Astro | Prettier | `.prettierrc` (root) | `npx prettier --write .` |
 | Proto | clang-format | `.clang-format` (root) | auto via VSCode extension |
 | Kotlin DSL | ktlint | via VSCode extension | auto via VSCode extension |
