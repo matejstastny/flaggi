@@ -10,7 +10,7 @@ flaggi/
   server/      # Game server (TCP + UDP, Javalin, SQLite)
   shared/      # Shared proto + utilities (Logger, FileUtil, VhGraphics, etc.)
   dev-console/ # Electron app for launching client/server during development
-  docs/        # Astro Starlight documentation site
+  website/     # Astro Starlight documentation site
   scripts/     # run.sh and helpers
   buildSrc/    # Gradle convention plugin (java-common)
   assets/      # Distribution assets (banners, icons)

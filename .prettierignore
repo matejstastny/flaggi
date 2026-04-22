@@ -30,3 +30,6 @@ gradle.properties
 
 # Lock files
 package-lock.json
+
+# Markdown
+**/*.md

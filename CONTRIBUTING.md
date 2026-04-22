@@ -49,7 +49,7 @@ shared/      - Shared protos, game objects, utilities
 editor/      - Map/level editor (WIP)
 dev-console/ - Electron dev launcher
 scripts/     - Build and run helpers
-docs/        - Astro Starlight documentation site
+website/     - Astro Starlight documentation site
 ```
 
 For detailed architecture docs, see the [developer documentation](https://matejstastny.github.io/flaggi/introduction/).

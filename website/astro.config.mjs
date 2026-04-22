@@ -4,15 +4,27 @@ import starlight from "@astrojs/starlight"
 export default defineConfig({
     site: "https://matejstastny.github.io",
     base: "/flaggi",
+    srcDir: "./",
     integrations: [
         starlight({
             title: "Flaggi",
             favicon: "/favicon.png",
             logo: {
-                src: "./src/assets/duck.png",
-                alt: "Flaggi Duck"
+                src: "./assets/duck.png",
+                alt: "Flaggi Duck",
+                replacesTitle: true
             },
-            customCss: ["./src/styles/custom.css"],
+            customCss: ["./styles/custom.css"],
+            head: [
+                {
+                    tag: "script",
+                    content: `
+                        if (!localStorage.getItem('starlight-theme')) {
+                            localStorage.setItem('starlight-theme', 'dark');
+                        }
+                    `
+                }
+            ],
             social: [
                 {
                     icon: "github",
@@ -24,44 +36,24 @@ export default defineConfig({
                 {
                     label: "Getting Started",
                     items: [
-                        { label: "Overview", slug: "introduction" },
-                        { label: "Setup & Running", slug: "getting-started" }
+                        { label: "Play the Game", slug: "getting-started/overview" },
+                        { label: "Style Guide", slug: "getting-started/style-guide" }
+                    ]
+                },
+                {
+                    label: "Developer Guide",
+                    items: [
+                        { label: "Setup", slug: "developer/setup" },
+                        { label: "Docs Website", slug: "developer/website" },
+                        { label: "CI & Formatting", slug: "developer/ci" }
                     ]
                 },
                 {
                     label: "Architecture",
                     items: [
-                        { label: "Project Structure", slug: "architecture/structure" },
+                        { label: "Structure", slug: "architecture/structure" },
                         { label: "Networking", slug: "architecture/networking" },
-                        { label: "Protobuf Protocol", slug: "architecture/protocol" }
-                    ]
-                },
-                {
-                    label: "Client",
-                    items: [
-                        { label: "Overview", slug: "client/overview" },
-                        { label: "Game Renderer", slug: "client/game-ui" },
-                        { label: "Sprite System", slug: "client/sprites" },
-                        { label: "Game Manager", slug: "client/game-manager" }
-                    ]
-                },
-                {
-                    label: "Server",
-                    items: [
-                        { label: "Overview", slug: "server/overview" },
-                        { label: "Game Logic", slug: "server/game-logic" },
-                        { label: "Database", slug: "server/database" }
-                    ]
-                },
-                {
-                    label: "Shared",
-                    items: [{ label: "Utilities", slug: "shared/utilities" }]
-                },
-                {
-                    label: "Building & Distribution",
-                    items: [
-                        { label: "Dev Environment", slug: "building/dev-environment" },
-                        { label: "Packaging", slug: "building/packaging" }
+                        { label: "Protocol", slug: "architecture/protocol" }
                     ]
                 }
             ]

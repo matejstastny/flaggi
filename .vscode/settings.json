@@ -35,8 +35,8 @@
         "**/bin": true,
         "**/.kotlin": true,
         "server-temp": true,
-        "docs/.astro": true,
-        "docs/dist": true,
+        "website/.astro": true,
+        "website/dist": true,
         "**/node_modules": true,
         ".claude": true
     },
@@ -61,7 +61,8 @@
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
     "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false
     },
     "[xml]": {
         "editor.defaultFormatter": "redhat.vscode-xml"
@@ -92,5 +93,9 @@
     },
     "[shellscript]": {
         "editor.defaultFormatter": "mkhl.shfmt"
+    },
+    "[mdx]": {
+        "editor.defaultFormatter": "unifiedjs.vscode-mdx",
+        "editor.wordWrap": "on"
     }
 }
