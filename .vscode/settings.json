@@ -35,8 +35,8 @@
         "**/bin": true,
         "**/.kotlin": true,
         "server-temp": true,
-        "docs/.astro": true,
-        "docs/dist": true,
+        "website/.astro": true,
+        "website/dist": true,
         "**/node_modules": true,
         ".claude": true
     },
