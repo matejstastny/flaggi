@@ -1,12 +1,3 @@
-# --------------------------------------------------------------------------------------------
-# .bashrc - flaggi docker container bash config
-# --------------------------------------------------------------------------------------------
-# Author: Matej Stastny
-# Date: 2025-11-23 (YYYY-MM-DD)
-# License: MIT
-# Link: https://github.com/matejstastny/flaggi
-# --------------------------------------------------------------------------------------------
-
 # ---- Colors ----
 if tput setaf 1 &>/dev/null; then
 	bold=$(tput bold)

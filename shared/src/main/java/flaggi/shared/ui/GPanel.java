@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// GPanel.java - Main graphics class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 07-23-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.ui;
 
 import flaggi.shared.common.Logger;

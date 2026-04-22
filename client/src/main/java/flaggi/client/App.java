@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// App.java - Main application class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 11-04-2024 (2.0: 02-25-2025) (YYYY-MM-DD)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client;
 
 import flaggi.client.common.GameManager;

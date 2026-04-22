@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Server.java - Main server application class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 11-04-2024 (2.0: 02-22-2025) (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server;
 
 import flaggi.proto.ClientMessages.ClientCommand;

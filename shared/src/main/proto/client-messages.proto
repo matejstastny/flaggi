@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// client-messages.proto - Constructed by the CLIENT and processed by the SERVER
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 03-03-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 syntax = "proto3";
 
 package flaggi;

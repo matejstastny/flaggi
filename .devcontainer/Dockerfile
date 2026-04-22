@@ -1,12 +1,3 @@
-# --------------------------------------------------------------------------------------------
-# Dockerfile - dev container docker file for Flaggi
-# --------------------------------------------------------------------------------------------
-# Author: Matej Stastny
-# Date: 2025-11-23 (YYYY-MM-DD)
-# License: MIT
-# Link: https://github.com/matejstastny/flaggi
-# --------------------------------------------------------------------------------------------
-
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ENV DEBIAN_FRONTEND=noninteractive

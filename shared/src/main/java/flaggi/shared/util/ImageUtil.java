@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// ImageUtil.java - Image utility class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 05-16-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.util;
 
 import java.awt.Graphics2D;

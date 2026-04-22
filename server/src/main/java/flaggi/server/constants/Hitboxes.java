@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Hitboxes.java - Constant hitbox values
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 12/12/2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server.constants;
 
 import flaggi.shared.common.Hitbox;

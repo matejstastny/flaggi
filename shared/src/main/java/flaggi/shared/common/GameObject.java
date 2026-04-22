@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// GameObject.java - Stores data about game objects
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 06-21-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 import flaggi.proto.ServerMessages.GameObjectType;

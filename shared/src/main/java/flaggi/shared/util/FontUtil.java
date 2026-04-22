@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// FontUtil.java - Font utility class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 10-29-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.util;
 
 import java.awt.Font;

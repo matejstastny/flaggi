@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// PersistentValue.java - A JSON-serializable variable
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 05-05-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

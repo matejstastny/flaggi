@@ -1,12 +1,3 @@
-// --------------------------------------------------------------------------------------------
-// DebugOverlay.java
-// --------------------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 2026-02-23 (YYYY-MM-DD)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// --------------------------------------------------------------------------------------------
-
 package flaggi.client.ui;
 
 import flaggi.client.constants.Constants;

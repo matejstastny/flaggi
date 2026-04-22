@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// ClientHandler.java - Handles communication with a connected client
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-23-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server.client;
 
 import flaggi.proto.ClientMessages.ClientMessage;

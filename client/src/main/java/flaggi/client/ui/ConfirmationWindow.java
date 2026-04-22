@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// ConfirmationWindow.java - Confirmation dialog widget
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 01-00-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.ui;
 
 import flaggi.client.constants.Constants;

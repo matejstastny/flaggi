@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// GameManager.java - Manages game state and logic on the client side
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 2025-06-21 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.common;
 
 import flaggi.client.constants.UiTags;

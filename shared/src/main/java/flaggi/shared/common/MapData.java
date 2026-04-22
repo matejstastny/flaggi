@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// MapData.java - Game map data structure class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 06-21-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

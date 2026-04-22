@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// GameData.java - Stores and manages game instance state
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 10-01-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server.common;
 
 import flaggi.proto.ServerMessages.ServerStateUpdate;

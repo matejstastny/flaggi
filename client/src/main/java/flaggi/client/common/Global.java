@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Global.java - Global utility class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 04-26-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.common;
 
 import flaggi.proto.ClientMessages.ClientMessage;

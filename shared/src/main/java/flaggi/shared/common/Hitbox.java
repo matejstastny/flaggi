@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Hitbox.java - Class that holds hitbox data
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 12/12/2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 public class Hitbox {

@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// NetUtil.java - Network utility class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 04-04-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.util;
 
 import java.net.Inet4Address;

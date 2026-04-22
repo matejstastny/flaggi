@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Client.java - Represents a connected client on the server side
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-23-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server.client;
 
 import flaggi.proto.ServerMessages.ServerMessage;

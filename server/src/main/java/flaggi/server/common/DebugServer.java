@@ -1,12 +1,3 @@
-// --------------------------------------------------------------------------------------------
-// DebugServer.java - Lightweight HTTP debug state endpoint for the dev dashboard
-// --------------------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 2026-02-25 (YYYY-MM-DD)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// --------------------------------------------------------------------------------------------
-
 package flaggi.server.common;
 
 import com.sun.net.httpserver.HttpExchange;

@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// Constants.java - Server constants class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-22-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.server.constants;
 
 import flaggi.server.Server;

@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// BulletGameObject.java - Bullet game object with velocity and ownership
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-26-2026 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 import flaggi.proto.ServerMessages.GameObjectType;

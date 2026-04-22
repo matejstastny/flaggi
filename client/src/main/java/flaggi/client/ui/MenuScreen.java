@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// MenuScreen.java - Main menu screen widget
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 11-27-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.ui;
 
 import flaggi.client.constants.UiTags;

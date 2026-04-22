@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// FlagGameObject.java - Flag game object (capture-the-flag mechanic)
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-26-2026 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.shared.common;
 
 import flaggi.proto.ServerMessages.GameObjectType;

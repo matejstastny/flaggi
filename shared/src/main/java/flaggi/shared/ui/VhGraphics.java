@@ -1,12 +1,3 @@
-// --------------------------------------------------------------------------------------------
-// VhGraphics.java - a Graphics2D wrapper for view height
-// --------------------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 02-22-2026 (YYYY-MM-DD)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// --------------------------------------------------------------------------------------------
-
 package flaggi.shared.ui;
 
 import java.awt.BasicStroke;

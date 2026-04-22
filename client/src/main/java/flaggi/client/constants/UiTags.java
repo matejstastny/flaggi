@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// UiTags.java - UI tags constants class
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 07-25-2024 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.constants;
 
 public class UiTags {
