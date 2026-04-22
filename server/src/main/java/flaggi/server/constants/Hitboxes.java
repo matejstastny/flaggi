@@ -4,13 +4,12 @@ import flaggi.shared.common.Hitbox;
 
 public class Hitboxes {
 
-  // Private constructor to prevent instantiation
-  private Hitboxes() {
-    throw new UnsupportedOperationException(
-        "Hitboxes is a constants class and cannot be instantiated.");
-  }
+    // Private constructor to prevent instantiation
+    private Hitboxes() {
+        throw new UnsupportedOperationException("Hitboxes is a constants class and cannot be instantiated.");
+    }
 
-  // Hitboxes -----------------------------------------------------------------
+    // Hitboxes -----------------------------------------------------------------
 
 	/**
 	 * Player hitbox - centred on the player origin (x, y). 5×5 unit square offset
@@ -35,8 +34,8 @@ public class Hitboxes {
 		return new Hitbox(-3, -3, 6, 6);
 	}
 
-  /** Obstacle hitbox. Adjust to match your art asset. Currently a 10×10 square centred on origin */
-  public static Hitbox obstacle() {
-    return new Hitbox(-5, -5, 10, 10);
-  }
+    /** Obstacle hitbox. Adjust to match your art asset. Currently a 10×10 square centred on origin */
+    public static Hitbox obstacle() {
+        return new Hitbox(-5, -5, 10, 10);
+    }
 }

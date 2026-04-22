@@ -15,35 +15,35 @@ import java.net.Socket;
  */
 public class Global {
 
-  // Private constructor to prevent instantiation
-  private Global() {
-    throw new UnsupportedOperationException(
-        "Global is a static method library and cannot be instantiated");
-  }
-
-  // Net -----------------------------------------------------------------------
-
-  /**
-   * Checks if the server is a Flaggi server by sending a ping message and expecting a pong
-   * response.
-   */
-  public static boolean isFlaggiServer(String address, int port) {
-    try (Socket socket = new Socket()) {
-      socket.connect(new InetSocketAddress(address, port), 1000);
-      socket.setSoTimeout(2000);
-
-      OutputStream out = socket.getOutputStream();
-      InputStream in = socket.getInputStream();
-
-      ClientMessage ping =
-          ClientMessage.newBuilder().setPing(Ping.newBuilder().setPing("ping")).build();
-
-      ProtoUtil.sendClientMessage(ping, out);
-      ServerMessage response = ProtoUtil.receiveServerMessage(in);
-
-      return response != null && response.hasPong();
-    } catch (IOException e) {
-      return false;
+    // Private constructor to prevent instantiation
+    private Global() {
+        throw new UnsupportedOperationException("Global is a static method library and cannot be instantiated");
     }
-  }
+
+    // Net -----------------------------------------------------------------------
+
+    /**
+     * Checks if the server is a Flaggi server by sending a ping message and expecting a pong
+     * response.
+     */
+    public static boolean isFlaggiServer(String address, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(address, port), 1000);
+            socket.setSoTimeout(2000);
+
+            OutputStream out = socket.getOutputStream();
+            InputStream in = socket.getInputStream();
+
+            ClientMessage ping = ClientMessage.newBuilder()
+                    .setPing(Ping.newBuilder().setPing("ping"))
+                    .build();
+
+            ProtoUtil.sendClientMessage(ping, out);
+            ServerMessage response = ProtoUtil.receiveServerMessage(in);
+
+            return response != null && response.hasPong();
+        } catch (IOException e) {
+            return false;
+        }
+    }
 }

@@ -13,7 +13,7 @@ spotless {
     java {
         target("src/*/java/**/*.java")
         targetExclude("**/build/**")
-        googleJavaFormat("1.25.2")
+        palantirJavaFormat("2.50.0")
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

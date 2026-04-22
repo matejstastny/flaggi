@@ -13,39 +13,37 @@ import java.util.concurrent.BlockingQueue;
 
 public class TcpListener implements Runnable {
 
-  private final int port;
-  private final BlockingQueue<ClientMessage> messageQueue;
-  private final Map<String, Client> clients;
+    private final int port;
+    private final BlockingQueue<ClientMessage> messageQueue;
+    private final Map<String, Client> clients;
 
-  // Constructor --------------------------------------------------------------
+    // Constructor --------------------------------------------------------------
 
-  public TcpListener(
-      int port, BlockingQueue<ClientMessage> messageQueue, Map<String, Client> clients) {
-    this.port = port;
-    this.messageQueue = messageQueue;
-    this.clients = clients;
-  }
-
-  // Accesors -----------------------------------------------------------------
-
-  public BlockingQueue<ClientMessage> getMessageQueue() {
-    return messageQueue;
-  }
-
-  // Update -------------------------------------------------------------------
-
-  @Override
-  public void run() {
-    try (ServerSocket serverSocket = new ServerSocket(port)) {
-      Logger.log(LogLevel.INF, "TCP listener started on port " + port);
-      while (true) {
-        Socket clientSocket = serverSocket.accept();
-        new Thread(new ClientHandler(clientSocket, messageQueue, clients), "Client Handler Thread")
-            .start();
-      }
-    } catch (Exception e) {
-      Logger.log(LogLevel.ERR, "An error occurred in the TCP listener.", e);
-      Server.handleFatalError();
+    public TcpListener(int port, BlockingQueue<ClientMessage> messageQueue, Map<String, Client> clients) {
+        this.port = port;
+        this.messageQueue = messageQueue;
+        this.clients = clients;
     }
-  }
+
+    // Accesors -----------------------------------------------------------------
+
+    public BlockingQueue<ClientMessage> getMessageQueue() {
+        return messageQueue;
+    }
+
+    // Update -------------------------------------------------------------------
+
+    @Override
+    public void run() {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            Logger.log(LogLevel.INF, "TCP listener started on port " + port);
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                new Thread(new ClientHandler(clientSocket, messageQueue, clients), "Client Handler Thread").start();
+            }
+        } catch (Exception e) {
+            Logger.log(LogLevel.ERR, "An error occurred in the TCP listener.", e);
+            Server.handleFatalError();
+        }
+    }
 }

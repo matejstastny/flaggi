@@ -20,21 +20,21 @@ import java.util.List;
  */
 public class DatabaseManager {
 
-  // Path to the SQLite file. Will be created automatically if it doesn't exist.
-  private static final String DB_PATH = "flaggi.db";
-  private static final String DB_URL = "jdbc:sqlite:" + DB_PATH;
+    // Path to the SQLite file. Will be created automatically if it doesn't exist.
+    private static final String DB_PATH = "flaggi.db";
+    private static final String DB_URL = "jdbc:sqlite:" + DB_PATH;
 
-  // -------------------------------------------------------------------------
-  // Setup
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Setup
+    // -------------------------------------------------------------------------
 
-  /**
-   * Call this once when the server starts. Creates the database file and all tables if they don't
-   * already exist.
-   */
-  public static void initialize() {
-    try (Connection conn = connect();
-        Statement stmt = conn.createStatement()) {
+    /**
+     * Call this once when the server starts. Creates the database file and all tables if they don't
+     * already exist.
+     */
+    public static void initialize() {
+        try (Connection conn = connect();
+                Statement stmt = conn.createStatement()) {
 
 			// players table - one row per unique player name.
 			// "INTEGER PRIMARY KEY" is SQLite's auto-incrementing ID.
@@ -77,7 +77,7 @@ public class DatabaseManager {
 					    )
 					""");
 
-      System.out.println("[DB] Database initialized at: " + DB_PATH);
+            System.out.println("[DB] Database initialized at: " + DB_PATH);
 
     } catch (SQLException e) {
       System.err.println("[DB] Failed to initialize database: " + e.getMessage());
@@ -113,29 +113,60 @@ public class DatabaseManager {
           insertPlayerGameStats(conn, playerId, gameId, stats);
           updatePlayerTotals(conn, playerId, stats);
         }
-
-        conn.commit();
-        System.out.println("[DB] Saved game #" + gameId + " (" + playerStats.size() + " players)");
-
-      } catch (SQLException e) {
-        conn.rollback(); // Undo everything if something failed.
-        System.err.println("[DB] Failed to save game, rolled back: " + e.getMessage());
-      }
-
-    } catch (SQLException e) {
-      System.err.println("[DB] Connection error while saving game: " + e.getMessage());
     }
-  }
 
-  // -------------------------------------------------------------------------
-  // Reading data (for the leaderboard)
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Writing data
+    // -------------------------------------------------------------------------
 
-  /** Returns all players sorted by wins descending. This is the main leaderboard query. */
-  public static List<LeaderboardEntry> getLeaderboard() {
-    List<LeaderboardEntry> entries = new ArrayList<>();
-    String sql =
-        """
+    /**
+     * Call this at the end of each match to save everything.
+     *
+     * @param winnerTeam "red" or "blue"
+     * @param durationSecs how long the game lasted in seconds
+     * @param playerStats list of what each player did this match
+     */
+    public static void saveGame(String winnerTeam, int durationSecs, List<PlayerMatchStats> playerStats) {
+        try (Connection conn = connect()) {
+            // Wrap everything in a transaction — either all of it saves, or none of it
+            // does.
+            // This prevents half-saved data if something goes wrong mid-way.
+            conn.setAutoCommit(false);
+
+            try {
+                // 1. Insert the game row and get its auto-generated ID back.
+                int gameId = insertGame(conn, winnerTeam, durationSecs);
+
+                // 2. For each player, upsert (insert or update) their row in `players`,
+                // then insert their per-game stats.
+                for (PlayerMatchStats stats : playerStats) {
+                    int playerId = upsertPlayer(conn, stats.playerName);
+                    insertPlayerGameStats(conn, playerId, gameId, stats);
+                    updatePlayerTotals(conn, playerId, stats);
+                }
+
+                conn.commit();
+                System.out.println("[DB] Saved game #" + gameId + " (" + playerStats.size() + " players)");
+
+            } catch (SQLException e) {
+                conn.rollback(); // Undo everything if something failed.
+                System.err.println("[DB] Failed to save game, rolled back: " + e.getMessage());
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[DB] Connection error while saving game: " + e.getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Reading data (for the leaderboard)
+    // -------------------------------------------------------------------------
+
+    /** Returns all players sorted by wins descending. This is the main leaderboard query. */
+    public static List<LeaderboardEntry> getLeaderboard() {
+        List<LeaderboardEntry> entries = new ArrayList<>();
+        String sql =
+                """
 				    SELECT
 				        name,
 				        total_kills,
@@ -151,129 +182,125 @@ public class DatabaseManager {
 				    ORDER BY total_wins DESC, kd_ratio DESC
 				""";
 
-    try (Connection conn = connect();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connect();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
-      while (rs.next()) {
-        entries.add(
-            new LeaderboardEntry(
-                rs.getString("name"),
-                rs.getInt("total_kills"),
-                rs.getInt("total_deaths"),
-                rs.getInt("total_wins"),
-                rs.getInt("total_losses"),
-                rs.getInt("games_played"),
-                rs.getDouble("kd_ratio")));
-      }
+            while (rs.next()) {
+                entries.add(new LeaderboardEntry(
+                        rs.getString("name"),
+                        rs.getInt("total_kills"),
+                        rs.getInt("total_deaths"),
+                        rs.getInt("total_wins"),
+                        rs.getInt("total_losses"),
+                        rs.getInt("games_played"),
+                        rs.getDouble("kd_ratio")));
+            }
 
-    } catch (SQLException e) {
-      System.err.println("[DB] Failed to fetch leaderboard: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("[DB] Failed to fetch leaderboard: " + e.getMessage());
+        }
+
+        return entries;
     }
 
-    return entries;
-  }
-
-  /** Returns the last N games played, most recent first. */
-  public static List<GameHistoryEntry> getRecentGames(int limit) {
-    List<GameHistoryEntry> entries = new ArrayList<>();
-    String sql =
-        """
+    /** Returns the last N games played, most recent first. */
+    public static List<GameHistoryEntry> getRecentGames(int limit) {
+        List<GameHistoryEntry> entries = new ArrayList<>();
+        String sql =
+                """
 				    SELECT id, winner_team, duration_secs, played_at
 				    FROM games
 				    ORDER BY played_at DESC
 				    LIMIT ?
 				""";
 
-    try (Connection conn = connect();
-        PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = connect();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
-      ps.setInt(1, limit);
-      ResultSet rs = ps.executeQuery();
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
 
-      while (rs.next()) {
-        entries.add(
-            new GameHistoryEntry(
-                rs.getInt("id"),
-                rs.getString("winner_team"),
-                rs.getInt("duration_secs"),
-                rs.getString("played_at")));
-      }
+            while (rs.next()) {
+                entries.add(new GameHistoryEntry(
+                        rs.getInt("id"),
+                        rs.getString("winner_team"),
+                        rs.getInt("duration_secs"),
+                        rs.getString("played_at")));
+            }
 
-    } catch (SQLException e) {
-      System.err.println("[DB] Failed to fetch recent games: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("[DB] Failed to fetch recent games: " + e.getMessage());
+        }
+
+        return entries;
     }
 
-    return entries;
-  }
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
 
-  // -------------------------------------------------------------------------
-  // Private helpers
-  // -------------------------------------------------------------------------
-
-  /** Opens a connection to the SQLite file. Always use in a try-with-resources block. */
-  private static Connection connect() throws SQLException {
-    return DriverManager.getConnection(DB_URL);
-  }
-
-  /** Inserts a game row and returns the auto-generated game ID. */
-  private static int insertGame(Connection conn, String winnerTeam, int durationSecs)
-      throws SQLException {
-    String sql = "INSERT INTO games (winner_team, duration_secs) VALUES (?, ?)";
-    // RETURN_GENERATED_KEYS tells JDBC to give us back the auto-generated ID.
-    try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-      ps.setString(1, winnerTeam);
-      ps.setInt(2, durationSecs);
-      ps.executeUpdate();
-      ResultSet keys = ps.getGeneratedKeys();
-      keys.next();
-      return keys.getInt(1);
-    }
-  }
-
-  /**
-   * "Upsert" = INSERT if the player doesn't exist, do nothing if they do. Then fetch their ID
-   * either way.
-   */
-  private static int upsertPlayer(Connection conn, String name) throws SQLException {
-    // INSERT OR IGNORE skips the insert if the name already exists (due to UNIQUE).
-    String insert = "INSERT OR IGNORE INTO players (name) VALUES (?)";
-    try (PreparedStatement ps = conn.prepareStatement(insert)) {
-      ps.setString(1, name);
-      ps.executeUpdate();
+    /** Opens a connection to the SQLite file. Always use in a try-with-resources block. */
+    private static Connection connect() throws SQLException {
+        return DriverManager.getConnection(DB_URL);
     }
 
-    // Now fetch the ID (works whether we just inserted or it already existed).
-    String select = "SELECT id FROM players WHERE name = ?";
-    try (PreparedStatement ps = conn.prepareStatement(select)) {
-      ps.setString(1, name);
-      ResultSet rs = ps.executeQuery();
-      rs.next();
-      return rs.getInt("id");
+    /** Inserts a game row and returns the auto-generated game ID. */
+    private static int insertGame(Connection conn, String winnerTeam, int durationSecs) throws SQLException {
+        String sql = "INSERT INTO games (winner_team, duration_secs) VALUES (?, ?)";
+        // RETURN_GENERATED_KEYS tells JDBC to give us back the auto-generated ID.
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, winnerTeam);
+            ps.setInt(2, durationSecs);
+            ps.executeUpdate();
+            ResultSet keys = ps.getGeneratedKeys();
+            keys.next();
+            return keys.getInt(1);
+        }
     }
-  }
 
-  /** Inserts a row into player_game_stats for one player's performance in one game. */
-  private static void insertPlayerGameStats(
-      Connection conn, int playerId, int gameId, PlayerMatchStats stats) throws SQLException {
-    String sql =
-        "INSERT INTO player_game_stats (player_id, game_id, team, kills, deaths, won) VALUES (?, ?, ?, ?, ?, ?)";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setInt(1, playerId);
-      ps.setInt(2, gameId);
-      ps.setString(3, stats.team);
-      ps.setInt(4, stats.kills);
-      ps.setInt(5, stats.deaths);
-      ps.setInt(6, stats.won ? 1 : 0);
-      ps.executeUpdate();
+    /**
+     * "Upsert" = INSERT if the player doesn't exist, do nothing if they do. Then fetch their ID
+     * either way.
+     */
+    private static int upsertPlayer(Connection conn, String name) throws SQLException {
+        // INSERT OR IGNORE skips the insert if the name already exists (due to UNIQUE).
+        String insert = "INSERT OR IGNORE INTO players (name) VALUES (?)";
+        try (PreparedStatement ps = conn.prepareStatement(insert)) {
+            ps.setString(1, name);
+            ps.executeUpdate();
+        }
+
+        // Now fetch the ID (works whether we just inserted or it already existed).
+        String select = "SELECT id FROM players WHERE name = ?";
+        try (PreparedStatement ps = conn.prepareStatement(select)) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt("id");
+        }
     }
-  }
 
-  /** Adds this match's stats onto the player's running totals. */
-  private static void updatePlayerTotals(Connection conn, int playerId, PlayerMatchStats stats)
-      throws SQLException {
-    String sql =
-        """
+    /** Inserts a row into player_game_stats for one player's performance in one game. */
+    private static void insertPlayerGameStats(Connection conn, int playerId, int gameId, PlayerMatchStats stats)
+            throws SQLException {
+        String sql =
+                "INSERT INTO player_game_stats (player_id, game_id, team, kills, deaths, won) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, playerId);
+            ps.setInt(2, gameId);
+            ps.setString(3, stats.team);
+            ps.setInt(4, stats.kills);
+            ps.setInt(5, stats.deaths);
+            ps.setInt(6, stats.won ? 1 : 0);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Adds this match's stats onto the player's running totals. */
+    private static void updatePlayerTotals(Connection conn, int playerId, PlayerMatchStats stats) throws SQLException {
+        String sql =
+                """
 				    UPDATE players SET
 				        total_kills  = total_kills  + ?,
 				        total_deaths = total_deaths + ?,
@@ -283,19 +310,19 @@ public class DatabaseManager {
 				        last_seen    = datetime('now')
 				    WHERE id = ?
 				""";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-      ps.setInt(1, stats.kills);
-      ps.setInt(2, stats.deaths);
-      ps.setInt(3, stats.won ? 1 : 0);
-      ps.setInt(4, stats.won ? 0 : 1);
-      ps.setInt(5, playerId);
-      ps.executeUpdate();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, stats.kills);
+            ps.setInt(2, stats.deaths);
+            ps.setInt(3, stats.won ? 1 : 0);
+            ps.setInt(4, stats.won ? 0 : 1);
+            ps.setInt(5, playerId);
+            ps.executeUpdate();
+        }
     }
-  }
 
-  // -------------------------------------------------------------------------
-  // Data classes
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Data classes
+    // -------------------------------------------------------------------------
 
 	/** What you pass in when saving a game - one per player. */
 	public static class PlayerMatchStats {
@@ -305,43 +332,43 @@ public class DatabaseManager {
 		public final int deaths;
 		public final boolean won;
 
-    public PlayerMatchStats(String playerName, String team, int kills, int deaths, boolean won) {
-      this.playerName = playerName;
-      this.team = team;
-      this.kills = kills;
-      this.deaths = deaths;
-      this.won = won;
+        public PlayerMatchStats(String playerName, String team, int kills, int deaths, boolean won) {
+            this.playerName = playerName;
+            this.team = team;
+            this.kills = kills;
+            this.deaths = deaths;
+            this.won = won;
+        }
     }
-  }
 
-  /** One row of the leaderboard. */
-  public static class LeaderboardEntry {
-    public final String name;
-    public final int kills, deaths, wins, losses, gamesPlayed;
-    public final double kdRatio;
+    /** One row of the leaderboard. */
+    public static class LeaderboardEntry {
+        public final String name;
+        public final int kills, deaths, wins, losses, gamesPlayed;
+        public final double kdRatio;
 
-    public LeaderboardEntry(
-        String name, int kills, int deaths, int wins, int losses, int gamesPlayed, double kdRatio) {
-      this.name = name;
-      this.kills = kills;
-      this.deaths = deaths;
-      this.wins = wins;
-      this.losses = losses;
-      this.gamesPlayed = gamesPlayed;
-      this.kdRatio = kdRatio;
+        public LeaderboardEntry(
+                String name, int kills, int deaths, int wins, int losses, int gamesPlayed, double kdRatio) {
+            this.name = name;
+            this.kills = kills;
+            this.deaths = deaths;
+            this.wins = wins;
+            this.losses = losses;
+            this.gamesPlayed = gamesPlayed;
+            this.kdRatio = kdRatio;
+        }
     }
-  }
 
-  /** One row of the recent games list. */
-  public static class GameHistoryEntry {
-    public final int id, durationSecs;
-    public final String winnerTeam, playedAt;
+    /** One row of the recent games list. */
+    public static class GameHistoryEntry {
+        public final int id, durationSecs;
+        public final String winnerTeam, playedAt;
 
-    public GameHistoryEntry(int id, String winnerTeam, int durationSecs, String playedAt) {
-      this.id = id;
-      this.winnerTeam = winnerTeam;
-      this.durationSecs = durationSecs;
-      this.playedAt = playedAt;
+        public GameHistoryEntry(int id, String winnerTeam, int durationSecs, String playedAt) {
+            this.id = id;
+            this.winnerTeam = winnerTeam;
+            this.durationSecs = durationSecs;
+            this.playedAt = playedAt;
+        }
     }
-  }
 }

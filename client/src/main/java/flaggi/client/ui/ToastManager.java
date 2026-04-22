@@ -20,85 +20,84 @@ import java.util.List;
  */
 public class ToastManager extends Renderable {
 
-  private static final int MAX_TOASTS = 6;
-  private final List<Toast> toasts;
+    private static final int MAX_TOASTS = 6;
+    private final List<Toast> toasts;
 
-  // Constructor --------------------------------------------------------------
+    // Constructor --------------------------------------------------------------
 
-  public ToastManager() {
-    super(ZIndex.TOAST, PanelRegion.TOP_RIGHT, UiTags.TOASTS, UiTags.ALWAYS_VISIBLE);
-    this.toasts = new ArrayList<>();
-  }
-
-  public void newToast(ToastCategory category, String message) {
-    toasts.add(new Toast(category, message, System.currentTimeMillis()));
-  }
-
-  // Rendering ----------------------------------------------------------------
-
-  @Override
-  public void render(VhGraphics g, Container focusCycleRootAncestor) {
-    for (int i = toasts.size() - 1; i >= 0 && i >= toasts.size() - MAX_TOASTS; i--) {
-      Toast toast = toasts.get(i);
-      if (System.currentTimeMillis() - toast.timestamp
-          >= Constants.TOAST_DISPLAY_DURATION_SEC * 1000) {
-        toasts.remove(i);
-        continue;
-      }
-
-      int width = px(94);
-      int height = px(14.8);
-      int arc = px(3);
-      int x = px(5);
-      int y = px(2) * (toasts.size() - i) + height * (toasts.size() - i - 1);
-
-      // Background
-      g.setColor(toast.category.getColor());
-      g.raw().fillRoundRect(x, y, width, height, arc, arc);
-
-      // Border
-      g.setColor(new Color(0, 0, 0, 220));
-      g.setStroke(new BasicStroke(px(1)));
-      g.raw().drawRoundRect(x, y, width, height, arc, arc);
-
-      // Text
-      g.raw().setFont(Constants.FONT.deriveFont(Font.PLAIN, px(4)));
-      g.setColor(Color.WHITE);
-      g.drawString(toast.message, x + px(3), y + px(8.7));
-    }
-  }
-
-  // Toast item ---------------------------------------------------------------
-
-  private static class Toast {
-
-    private final String message;
-    private final long timestamp;
-    private final ToastCategory category;
-
-    public Toast(ToastCategory category, String message, long timestamp) {
-      this.category = category;
-      this.message = message;
-      this.timestamp = timestamp;
-    }
-  }
-
-  // Toast categories ---------------------------------------------------------
-
-  public enum ToastCategory {
-    INFO(Color.GRAY),
-    WARNING(Color.ORANGE),
-    ERROR(Color.RED),
-    SUCCESS(new Color(0, 153, 0));
-
-    private final Color color;
-
-    ToastCategory(Color color) {
-      this.color = color;
+    public ToastManager() {
+        super(ZIndex.TOAST, PanelRegion.TOP_RIGHT, UiTags.TOASTS, UiTags.ALWAYS_VISIBLE);
+        this.toasts = new ArrayList<>();
     }
 
-    public Color getColor() {
-      return color;
+    public void newToast(ToastCategory category, String message) {
+        toasts.add(new Toast(category, message, System.currentTimeMillis()));
     }
-  }
+
+    // Rendering ----------------------------------------------------------------
+
+    @Override
+    public void render(VhGraphics g, Container focusCycleRootAncestor) {
+        for (int i = toasts.size() - 1; i >= 0 && i >= toasts.size() - MAX_TOASTS; i--) {
+            Toast toast = toasts.get(i);
+            if (System.currentTimeMillis() - toast.timestamp >= Constants.TOAST_DISPLAY_DURATION_SEC * 1000) {
+                toasts.remove(i);
+                continue;
+            }
+
+            int width = px(94);
+            int height = px(14.8);
+            int arc = px(3);
+            int x = px(5);
+            int y = px(2) * (toasts.size() - i) + height * (toasts.size() - i - 1);
+
+            // Background
+            g.setColor(toast.category.getColor());
+            g.raw().fillRoundRect(x, y, width, height, arc, arc);
+
+            // Border
+            g.setColor(new Color(0, 0, 0, 220));
+            g.setStroke(new BasicStroke(px(1)));
+            g.raw().drawRoundRect(x, y, width, height, arc, arc);
+
+            // Text
+            g.raw().setFont(Constants.FONT.deriveFont(Font.PLAIN, px(4)));
+            g.setColor(Color.WHITE);
+            g.drawString(toast.message, x + px(3), y + px(8.7));
+        }
+    }
+
+    // Toast item ---------------------------------------------------------------
+
+    private static class Toast {
+
+        private final String message;
+        private final long timestamp;
+        private final ToastCategory category;
+
+        public Toast(ToastCategory category, String message, long timestamp) {
+            this.category = category;
+            this.message = message;
+            this.timestamp = timestamp;
+        }
+    }
+
+    // Toast categories ---------------------------------------------------------
+
+    public enum ToastCategory {
+        INFO(Color.GRAY),
+        WARNING(Color.ORANGE),
+        ERROR(Color.RED),
+        SUCCESS(new Color(0, 153, 0));
+
+        private final Color color;
+
+        ToastCategory(Color color) {
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+    }
 }
