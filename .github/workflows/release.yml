@@ -220,6 +220,7 @@ jobs:
             - name: Publish release
               uses: softprops/action-gh-release@v2
               with:
-                  tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || github.event.inputs.release_tag }}
-                  files: release-artifacts/**/**
-                  generate_release_notes: true
+                tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || github.event.inputs.release_tag }}
+                name: Flaggi ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || github.event.inputs.release_tag }}
+                files: release-artifacts/**/**
+                generate_release_notes: true
