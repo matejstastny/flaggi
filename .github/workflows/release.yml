@@ -94,6 +94,11 @@ jobs:
               shell: bash
               run: ./gradlew :client:shadowJar --no-daemon
 
+            - name: Build server shadowJar (Linux)
+              if: matrix.target.name == 'linux'
+              shell: bash
+              run: ./gradlew :server:shadowJar --no-daemon
+
             - name: Build shadowJar (Windows)
               if: runner.os == 'Windows'
               shell: pwsh
@@ -175,6 +180,8 @@ jobs:
                       ;;
                     linux)
                       tar -C "$DIST_DIR" -czf "$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz" "$APP_NAME"
+                      cp "client/build/libs/flaggi-client.jar" "$DIST_DIR/Flaggi-${APP_VERSION}-client-universal.jar"
+                      cp "server/build/libs/flaggi-server.jar" "$DIST_DIR/Flaggi-${APP_VERSION}-server.jar"
                       out_file="$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz"
                       ;;
                   esac
@@ -186,6 +193,16 @@ jobs:
               with:
                   name: release-${{ matrix.target.name }}
                   path: ${{ steps.package_app.outputs.output_file }}
+                  if-no-files-found: error
+
+            - name: Upload universal and server jars
+              if: matrix.target.name == 'linux'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: release-jars
+                  path: |
+                      dist/Flaggi-*-client-universal.jar
+                      dist/Flaggi-*-server.jar
                   if-no-files-found: error
 
     publish:
