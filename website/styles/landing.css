@@ -49,79 +49,71 @@ body {
     image-rendering: pixelated;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.12;
+    opacity: 0.6;
     filter: brightness(1.2);
+    transform-origin: center;
+    --sprite-scale: 4;
+    transform: scale(var(--sprite-scale));
+    animation-fill-mode: both;
 }
 
 @keyframes float-1 {
     0%,
     100% {
-        transform: translateY(0) rotate(-3deg);
+        transform: translateY(0) rotate(-3deg) scale(var(--sprite-scale));
     }
     50% {
-        transform: translateY(-18px) rotate(3deg);
+        transform: translateY(-18px) rotate(3deg) scale(var(--sprite-scale));
     }
 }
 @keyframes float-2 {
     0%,
     100% {
-        transform: translateY(0) rotate(2deg);
+        transform: translateY(0) rotate(2deg) scale(var(--sprite-scale));
     }
     50% {
-        transform: translateY(-14px) rotate(-2deg);
+        transform: translateY(-14px) rotate(-2deg) scale(var(--sprite-scale));
     }
 }
 @keyframes float-3 {
     0%,
     100% {
-        transform: translateY(0) rotate(0deg);
+        transform: translateY(0) rotate(0deg) scale(var(--sprite-scale));
     }
     50% {
-        transform: translateY(-22px) rotate(4deg);
+        transform: translateY(-22px) rotate(4deg) scale(var(--sprite-scale));
     }
 }
 
 .sprite-float:nth-child(1) {
     top: 12%;
-    left: 5%;
-    width: 64px;
+    left: 20%;
     animation: float-1 6s ease-in-out infinite;
 }
 .sprite-float:nth-child(2) {
-    top: 25%;
+    top: 20%;
     right: 8%;
-    width: 48px;
     animation: float-2 8s ease-in-out infinite 1s;
 }
 .sprite-float:nth-child(3) {
-    top: 55%;
-    left: 3%;
-    width: 56px;
-    animation: float-3 7s ease-in-out infinite 0.5s;
+    top: 44%;
+    right: 15%;
+    animation: float-1 6.5s ease-in-out infinite 0.8s;
 }
 .sprite-float:nth-child(4) {
     top: 70%;
-    right: 4%;
-    width: 72px;
+    right: 6%;
     animation: float-1 9s ease-in-out infinite 2s;
 }
 .sprite-float:nth-child(5) {
     top: 40%;
     left: 8%;
-    width: 40px;
     animation: float-2 5.5s ease-in-out infinite 0.3s;
 }
 .sprite-float:nth-child(6) {
     top: 85%;
     left: 12%;
-    width: 52px;
     animation: float-3 7.5s ease-in-out infinite 1.5s;
-}
-.sprite-float:nth-child(7) {
-    top: 15%;
-    right: 15%;
-    width: 44px;
-    animation: float-1 6.5s ease-in-out infinite 0.8s;
 }
 
 /* ── Nav ─────────────────────────────────────────── */
@@ -149,7 +141,7 @@ nav {
 
 .nav-logo img {
     width: 28px;
-    height: 28px;
+    height: auto;
     image-rendering: pixelated;
 }
 
@@ -205,7 +197,7 @@ nav {
 
 .hero-duck {
     width: 96px;
-    height: 96px;
+    height: auto;
     image-rendering: pixelated;
     margin-bottom: 24px;
     filter: drop-shadow(0 0 24px var(--blue-glow));
