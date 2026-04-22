@@ -2,6 +2,7 @@
     // Formatters ---------------------------------------------------------------
 
     "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
     "[java]": {
         "editor.defaultFormatter": "redhat.java",
         "editor.codeActionsOnSave": {

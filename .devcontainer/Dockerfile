@@ -12,10 +12,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
 USER root
 
-# ---------------------------------------------------------
 # System packages
-# ---------------------------------------------------------
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     openjdk-21-jdk \
@@ -32,27 +29,18 @@ RUN apt-get update && \
     build-essential && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ---------------------------------------------------------
 # Java setup
-# ---------------------------------------------------------
-
 RUN JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) && \
     echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment
 
 RUN ls -la "$JAVA_HOME/bin/java" && "$JAVA_HOME/bin/java" -version
 
-# ---------------------------------------------------------
 # ktlint install
-# ---------------------------------------------------------
-
 ARG KTLINT_VERSION=1.8.0
 RUN curl -sSL https://github.com/pinterest/ktlint/releases/download/${KTLINT_VERSION}/ktlint \
     -o /usr/local/bin/ktlint && chmod +x /usr/local/bin/ktlint
 
-# ---------------------------------------------------------
 # User setup
-# ---------------------------------------------------------
-
 RUN useradd flaggi \
     --shell /bin/bash \
     --create-home \

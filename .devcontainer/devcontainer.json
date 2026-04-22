@@ -15,6 +15,7 @@
     "remoteUser": "flaggi",
     // "appPort": [54321, "54322:54322/udp"],
     "workspaceFolder": "/workspaces/flaggi",
+    "postCreateCommand": "set -e; cd dev-console && npm ci; cd ../docs && npm ci",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -34,12 +35,16 @@
                 "patbenatar.advanced-new-file",
                 "jsynowiec.vscode-insertdatestring",
                 "mskelton.ktlint",
-                "eamodio.gitlens"
+                "eamodio.gitlens",
+                "GitHub.copilot"
             ]
         }
     },
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/devcontainers/features/common-utils:2": {}
+        "ghcr.io/devcontainers/features/common-utils:2": {},
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "22"
+        }
     }
 }
