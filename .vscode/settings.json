@@ -92,5 +92,9 @@
     },
     "[shellscript]": {
         "editor.defaultFormatter": "mkhl.shfmt"
+    },
+    "[mdx]": {
+        "editor.defaultFormatter": "unifiedjs.vscode-mdx",
+        "editor.wordWrap": "on"
     }
 }
