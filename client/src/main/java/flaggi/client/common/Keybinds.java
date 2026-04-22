@@ -9,6 +9,4 @@
 
 package flaggi.client.common;
 
-public class Keybinds {
-
-}
+public class Keybinds {}

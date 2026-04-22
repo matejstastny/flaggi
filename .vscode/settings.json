@@ -4,7 +4,7 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "[java]": {
-        "editor.defaultFormatter": "redhat.java",
+        "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
         "editor.codeActionsOnSave": {
             "source.organizeImports": "always"
         }
@@ -45,7 +45,6 @@
 
     // Java ---------------------------------------------------------------------
 
-    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",

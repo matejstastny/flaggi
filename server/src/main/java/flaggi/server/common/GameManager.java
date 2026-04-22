@@ -9,17 +9,6 @@
 
 package flaggi.server.common;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import flaggi.proto.ClientMessages.ClientKey;
 import flaggi.proto.ClientMessages.ClientStateUpdate;
 import flaggi.proto.ServerMessages.GameObjectType;
@@ -46,6 +35,16 @@ import flaggi.shared.common.MapData.Spawnpoint;
 import flaggi.shared.common.PlayerGameObject;
 import flaggi.shared.common.UpdateLoop.Updatable;
 import flaggi.shared.util.FileUtil;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameManager implements Closeable, Updatable {
 

@@ -28,81 +28,83 @@ import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-/**
- * TODO header, when fully implemented.
- */
+/** TODO header, when fully implemented. */
 public class FileUtil {
 
-	// Private constructor to prevent instantiation
-	private FileUtil() {
-		throw new UnsupportedOperationException("FileUtil is a utility class and cannot be instantiated.");
-	}
+  // Private constructor to prevent instantiation
+  private FileUtil() {
+    throw new UnsupportedOperationException(
+        "FileUtil is a utility class and cannot be instantiated.");
+  }
 
-	// Path fetchers -------------------------------------------------------------
+  // Path fetchers -------------------------------------------------------------
 
-	public static String getJarExecDirectory() {
-		try {
-			return new File(FileUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getAbsolutePath();
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to get JAR directory", e);
-		}
-	}
+  public static String getJarExecDirectory() {
+    try {
+      return new File(FileUtil.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+          .getParentFile()
+          .getAbsolutePath();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to get JAR directory", e);
+    }
+  }
 
-	public static String getApplicationDataFolder() {
-		String os = System.getProperty("os.name").toLowerCase();
-		String appDataFolder = System.getenv("APPDATA");
+  public static String getApplicationDataFolder() {
+    String os = System.getProperty("os.name").toLowerCase();
+    String appDataFolder = System.getenv("APPDATA");
 
-		if (os.contains("mac")) {
-			appDataFolder = System.getProperty("user.home") + File.separator + "Library" + File.separator + "Application Support";
-		} else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-			appDataFolder = System.getProperty("user.home") + File.separator + ".config";
-		} else if (appDataFolder == null) {
-			appDataFolder = File.separator;
-		}
+    if (os.contains("mac")) {
+      appDataFolder =
+          System.getProperty("user.home")
+              + File.separator
+              + "Library"
+              + File.separator
+              + "Application Support";
+    } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+      appDataFolder = System.getProperty("user.home") + File.separator + ".config";
+    } else if (appDataFolder == null) {
+      appDataFolder = File.separator;
+    }
 
-		File folder = new File(appDataFolder);
-		if (!folder.exists() && !folder.mkdirs()) {
-			throw new RuntimeException("Failed to create application data folder at: " + appDataFolder);
-		}
-		return appDataFolder;
-	}
+    File folder = new File(appDataFolder);
+    if (!folder.exists() && !folder.mkdirs()) {
+      throw new RuntimeException("Failed to create application data folder at: " + appDataFolder);
+    }
+    return appDataFolder;
+  }
 
-	// JAR resources -------------------------------------------------------------
+  // JAR resources -------------------------------------------------------------
 
-	/**
-	 * Lists either directories or files from a given path inside a JAR or classpath
-	 * folder.
-	 *
-	 * @param path      The internal path (must be JAR-relative, e.g.
-	 *                  "assets/sprites").
-	 * @param extension Behavior is based on this: - "" (empty string) → list
-	 *                  directories only - null → list all files - "ext" → list only
-	 *                  files with that extension (e.g. "png")
-	 * @return A list of matching directory or file names (just the base names).
-	 */
-	public static List<String> listResourceFiles(String path, String extension) {
-		if (!path.endsWith("/")) {
-			path += "/";
-		}
+  /**
+   * Lists either directories or files from a given path inside a JAR or classpath folder.
+   *
+   * @param path The internal path (must be JAR-relative, e.g. "assets/sprites").
+   * @param extension Behavior is based on this: - "" (empty string) → list directories only - null
+   *     → list all files - "ext" → list only files with that extension (e.g. "png")
+   * @return A list of matching directory or file names (just the base names).
+   */
+  public static List<String> listResourceFiles(String path, String extension) {
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
 
-		List<String> results = new ArrayList<>();
+    List<String> results = new ArrayList<>();
 
-		try {
-			Enumeration<URL> resources = FileUtil.class.getClassLoader().getResources(path);
-			while (resources.hasMoreElements()) {
-				URL resource = resources.nextElement();
-				if ("jar".equals(resource.getProtocol())) {
-					JarURLConnection connection = (JarURLConnection) resource.openConnection();
-					try (JarFile jarFile = connection.getJarFile()) {
-						Enumeration<JarEntry> entries = jarFile.entries();
-						while (entries.hasMoreElements()) {
-							JarEntry entry = entries.nextElement();
-							String entryName = entry.getName();
+    try {
+      Enumeration<URL> resources = FileUtil.class.getClassLoader().getResources(path);
+      while (resources.hasMoreElements()) {
+        URL resource = resources.nextElement();
+        if ("jar".equals(resource.getProtocol())) {
+          JarURLConnection connection = (JarURLConnection) resource.openConnection();
+          try (JarFile jarFile = connection.getJarFile()) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+              JarEntry entry = entries.nextElement();
+              String entryName = entry.getName();
 
-							if (!entryName.startsWith(path) || entryName.equals(path))
-								continue;
+              if (!entryName.startsWith(path) || entryName.equals(path)) continue;
 
-							String relativeName = entryName.substring(path.length());
+              String relativeName = entryName.substring(path.length());
 
 							if (extension != null && extension.isEmpty()) {
 								// Directories only - infer from any entry that has a path separator,
@@ -150,44 +152,49 @@ public class FileUtil {
 			e.printStackTrace();
 		}
 
-		return results;
-	}
+    return results;
+  }
 
-	public static void copyResource(String resourcePath, String outputPath) throws IOException {
-		Path outputFile = Paths.get(outputPath);
-		if (Files.exists(outputFile)) {
-			return; // Do nothing if the file already exists
-		}
+  public static void copyResource(String resourcePath, String outputPath) throws IOException {
+    Path outputFile = Paths.get(outputPath);
+    if (Files.exists(outputFile)) {
+      return; // Do nothing if the file already exists
+    }
 
-		try (InputStream inputStream = FileUtil.class.getResourceAsStream(resourcePath)) {
-			if (inputStream == null) {
-				throw new FileNotFoundException("Resource not found: " + resourcePath);
-			}
-			Files.copy(inputStream, outputFile, StandardCopyOption.REPLACE_EXISTING);
-		}
-	}
+    try (InputStream inputStream = FileUtil.class.getResourceAsStream(resourcePath)) {
+      if (inputStream == null) {
+        throw new FileNotFoundException("Resource not found: " + resourcePath);
+      }
+      Files.copy(inputStream, outputFile, StandardCopyOption.REPLACE_EXISTING);
+    }
+  }
 
-	public static void copyResourceDirectory(String resourceDir, String outputDir) throws IOException, URISyntaxException {
-		File directory = new File(Objects.requireNonNull(FileUtil.class.getResource(resourceDir)).toURI());
-		if (!directory.isDirectory()) {
-			throw new IllegalArgumentException("Resource path is not a directory: " + resourceDir);
-		}
+  public static void copyResourceDirectory(String resourceDir, String outputDir)
+      throws IOException, URISyntaxException {
+    File directory =
+        new File(Objects.requireNonNull(FileUtil.class.getResource(resourceDir)).toURI());
+    if (!directory.isDirectory()) {
+      throw new IllegalArgumentException("Resource path is not a directory: " + resourceDir);
+    }
 
-		Files.walk(directory.toPath()).forEach(source -> {
-			Path destination = Paths.get(outputDir, directory.toPath().relativize(source).toString());
-			try {
-				if (Files.exists(destination)) {
-					return; // Do nothing if the file or directory already exists
-				}
+    Files.walk(directory.toPath())
+        .forEach(
+            source -> {
+              Path destination =
+                  Paths.get(outputDir, directory.toPath().relativize(source).toString());
+              try {
+                if (Files.exists(destination)) {
+                  return; // Do nothing if the file or directory already exists
+                }
 
-				if (Files.isDirectory(source)) {
-					Files.createDirectories(destination);
-				} else {
-					Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-				}
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		});
-	}
+                if (Files.isDirectory(source)) {
+                  Files.createDirectories(destination);
+                } else {
+                  Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                }
+              } catch (IOException e) {
+                throw new UncheckedIOException(e);
+              }
+            });
+  }
 }
