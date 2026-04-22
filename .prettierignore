@@ -1,0 +1,32 @@
+# Build artifacts
+build/
+dist/
+shadowjar/
+**/node_modules/
+docs/.astro/
+docs/dist/
+
+# Java (formatted by Spotless)
+**/*.java
+
+# Gradle
+.gradle/
+*.gradle.kts
+gradle.properties
+
+# Binary / generated
+**/*.png
+**/*.ico
+**/*.icns
+**/*.jar
+**/*.dmg
+**/*.excalidraw
+
+# Proto (formatted by clang-format)
+**/*.proto
+
+# Shell (formatted by shfmt)
+**/*.sh
+
+# Lock files
+package-lock.json

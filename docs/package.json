@@ -1,16 +1,16 @@
 {
-  "name": "flaggi-docs",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "astro": "^6.0.1",
-    "@astrojs/starlight": "^0.38.3",
-    "sharp": "^0.34.2"
-  }
+    "name": "flaggi-docs",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "astro": "^6.0.1",
+        "@astrojs/starlight": "^0.38.3",
+        "sharp": "^0.34.2"
+    }
 }

@@ -1,19 +1,19 @@
 {
-  "name": "Debug testing map",
-  "width": 300,
-  "height": 600,
-  "spawnpoint": {
-    "oneX": 150,
-    "oneY": 10,
-    "twoX": 150,
-    "twoY": 590
-  },
-  "gameObjects": [
-    {
-      "objectType": "tree",
-      "x": 150,
-      "y": 300,
-      "id": 0
-    }
-  ]
+    "name": "Debug testing map",
+    "width": 300,
+    "height": 600,
+    "spawnpoint": {
+        "oneX": 150,
+        "oneY": 10,
+        "twoX": 150,
+        "twoY": 590
+    },
+    "gameObjects": [
+        {
+            "objectType": "tree",
+            "x": 150,
+            "y": 300,
+            "id": 0
+        }
+    ]
 }

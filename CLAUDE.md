@@ -2,16 +2,18 @@
 
 ## Project structure
 
-Multi-module Gradle project (Java + Kotlin DSL):
+Multi-module Gradle project (Java 21, Kotlin DSL):
 
 ```
 flaggi/
   client/      # Java Swing game client
-  server/      # Game server
+  server/      # Game server (TCP + UDP, Javalin, SQLite)
   shared/      # Shared proto + utilities (Logger, FileUtil, VhGraphics, etc.)
-  editor/      # Map/level editor
   dev-console/ # Electron app for launching client/server during development
+  docs/        # Astro Starlight documentation site
   scripts/     # run.sh and helpers
+  buildSrc/    # Gradle convention plugin (java-common)
+  assets/      # Distribution assets (banners, icons)
 ```
 
 Key client packages:
@@ -26,7 +28,7 @@ Key client packages:
 Testing is done via the `dev-console/` Electron app, which ultimately calls:
 
 ```bash
-scripts/run.sh <client|server|editor>
+scripts/run.sh <client|server>
 ```
 
 This builds a **shadowJar** and runs it with `java -jar`. There is no `./gradlew :client:run` dev workflow - always use `run.sh` / dev-console.
@@ -34,9 +36,22 @@ This builds a **shadowJar** and runs it with `java -jar`. There is no `./gradlew
 Compile check only (no run):
 
 ```bash
-./gradlew :client:compileJava
-./gradlew :shared:compileJava :client:compileJava
+./gradlew :shared:compileJava :client:compileJava :server:compileJava
 ```
+
+## Formatting
+
+Each language has a dedicated formatter, all enforced in CI:
+
+| Language | Formatter | Config location | Run |
+| --- | --- | --- | --- |
+| Java | palantir-java-format | `buildSrc/.../java-common.gradle.kts` (Spotless) | `./gradlew spotlessApply` |
+| JS/TS/CSS/JSON/YAML/MD/Astro | Prettier | `.prettierrc` (root) | `npx prettier --write .` |
+| Proto | clang-format | `.clang-format` (root) | auto via VSCode extension |
+| Kotlin DSL | ktlint | via VSCode extension | auto via VSCode extension |
+| Shell | shfmt | via VSCode extension | auto via VSCode extension |
+
+Format check in CI: `./gradlew spotlessCheck` (Java) and `npx prettier --check .` (everything else).
 
 ## Protobuf
 
@@ -93,6 +108,31 @@ If you see "No PNG frames found" or "Sprite folder not found" errors, suspect th
 - Facing-left flip: `g2.scale(-1, 1)` applied after translating to the player's world position
 - Static sprites (tree, bullet, flags) are loaded once in the constructor
 
-Object type → sprite folder mapping: | Type | Folder | |--------|---------------------------------------------| | PLAYER | `player-{blue,red,jester,venom}` (by skin) | | TREE | `tree` | | BULLET | `bullet` | | FLAG | `flag-blue` or `flag-red` (by skin field) |
+Object type → sprite folder mapping:
 
-Animation → folder name mapping: | Animation | Folder | |--------------------|-----------------| | ANIM_IDLE | `idle` | | ANIM_WALK_UP | `walk-up` | | ANIM_WALK_DOWN | `walk-down` | | ANIM_WALK_SIDE | `walk-side` | | ANIM_WALK_DIAGONAL | `walk-diagonal` |
+| Type   | Folder                                     |
+| ------ | ------------------------------------------ |
+| PLAYER | `player-{blue,red,jester,venom}` (by skin) |
+| TREE   | `tree`                                     |
+| BULLET | `bullet`                                   |
+| FLAG   | `flag-blue` or `flag-red` (by skin field)  |
+
+Animation → folder name mapping:
+
+| Animation          | Folder          |
+| ------------------ | --------------- |
+| ANIM_IDLE          | `idle`          |
+| ANIM_WALK_UP       | `walk-up`       |
+| ANIM_WALK_DOWN     | `walk-down`     |
+| ANIM_WALK_SIDE     | `walk-side`     |
+| ANIM_WALK_DIAGONAL | `walk-diagonal` |
+
+## Assets
+
+Game assets **must** stay in `client/src/main/resources/` — Java classpath loading requires it. Distribution assets (banners, icons for packaging) live in `assets/`. Doc site images live in `docs/public/`. Each build system needs assets in its own conventional location; symlinks or copies would add fragile complexity.
+
+## CI workflows
+
+- **build.yml** — Java build matrix (client, server, shared) + Spotless check. Path-filtered to Gradle/Java files.
+- **format.yml** — Prettier check on all PRs/pushes (fast, no path filter needed).
+- **docs.yml** — Astro build + GitHub Pages deploy on docs/ changes.

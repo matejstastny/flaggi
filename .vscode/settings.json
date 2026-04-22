@@ -1,12 +1,52 @@
 {
+    // Java ---------------------------------------------------------------------
+
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.enabled": true,
+    "redhat.telemetry.enabled": false,
+    "gradle.nestedProjects": true,
+
+    "files.associations": {
+        "*.gradle.kts": "kotlin"
+    },
+
+    // Proto --------------------------------------------------------------------
+
+    "protobuf.protoc.path": "/usr/bin/protoc",
+    "protobuf.protoc.options": [
+        "--proto_path=${workspaceRoot}/shared/src/main/proto",
+        "--java_out=${workspaceRoot}/shared/build/generated/sources/proto/main/java"
+    ],
+    "protobuf.clangFormat.configPath": "${workspaceFolder}/.clang-format",
+    "protobuf.codegen.generateOnSave": true,
+    "protobuf.clangFormat.enabled": true,
+
+    // VSCode -------------------------------------------------------------------
+
+    "remote.autoForwardPorts": false,
+    "files.exclude": {
+        "**/.gradle": true,
+        "gradlew": true,
+        "gradlew.bat": true,
+        "**/build": true,
+        "**/bin": true,
+        "**/.kotlin": true,
+        "server-temp": true,
+        "docs/.astro": true,
+        "docs/dist": true,
+        "**/node_modules": true,
+        ".claude": true
+    },
+
     // Formatters ---------------------------------------------------------------
 
     "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
     "[java]": {
-        "editor.defaultFormatter": "redhat.java",
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "always"
-        }
+        "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
     },
     "[kotlin]": {
         "editor.defaultFormatter": "mskelton.ktlint"
@@ -24,10 +64,10 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[xml]": {
-        "editor.defaultFormatter": "DotJoshJohnson.xml"
+        "editor.defaultFormatter": "redhat.vscode-xml"
     },
     "[yaml]": {
-        "editor.defaultFormatter": "redhat.vscode-yaml"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -38,13 +78,24 @@
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[astro]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[shellscript]": {
         "editor.defaultFormatter": "mkhl.shfmt"
     },
 
     // Java ---------------------------------------------------------------------
 
-    "java.format.settings.url": "./.vscode/formatter/java-formatter.xml",
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.compile.nullAnalysis.mode": "automatic",
@@ -54,8 +105,7 @@
     "gradle.nestedProjects": true,
 
     "files.associations": {
-        "*.gradle.kts": "kotlin",
-        "*.sdkmanrc": "shellscript"
+        "*.gradle.kts": "kotlin"
     },
 
     // Proto --------------------------------------------------------------------
@@ -86,8 +136,5 @@
 
     // Other --------------------------------------------------------------------
 
-    "remote.autoForwardPorts": false,
-    "yaml.format.proseWrap": "never",
-    "yaml.format.trailingComma": true,
-    "insertDateString.formatDate": "YYYY-MM-DD"
+    "remote.autoForwardPorts": false
 }

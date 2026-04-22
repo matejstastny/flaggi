@@ -1,4 +1,4 @@
-# Gradle files
+# Gradle
 .gradle/
 .kotlin/
 build/
@@ -10,26 +10,22 @@ bin/
 ._*
 *-alias
 
-# JRE build files
+# JRE build
 diet-jre/
 
-# Shadowjar build files
-shadowjar
+# Build outputs
+dist/
 
-# Exported .exe and .dmg files for distribution
-dist
-
-# Include the wrapper jar
+# Gradle wrapper jar (keep tracked)
 !gradle-wrapper.jar
 
-# Development server directory
-# A server for testing is setup in here
-server-temp
+# Dev server data
+server-temp/
 
 # Web
 **/node_modules/
 docs/.astro/
 docs/dist/
 
-# Claude
-.claude
+# Claude Code
+.claude/

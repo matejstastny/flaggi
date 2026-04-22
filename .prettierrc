@@ -7,5 +7,14 @@
     "bracketSpacing": true,
     "printWidth": 120,
     "endOfLine": "lf",
-    "proseWrap": "never"
+    "proseWrap": "never",
+    "plugins": ["prettier-plugin-astro"],
+    "overrides": [
+        {
+            "files": "*.astro",
+            "options": {
+                "parser": "astro"
+            }
+        }
+    ]
 }

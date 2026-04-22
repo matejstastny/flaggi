@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# --------------------------------------------------------------------------------------------
-# run.sh - Builds a shadowJar and executes it
-# Usage: run.sh <client|server|editor> [-h|--help] [-r|--rebuild] [--skip-build]
-# --------------------------------------------------------------------------------------------
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -11,7 +6,6 @@ source "$SCRIPT_DIR/lib/logging.sh"
 
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 JAVA_VERSION="21"
-DIR_SHADOWJAR="$PROJECT_ROOT/shadowjar"
 DIR_SERVER_TEMP="$PROJECT_ROOT/server-temp"
 
 # Helpers ------------------------------------------------------------------------------------
@@ -35,10 +29,9 @@ check_java_ver() {
     log_inf "Java $version at $java_cmd."
 }
 
-get_shadowjar_path() {
-    local jar_file
-    jar_file=$(find "$DIR_SHADOWJAR" -maxdepth 1 -type f -name "flaggi-${TARGET_MODULE}*.jar" | head -n 1)
-    [[ -n "$jar_file" ]] || die "No JAR found matching: flaggi-${TARGET_MODULE}*.jar"
+get_jar_path() {
+    local jar_file="$PROJECT_ROOT/$TARGET_MODULE/build/libs/flaggi-${TARGET_MODULE}.jar"
+    [[ -f "$jar_file" ]] || die "JAR not found: $jar_file"
     echo "$jar_file"
 }
 
@@ -74,7 +67,7 @@ if [[ "$SKIP_BUILD" == "false" ]]; then
     log_ok "shadowJar built."
 fi
 
-JAR_FILE=$(get_shadowjar_path)
+JAR_FILE=$(get_jar_path)
 
 if [[ "$TARGET_MODULE" == "server" ]]; then
     if [[ "$REBUILD" == "true" && -d "$DIR_SERVER_TEMP" ]]; then
