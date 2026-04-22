@@ -13,7 +13,7 @@ RUN apt-get update && \
     unzip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+RUN echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))" >> /etc/environment
 
 ARG KTLINT_VERSION=1.8.0
 RUN curl -sSL https://github.com/pinterest/ktlint/releases/download/${KTLINT_VERSION}/ktlint \
