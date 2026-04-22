@@ -105,7 +105,7 @@ public class FileUtil {
 							String relativeName = entryName.substring(path.length());
 
 							if (extension != null && extension.isEmpty()) {
-								// Directories only — infer from any entry that has a path separator,
+								// Directories only - infer from any entry that has a path separator,
 								// because JAR directory entries ("idle/") are skipped by contains("/")
 								if (relativeName.contains("/")) {
 									String dirName = relativeName.substring(0, relativeName.indexOf('/'));
@@ -114,7 +114,7 @@ public class FileUtil {
 									}
 								}
 							} else {
-								// Files only — skip nested entries
+								// Files only - skip nested entries
 								if (relativeName.contains("/"))
 									continue;
 								if (!entry.isDirectory()) {

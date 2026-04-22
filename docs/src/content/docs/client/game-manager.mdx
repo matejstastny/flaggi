@@ -1,0 +1,67 @@
+---
+title: Game Manager (Client)
+description: How the client-side GameManager handles input, state, and network communication.
+---
+
+`GameManager` (`flaggi.client.common`) bridges player input, network communication, and the game UI. It implements `Updatable` and is ticked by the `UpdateLoop`.
+
+## Lifecycle
+
+1. **Created** when the server sends `ServerJoinGame` (game accepted)
+2. **Receives** game UUID and room dimensions
+3. **Sets up** `GameUi` and `DebugOverlay`
+4. **Attaches** keyboard and mouse listeners to `GPanel`
+5. **Ticks** every frame: process input → send to server → receive state → update UI
+6. **Closed** when the game ends (`ServerEndGame`)
+
+## Input processing
+
+### Keyboard
+
+`GameManager` maintains a `Set<ClientKey>` of currently held keys:
+
+- `onKeyPressed(KeyEvent)` - maps the AWT key code to a `ClientKey` and adds it
+- `onKeyReleased(KeyEvent)` - removes the key
+
+Key mapping:
+
+| AWT KeyEvent        | ClientKey   |
+| ------------------- | ----------- |
+| `VK_W` / `VK_UP`    | `KEY_UP`    |
+| `VK_S` / `VK_DOWN`  | `KEY_DOWN`  |
+| `VK_A` / `VK_LEFT`  | `KEY_LEFT`  |
+| `VK_D` / `VK_RIGHT` | `KEY_RIGHT` |
+| `VK_SPACE` / `VK_F` | `KEY_SHOOT` |
+
+Mouse clicks are converted to synthetic `KEY_SHOOT` events via `makeSyntheticShootEvent()`.
+
+### Mouse
+
+`sendClientMouseUpdate(MouseEvent)` converts the screen mouse position to world coordinates:
+
+```
+worldX = (screenX - screenCenterX) / ZOOM + playerWorldX
+worldY = (screenY - screenCenterY) / ZOOM + playerWorldY
+```
+
+This accounts for the camera transform (centering and zoom) so the server receives accurate world-space aim coordinates.
+
+## Network communication
+
+### Sending (every tick)
+
+The `update()` method builds a `ClientStateUpdate` proto with:
+
+- Player UUID and game UUID
+- Current mouse position (world space)
+- Set of held keys
+
+A **dirty flag** ensures updates are only sent when input actually changes, reducing UDP traffic.
+
+### Receiving
+
+`UdpManager.getLatestUpdate()` returns the most recent `ServerStateUpdate`. The `GameManager` passes this to `GameUi.update()` which updates the rendered game state.
+
+## Thread safety
+
+Input handling happens on the Swing EDT, while the update loop runs on its own thread. Shared fields (`heldKeys`, `inputDirty`, mouse position) use `volatile` for cross-thread visibility. No explicit locks are used - the design relies on the single-writer pattern (EDT writes, update loop reads).

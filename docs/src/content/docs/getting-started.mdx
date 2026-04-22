@@ -1,0 +1,74 @@
+---
+title: Setup & Running
+description: How to set up the development environment and run Flaggi locally.
+---
+
+## Requirements
+
+- **Java 21** (full JDK, not just JRE)
+- **Gradle** (or use the included `./gradlew` wrapper)
+- **Node.js + npm** (for the dev console only)
+- **create-dmg** (macOS packaging only - `brew install create-dmg`)
+- **WiX 3** (Windows packaging only - [download](https://github.com/wixtoolset/wix3/releases/latest))
+
+## Compile check
+
+To verify everything compiles without running:
+
+```bash
+./gradlew :shared:compileJava :client:compileJava :server:compileJava
+```
+
+## Running with the dev console (recommended)
+
+The dev console is an Electron app that launches the client and server together and shows their logs side by side:
+
+```bash
+cd dev-console
+npm install
+npm start
+```
+
+Click **Rebuild** in the toolbar to build and launch both the server and a client. The console shows color-coded logs, a live game state minimap, and player info cards.
+
+## Running manually
+
+Use the run script:
+
+```bash
+# Start the server
+scripts/run.sh server
+
+# Start a client (separate terminal)
+scripts/run.sh client
+```
+
+The script builds a **shadowJar** automatically before launching. Useful flags:
+
+| Flag              | Effect                                        |
+| ----------------- | --------------------------------------------- |
+| `-r`, `--rebuild` | Clear server state and rebuild from scratch   |
+| `--skip-build`    | Skip the Gradle build step (use existing JAR) |
+| `-h`, `--help`    | Show usage                                    |
+
+## Dev container
+
+A Docker-based dev environment is included in `.devcontainer/`. It provides OpenJDK 21, protobuf compiler, Gradle, ktlint, clang-format, and all VS Code extensions pre-configured.
+
+Open the project in VS Code and use **Dev Containers: Reopen in Container** to start.
+
+## Building from source
+
+```bash
+# Build all modules
+./gradlew build
+
+# Build shadow JARs (fat JARs with dependencies)
+./gradlew shadowJar
+
+# Build a specific module
+./gradlew :client:build
+./gradlew :server:build
+```
+
+The shadow JARs are written to each module's `shadowjar/` directory.

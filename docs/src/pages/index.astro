@@ -1,0 +1,748 @@
+---
+// Custom landing page - consumer-facing download + intro
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flaggi - Multiplayer Capture the Flag</title>
+    <link rel="icon" type="image/png" href="/flaggi/favicon.png" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0d14;
+        --surface: #111520;
+        --surface-2: #181d2e;
+        --border: #1e2438;
+        --border-2: #252c42;
+        --text: #dde3f0;
+        --muted: #4a5680;
+        --muted-2: #6370a0;
+        --red: #e03040;
+        --red-dim: #7a1520;
+        --red-glow: rgba(224, 48, 64, 0.25);
+        --blue: #2060d0;
+        --blue-bright: #4080f0;
+        --blue-dim: #0d2a60;
+        --blue-glow: rgba(64, 128, 240, 0.25);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* ── Floating sprites ─────────────────────────────── */
+      .sprite-float {
+        position: fixed;
+        image-rendering: pixelated;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.12;
+        filter: brightness(1.2);
+      }
+
+      @keyframes float-1 {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-3deg);
+        }
+        50% {
+          transform: translateY(-18px) rotate(3deg);
+        }
+      }
+      @keyframes float-2 {
+        0%,
+        100% {
+          transform: translateY(0) rotate(2deg);
+        }
+        50% {
+          transform: translateY(-14px) rotate(-2deg);
+        }
+      }
+      @keyframes float-3 {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-22px) rotate(4deg);
+        }
+      }
+
+      .sprite-float:nth-child(1) {
+        top: 12%;
+        left: 5%;
+        width: 64px;
+        animation: float-1 6s ease-in-out infinite;
+      }
+      .sprite-float:nth-child(2) {
+        top: 25%;
+        right: 8%;
+        width: 48px;
+        animation: float-2 8s ease-in-out infinite 1s;
+      }
+      .sprite-float:nth-child(3) {
+        top: 55%;
+        left: 3%;
+        width: 56px;
+        animation: float-3 7s ease-in-out infinite 0.5s;
+      }
+      .sprite-float:nth-child(4) {
+        top: 70%;
+        right: 4%;
+        width: 72px;
+        animation: float-1 9s ease-in-out infinite 2s;
+      }
+      .sprite-float:nth-child(5) {
+        top: 40%;
+        left: 8%;
+        width: 40px;
+        animation: float-2 5.5s ease-in-out infinite 0.3s;
+      }
+      .sprite-float:nth-child(6) {
+        top: 85%;
+        left: 12%;
+        width: 52px;
+        animation: float-3 7.5s ease-in-out infinite 1.5s;
+      }
+      .sprite-float:nth-child(7) {
+        top: 15%;
+        right: 15%;
+        width: 44px;
+        animation: float-1 6.5s ease-in-out infinite 0.8s;
+      }
+
+      /* ── Nav ─────────────────────────────────────────── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+        background: rgba(10, 13, 20, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .nav-logo img {
+        width: 28px;
+        height: 28px;
+        image-rendering: pixelated;
+      }
+
+      .nav-logo span {
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: 0.05em;
+      }
+
+      .nav-logo .r {
+        color: var(--red);
+      }
+      .nav-logo .b {
+        color: var(--blue);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: var(--muted-2);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      .nav-links .gh-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* ── Hero ─────────────────────────────────────────── */
+      .hero {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 100vh;
+        padding: 120px 24px 80px;
+      }
+
+      .hero-duck {
+        width: 96px;
+        height: 96px;
+        image-rendering: pixelated;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 0 24px var(--blue-glow));
+        animation: float-2 4s ease-in-out infinite;
+      }
+
+      .hero h1 {
+        font-size: clamp(3rem, 8vw, 5.5rem);
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        margin-bottom: 16px;
+      }
+
+      .hero h1 .r {
+        color: var(--red);
+      }
+      .hero h1 .b {
+        color: var(--blue-bright);
+      }
+
+      .hero .tagline {
+        font-size: clamp(1rem, 2.5vw, 1.35rem);
+        color: var(--muted-2);
+        max-width: 520px;
+        line-height: 1.6;
+        margin-bottom: 40px;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      /* ── Download button ──────────────────────────────── */
+      .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 32px;
+        background: var(--red);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 0 20px var(--red-glow), 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      .btn-download:hover {
+        background: #c82838;
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px var(--red-glow), 0 8px 20px rgba(0, 0, 0, 0.5);
+        color: #fff;
+      }
+
+      .btn-download .os-icon {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      .btn-download .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        background: var(--surface-2);
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 600;
+        border: 1px solid var(--border-2);
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background: var(--border);
+        transform: translateY(-2px);
+        color: var(--text);
+      }
+
+      .download-meta {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .download-meta a {
+        color: var(--muted-2);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .download-meta a:hover {
+        color: var(--text);
+      }
+
+      /* ── Features ─────────────────────────────────────── */
+      .features {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px 100px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+        transition: border-color 0.2s;
+      }
+
+      .feature-card:hover {
+        border-color: var(--border-2);
+      }
+
+      .feature-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      .feature-card p {
+        font-size: 14px;
+        color: var(--muted-2);
+        line-height: 1.6;
+      }
+
+      .feature-icon {
+        width: 36px;
+        height: 36px;
+        image-rendering: pixelated;
+        margin-bottom: 14px;
+      }
+
+      /* ── Skins showcase ───────────────────────────────── */
+      .skins {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 60px 24px 100px;
+      }
+
+      .skins h2 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 12px;
+      }
+
+      .skins .sub {
+        color: var(--muted-2);
+        margin-bottom: 40px;
+        font-size: 15px;
+      }
+
+      .skin-row {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .skin-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .skin-card img {
+        width: 80px;
+        height: 80px;
+        image-rendering: pixelated;
+        filter: drop-shadow(0 0 12px var(--blue-glow));
+        transition: transform 0.3s;
+      }
+
+      .skin-card img:hover {
+        transform: scale(1.15);
+      }
+
+      .skin-card span {
+        font-size: 13px;
+        color: var(--muted-2);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Footer ───────────────────────────────────────── */
+      footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 32px 24px;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      footer a {
+        color: var(--muted-2);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: var(--text);
+      }
+
+      /* ── Responsive ───────────────────────────────────── */
+      @media (max-width: 640px) {
+        nav {
+          padding: 12px 16px;
+        }
+        .nav-links {
+          gap: 16px;
+        }
+        .hero {
+          padding: 100px 16px 60px;
+        }
+        .sprite-float {
+          opacity: 0.06;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating background sprites -->
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/player-blue.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/player-red.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/flag-red.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/tree.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/player-jester.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/flag-blue.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="sprite-float"
+      src="/flaggi/sprites/player-venom.png"
+      alt=""
+      aria-hidden="true"
+    />
+
+    <!-- Nav -->
+    <nav>
+      <a class="nav-logo" href="/flaggi/">
+        <img src="/flaggi/sprites/duck.png" alt="Flaggi" />
+        <span><span class="r">FLAG</span><span class="b">GI</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="/flaggi/introduction/">Docs</a>
+        <a
+          href="https://github.com/matejstastny/flaggi"
+          class="gh-link"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+          >
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            ></path>
+          </svg>
+          GitHub
+        </a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <img class="hero-duck" src="/flaggi/sprites/duck.png" alt="Flaggi Duck" />
+
+      <h1><span class="r">FLAG</span><span class="b">GI</span></h1>
+
+      <p class="tagline">
+        A real-time multiplayer 2D capture-the-flag game. Battle across rooms,
+        shoot, capture flags, and outscore the enemy team.
+      </p>
+
+      <div class="hero-buttons">
+        <a id="download-btn" class="btn-download" href="#">
+          <span class="spinner" id="download-spinner"></span>
+          <span id="download-label">Detecting your OS...</span>
+        </a>
+        <a class="btn-secondary" href="/flaggi/introduction/">
+          Read the Docs
+          <span>&rarr;</span>
+        </a>
+      </div>
+
+      <p class="download-meta" id="download-meta"></p>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+      <div class="feature-card">
+        <img
+          class="feature-icon"
+          src="/flaggi/sprites/flag-red.png"
+          alt="Flag"
+        />
+        <h3>Capture the Flag</h3>
+        <p>
+          Grab the enemy flag, return it to your base, and score. Classic CTF
+          with fast-paced action.
+        </p>
+      </div>
+      <div class="feature-card">
+        <img
+          class="feature-icon"
+          src="/flaggi/sprites/bullet.png"
+          alt="Bullet"
+        />
+        <h3>Real-time Combat</h3>
+        <p>
+          Shoot, dodge, and outmaneuver. Custom UDP networking keeps the action
+          smooth and responsive.
+        </p>
+      </div>
+      <div class="feature-card">
+        <img
+          class="feature-icon"
+          src="/flaggi/sprites/player-jester.png"
+          alt="Skin"
+        />
+        <h3>Character Skins</h3>
+        <p>
+          Choose from four unique pixel-art skins: Blue, Red, Jester, and Venom.
+          All hand-crafted by Snapshot20.
+        </p>
+      </div>
+    </section>
+
+    <!-- Skins showcase -->
+    <section class="skins">
+      <h2>Choose Your Fighter</h2>
+      <p class="sub">Four hand-crafted pixel-art skins</p>
+      <div class="skin-row">
+        <div class="skin-card">
+          <img src="/flaggi/sprites/player-blue.png" alt="Blue" />
+          <span>Blue</span>
+        </div>
+        <div class="skin-card">
+          <img src="/flaggi/sprites/player-red.png" alt="Red" />
+          <span>Red</span>
+        </div>
+        <div class="skin-card">
+          <img src="/flaggi/sprites/player-jester.png" alt="Jester" />
+          <span>Jester</span>
+        </div>
+        <div class="skin-card">
+          <img src="/flaggi/sprites/player-venom.png" alt="Venom" />
+          <span>Venom</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>
+        Flaggi &mdash; MIT License &mdash;
+        <a
+          href="https://github.com/matejstastny/flaggi"
+          target="_blank"
+          rel="noopener">GitHub</a
+        >
+        &mdash; Sprites by
+        <a
+          href="https://github.com/Snapshot20"
+          target="_blank"
+          rel="noopener">Snapshot20</a
+        >
+      </p>
+    </footer>
+
+    <!-- Download auto-detect script -->
+    <script is:inline>
+      (async function () {
+        const btn = document.getElementById("download-btn");
+        const label = document.getElementById("download-label");
+        const spinner = document.getElementById("download-spinner");
+        const meta = document.getElementById("download-meta");
+
+        // Detect OS
+        const ua = navigator.userAgent;
+        let os = "unknown";
+        let osLabel = "your platform";
+        let icon = "";
+
+        if (ua.includes("Mac")) {
+          os = "macos";
+          osLabel = "macOS";
+          icon =
+            '<svg class="os-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>';
+        } else if (ua.includes("Win")) {
+          os = "windows";
+          osLabel = "Windows";
+          icon =
+            '<svg class="os-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.75l6-1.32v6.48L3 12zm17-9v8.75l-10 .15V5.21L20 3zM3 13l6 .09v6.81l-6-1.15V13zm17 .25V22l-10-1.91V13.1l10 .15z"/></svg>';
+        } else if (ua.includes("Linux")) {
+          os = "linux";
+          osLabel = "Linux";
+          icon =
+            '<svg class="os-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.36-.464.144-.788.61-.788 1.089v.113c0 .602.472 1.077 1.073 1.077h.094c.321 0 .617-.14.833-.36.169.047.333.083.503.083.463 0 .873-.218 1.197-.483.354.238.64.547.874.895.098.144.199.279.306.397.4.434.93.711 1.498.711.403 0 .79-.14 1.098-.399.143-.121.272-.259.377-.415.283.225.64.349 1.01.349.495 0 .96-.231 1.293-.602.105-.12.204-.26.298-.393.236-.346.52-.654.874-.892.324.265.734.483 1.197.483.17 0 .34-.036.503-.083.216.22.512.36.833.36h.094c.601 0 1.073-.475 1.073-1.077v-.113c0-.479-.324-.945-.788-1.089-.312-.093-.598-.161-.797-.36-.213-.239-.404-.571-.664-.839a.424.424 0 00-.11-.135c.123-.805-.009-1.657-.287-2.489-.589-1.771-1.831-3.47-2.716-4.521-.75-1.067-.974-1.928-1.05-3.02-.065-1.491 1.056-5.965-3.17-6.298A5.134 5.134 0 0012.504 0z"/></svg>';
+        }
+
+        // Fetch latest release
+        try {
+          const res = await fetch(
+            "https://api.github.com/repos/matejstastny/flaggi/releases/latest"
+          );
+
+          if (!res.ok) throw new Error("No release found");
+
+          const release = await res.json();
+          const assets = release.assets || [];
+          const tag = release.tag_name;
+
+          let asset = null;
+          if (os === "macos")
+            asset = assets.find((a) => a.name.endsWith(".dmg"));
+          else if (os === "windows")
+            asset = assets.find((a) => a.name.endsWith(".exe"));
+          else if (os === "linux")
+            asset = assets.find(
+              (a) =>
+                a.name.includes("universal") && a.name.endsWith(".jar")
+            );
+
+          // Fallback: try universal jar
+          if (!asset)
+            asset = assets.find(
+              (a) =>
+                a.name.includes("universal") && a.name.endsWith(".jar")
+            );
+
+          if (asset) {
+            spinner.style.display = "none";
+            label.innerHTML = icon + " Download for " + osLabel;
+            btn.href = asset.browser_download_url;
+
+            const sizeMB = (asset.size / 1024 / 1024).toFixed(1);
+            meta.innerHTML =
+              tag +
+              " &middot; " +
+              sizeMB +
+              " MB &middot; <a href='" +
+              release.html_url +
+              "' target='_blank' rel='noopener'>All downloads</a>";
+          } else {
+            // No matching asset - link to release page
+            spinner.style.display = "none";
+            label.textContent = "View Latest Release";
+            btn.href = release.html_url;
+            meta.innerHTML =
+              "<a href='" +
+              release.html_url +
+              "' target='_blank' rel='noopener'>See all available downloads</a>";
+          }
+        } catch (e) {
+          // API failed - link to releases page
+          spinner.style.display = "none";
+          label.textContent = "View Releases on GitHub";
+          btn.href =
+            "https://github.com/matejstastny/flaggi/releases/latest";
+          meta.innerHTML =
+            "<a href='https://github.com/matejstastny/flaggi/releases' target='_blank' rel='noopener'>Browse all releases</a>";
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -26,8 +26,10 @@ dist
 # A server for testing is setup in here
 server-temp
 
-# Node
-node_modules
+# Web
+**/node_modules/
+docs/.astro/
+docs/dist/
 
 # Claude
 .claude

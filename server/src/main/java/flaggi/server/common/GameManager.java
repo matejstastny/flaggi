@@ -289,7 +289,7 @@ public class GameManager implements Closeable, Updatable {
 		}
 
 		// Facing is determined by the mouse, not the movement direction
-		// mouseX is in world space — compare against player's x
+		// mouseX is in world space - compare against player's x
 		player.setFacingLeft(mouseX < player.x());
 	}
 
@@ -359,7 +359,7 @@ public class GameManager implements Closeable, Updatable {
 		Logger.log(LogLevel.DBG, "Player " + targetUuid + " hit! HP now " + target.hp());
 
 		if (!target.isAlive()) {
-			Logger.log(LogLevel.DBG, "Player " + targetUuid + " died — respawning.");
+			Logger.log(LogLevel.DBG, "Player " + targetUuid + " died - respawning.");
 
 			// Drop any carried flag at the death position
 			if (target.carryingFlag()) {
@@ -405,13 +405,13 @@ public class GameManager implements Closeable, Updatable {
 			return;
 
 		if (flag.team() != playerTeam) {
-			// Enemy flag — pick it up
+			// Enemy flag - pick it up
 			if (flag.pickUp(playerUuid)) {
 				player.setCarryingFlag(true);
 				Logger.log(LogLevel.DBG, "Player " + playerUuid + " picked up the " + flag.team() + " flag.");
 			}
 		} else if (flag.state() == FlagGameObject.FlagState.DROPPED) {
-			// Friendly dropped flag — return it to base
+			// Friendly dropped flag - return it to base
 			flag.returnToBase();
 			Logger.log(LogLevel.DBG, "Player " + playerUuid + " returned the " + flag.team() + " flag to base.");
 		}

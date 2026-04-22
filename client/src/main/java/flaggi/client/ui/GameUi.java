@@ -170,7 +170,7 @@ public class GameUi extends Renderable {
 			} else if (!clientCollidesWithObstacle(clientX, clientY + stepDy)) {
 				clientY += stepDy;
 			}
-			// else: fully blocked — no movement
+			// else: fully blocked - no movement
 
 			// Mirror server boundary clamp
 			clientX = Math.max(0, Math.min(roomSize[0], clientX));
@@ -178,7 +178,7 @@ public class GameUi extends Renderable {
 		}
 	}
 
-	// AABB check — mirrors server collidesWithObstacle(). Reads this.objects
+	// AABB check - mirrors server collidesWithObstacle(). Reads this.objects
 	// snapshot.
 	private boolean clientCollidesWithObstacle(double cx, double cy) {
 		double px1 = cx + PLAYER_HB_OX;

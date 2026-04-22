@@ -26,7 +26,7 @@ import flaggi.shared.common.Logger.LogLevel;
 
 /**
  * Tiny built-in HTTP server that exposes current game state as JSON for the
- * Electron dev dashboard. Runs on port 54323. Zero extra dependencies — uses
+ * Electron dev dashboard. Runs on port 54323. Zero extra dependencies - uses
  * com.sun.net.httpserver which ships with the JDK.
  *
  * Usage: DebugServer.start(); // call once on server boot

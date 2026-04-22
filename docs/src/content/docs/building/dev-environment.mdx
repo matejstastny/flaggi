@@ -1,0 +1,85 @@
+---
+title: Dev Environment
+description: Setting up the development environment for Flaggi.
+---
+
+## Dev console (recommended)
+
+The dev console is an Electron app that launches the server and client(s) together and displays their logs in real time.
+
+```bash
+cd dev-console
+npm install
+npm start
+```
+
+The toolbar provides:
+
+- **Rebuild** - build shadowJars and launch all components
+- **Stop all** - terminate running processes
+- **Clear logs** - reset log panels
+
+The console shows:
+
+- **Server log** - server stdout with color-coded log levels
+- **Client 1 & 2 logs** - client stdout
+- **Game state panel** - live minimap and player info cards
+
+## Dev container
+
+A Docker-based environment is provided in `.devcontainer/` for consistent builds.
+
+### Included tools
+
+| Tool                 | Purpose                                |
+| -------------------- | -------------------------------------- |
+| OpenJDK 21           | Java compilation and runtime           |
+| Gradle               | Build system                           |
+| protobuf-compiler    | Proto code generation                  |
+| clang / clang-format | C/C++ formatting (for any native code) |
+| ktlint               | Kotlin linter                          |
+
+### VS Code extensions
+
+The container auto-installs:
+
+- Java Extension Pack
+- Gradle for Java
+- Protobuf support
+- Docker tools
+- GitLens
+- EditorConfig
+- TODO+ task management
+
+### Usage
+
+Open the project in VS Code and use **Dev Containers: Reopen in Container**. The container builds from the `Dockerfile` in `.devcontainer/` and configures everything automatically.
+
+## Manual setup
+
+If not using the dev container:
+
+1. Install **JDK 21** (e.g., Temurin from Adoptium)
+2. Install **protoc** (Protocol Buffers compiler)
+3. Clone the repo
+4. Run `./gradlew build` to verify everything compiles
+5. Use `scripts/run.sh` or the dev console to run
+
+## Compile-only checks
+
+For fast iteration without launching:
+
+```bash
+# Client only
+./gradlew :client:compileJava
+
+# Full chain (shared must compile first)
+./gradlew :shared:compileJava :client:compileJava
+
+# All modules
+./gradlew :shared:compileJava :client:compileJava :server:compileJava
+```
+
+## CI
+
+GitHub Actions runs on push to `main` and on PRs. The workflow (`.github/workflows/build.yml`) builds each module (`client`, `server`, `shared`) in a matrix with Java 21.

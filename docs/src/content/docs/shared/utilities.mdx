@@ -1,0 +1,121 @@
+---
+title: Utilities
+description: Shared utility classes used by both client and server.
+---
+
+The `shared` module provides utility classes used across both client and server.
+
+## Logger
+
+`flaggi.shared.common.Logger` - centralized logging with color-coded console output and file logging.
+
+### Log levels
+
+| Level | Color  | Usage               |
+| ----- | ------ | ------------------- |
+| `INF` | Green  | General information |
+| `WRN` | Yellow | Warnings            |
+| `ERR` | Red    | Errors              |
+| `DBG` | Blue   | Debug output        |
+| `TCP` | Purple | TCP-specific events |
+| `UDP` | Cyan   | UDP-specific events |
+| `MEM` | Cyan   | Memory statistics   |
+
+### Usage
+
+```java
+Logger logger = new Logger();
+logger.setLogFile("/path/to/logfile.log");
+logger.setLogLevelsToIgnore(Logger.LogLevel.DBG);
+
+logger.log(Logger.LogLevel.INF, "Server started");
+logger.log(Logger.LogLevel.ERR, "Connection failed", exception);
+logger.logMaxMemory("MB");
+```
+
+Output format: `[YYYY-MM-DD HH:mm:ss] [LEVEL] message`
+
+Log output goes to both the console (with ANSI colors) and the log file (plain text, always appending).
+
+## FileUtil
+
+`flaggi.shared.util.FileUtil` - JAR resource and filesystem utilities.
+
+### `listResourceFiles(path, extension)`
+
+Lists files inside JAR resources or on the filesystem. The `extension` parameter controls what's returned:
+
+| Extension    | Returns                |
+| ------------ | ---------------------- |
+| `""` (empty) | Directory names only   |
+| `null`       | All files              |
+| `".png"`     | Files ending in `.png` |
+
+Supports both `file://` (development) and `jar://` (production) protocols.
+
+**Quirk**: Extension must include the dot (`.png`, not `png`).
+
+### Other methods
+
+| Method | Description |
+| --- | --- |
+| `getJarExecDirectory()` | Directory containing the running JAR |
+| `getApplicationDataFolder()` | OS-specific app data path (`~/Library/Application Support` on macOS, `~/.config` on Linux, `%APPDATA%` on Windows) |
+| `copyResource(src, dest)` | Copy a single resource from JAR to filesystem |
+| `copyResourceDirectory(src, dest)` | Copy an entire resource directory |
+
+## VhGraphics
+
+`flaggi.shared.ui.VhGraphics` - a `Graphics2D` wrapper that uses "view height" units for resolution-independent drawing.
+
+All coordinates are specified in `vh` (view height percentage) units, then converted to pixels based on the actual screen size:
+
+```java
+pixelValue = vh * pxPerVh
+```
+
+### Key methods
+
+| Method                       | Description                  |
+| ---------------------------- | ---------------------------- |
+| `drawRect(x, y, w, h)`       | Draw rectangle (vh units)    |
+| `fillRect(x, y, w, h)`       | Fill rectangle               |
+| `drawString(str, x, y)`      | Draw text                    |
+| `drawImage(img, x, y, w, h)` | Draw image                   |
+| `setFont(name, style, size)` | Set font (size in vh)        |
+| `px(vh)`                     | Convert vh to pixels         |
+| `raw()`                      | Access underlying Graphics2D |
+
+## UpdateLoop
+
+`flaggi.shared.common.UpdateLoop` - fixed-timestep game loop used by both server and client.
+
+```java
+UpdateLoop loop = new UpdateLoop(16); // 16ms = ~60 Hz
+loop.add(gameManager);                // anything implementing Updatable
+loop.start();                         // runs on its own thread
+```
+
+The loop calls `update()` on all registered `Updatable` instances at a fixed interval, then sleeps until the next tick. Uses `CopyOnWriteArrayList` for thread-safe modification while iterating.
+
+## NetUtil
+
+`flaggi.shared.util.NetUtil` - network helpers.
+
+| Method                  | Description                                    |
+| ----------------------- | ---------------------------------------------- |
+| `getLocalIPv4Address()` | Finds the non-loopback IPv4 address            |
+| `isValidAddress(input)` | Regex validation for hostnames, IPs, and ports |
+
+## Game objects
+
+The shared module defines the game object hierarchy used by both client and server:
+
+| Class              | Description                                          |
+| ------------------ | ---------------------------------------------------- |
+| `GameObject`       | Base - position, hitbox, HP, type, proto conversion  |
+| `PlayerGameObject` | Player - skin, animation, facing, shooting, respawn  |
+| `BulletGameObject` | Bullet - velocity, lifetime, damage                  |
+| `FlagGameObject`   | Flag - team, state machine (AT_BASE/CARRIED/DROPPED) |
+
+All game objects can serialize to/from protobuf `ServerGameObject` messages via `toProto()` and constructor-from-proto.

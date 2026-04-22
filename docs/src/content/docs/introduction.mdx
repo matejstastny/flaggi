@@ -1,0 +1,42 @@
+---
+title: Flaggi Developer Docs
+description: In-depth technical documentation for the Flaggi multiplayer game.
+---
+
+Welcome to the Flaggi developer documentation. These docs cover the architecture, systems, and internals of the game for contributors, modders, and anyone curious about how things work under the hood.
+
+## What is Flaggi?
+
+Flaggi is a real-time multiplayer 2D capture-the-flag game built in Java. Players battle across rooms, shoot bullets, capture enemy flags, and race to outscore the opposing team. It uses a custom TCP + UDP networking stack for low-latency state synchronization.
+
+## Project modules
+
+| Module         | Purpose                                                      |
+| -------------- | ------------------------------------------------------------ |
+| `client/`      | Java Swing game client - rendering, input, sprites           |
+| `server/`      | Game server - authoritative game logic, networking, database |
+| `shared/`      | Shared code - protobuf definitions, game objects, utilities  |
+| `editor/`      | Map/level editor (work in progress)                          |
+| `dev-console/` | Electron app for development                                 |
+| `scripts/`     | Build, run, and packaging helpers                            |
+
+## Quick links
+
+- [Setup & Running](/flaggi/getting-started/) - get the project running locally
+- [Project Structure](/flaggi/architecture/structure/) - how the codebase is organized
+- [Networking](/flaggi/architecture/networking/) - TCP + UDP protocol overview
+- [Client Systems](/flaggi/client/overview/) - renderer, sprites, input
+- [Server Systems](/flaggi/server/overview/) - game logic, matchmaking, database
+
+## Tech stack
+
+| Category      | Technology                            |
+| ------------- | ------------------------------------- |
+| Language      | Java 21                               |
+| Build         | Gradle 8 (Kotlin DSL)                 |
+| Networking    | TCP via Javalin + custom UDP          |
+| Serialization | Protocol Buffers v3                   |
+| Database      | SQLite (JDBC)                         |
+| UI            | Java Swing / AWT Graphics2D           |
+| Dev console   | Electron 28                           |
+| Packaging     | jlink + jpackage + create-dmg / WiX 3 |

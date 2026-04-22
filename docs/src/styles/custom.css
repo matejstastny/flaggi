@@ -1,0 +1,53 @@
+/* Flaggi dark theme - matches dev-console color scheme */
+
+:root {
+    --sl-color-accent-low: #0d2a60;
+    --sl-color-accent: #2060d0;
+    --sl-color-accent-high: #b8c8f0;
+
+    --sl-color-white: #dde3f0;
+    --sl-color-gray-1: #bcc4d8;
+    --sl-color-gray-2: #8a94b0;
+    --sl-color-gray-3: #4a5680;
+    --sl-color-gray-4: #252c42;
+    --sl-color-gray-5: #1e2438;
+    --sl-color-gray-6: #111520;
+    --sl-color-black: #0a0d14;
+
+    --sl-color-bg-nav: #0c1018;
+    --sl-color-bg-sidebar: #0e1220;
+    --sl-color-hairline-light: #1e2438;
+    --sl-color-hairline-shade: #252c42;
+}
+
+/* Force dark mode only */
+:root[data-theme="light"] {
+    --sl-color-accent-low: #0d2a60;
+    --sl-color-accent: #2060d0;
+    --sl-color-accent-high: #b8c8f0;
+
+    --sl-color-white: #dde3f0;
+    --sl-color-gray-1: #bcc4d8;
+    --sl-color-gray-2: #8a94b0;
+    --sl-color-gray-3: #4a5680;
+    --sl-color-gray-4: #252c42;
+    --sl-color-gray-5: #1e2438;
+    --sl-color-gray-6: #111520;
+    --sl-color-black: #0a0d14;
+
+    --sl-color-bg-nav: #0c1018;
+    --sl-color-bg-sidebar: #0e1220;
+    --sl-color-hairline-light: #1e2438;
+    --sl-color-hairline-shade: #252c42;
+}
+
+/* Red accent for links on hover */
+a:hover {
+    color: #e03040;
+}
+
+/* Code blocks */
+.expressive-code {
+    --ec-codeBg: #111520 !important;
+    --ec-codeBrdCol: #1e2438 !important;
+}

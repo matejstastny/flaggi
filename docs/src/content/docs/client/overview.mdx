@@ -1,0 +1,60 @@
+---
+title: Client Overview
+description: Architecture of the Flaggi game client.
+---
+
+The client is a Java Swing desktop application responsible for rendering the game, handling player input, and communicating with the server over TCP and UDP.
+
+## Entry point
+
+`flaggi.client.App` is the main class. It creates the window, initializes the UI panels, and establishes the network connection.
+
+## Key classes
+
+| Class          | Purpose                                                  |
+| -------------- | -------------------------------------------------------- |
+| `GameUi`       | Main game renderer - camera, sprites, HUD                |
+| `GameManager`  | Game state, input handling, client-side prediction       |
+| `Sprite`       | Tick-based sprite animation system                       |
+| `TcpManager`   | TCP connection to server (lobby, commands)               |
+| `UdpManager`   | UDP state updates (sending input, receiving world state) |
+| `GPanel`       | Custom Swing panel with update loop                      |
+| `LoginUi`      | Login screen                                             |
+| `LobbyUi`      | Lobby and player list                                    |
+| `DebugOverlay` | FPS, tick, position stats overlay                        |
+
+## Architecture flow
+
+```
+Input (keyboard/mouse)
+    │
+    ▼
+GameManager
+    ├── Converts to ClientStateUpdate proto
+    ├── Sends via UdpManager (every tick, if dirty)
+    ├── Receives ServerStateUpdate from UdpManager
+    ├── Advances client-side position prediction
+    └── Updates GameUi
+            │
+            ▼
+        GameUi.render()
+            ├── Applies camera transform (center on player)
+            ├── Applies zoom (0.5x)
+            ├── Renders floor tiles
+            ├── Renders game objects (trees, flags, bullets)
+            └── Renders players (with Sprite animations)
+```
+
+## UI system
+
+The client uses `GPanel` (from `shared`) as its root panel. `GPanel` extends `JPanel` and runs an `UpdateLoop` for fixed-timestep updates. UI screens (`LoginUi`, `LobbyUi`, `GameUi`) implement the `Renderable` interface and are swapped in/out as the player navigates.
+
+All rendering happens on the Swing EDT (Event Dispatch Thread). The `VhGraphics` wrapper converts "view height" units to pixels for resolution-independent drawing.
+
+## Input handling
+
+The `GameManager` listens for key and mouse events on the `GPanel`:
+
+- **Keyboard**: Maintains a `Set<ClientKey>` of currently held keys. On press → add key, on release → remove key.
+- **Mouse**: Tracks position and converts screen coordinates to world space (accounting for camera offset and zoom).
+- **Dirty flag**: Input is only sent to the server when something changes, reducing unnecessary UDP traffic.

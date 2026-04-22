@@ -232,7 +232,7 @@ function drawFlag(wx, wy) {
     // Pole
     ctx.fillStyle = "#4a5680"
     ctx.fillRect(x - 0.5, y - 10, 1.5, 14)
-    // Flag triangle — alternates red/blue using position hash
+    // Flag triangle - alternates red/blue using position hash
     ctx.fillStyle = (Math.round(wx) + Math.round(wy)) % 2 === 0 ? "#e03040" : "#4080f0"
     ctx.beginPath()
     ctx.moveTo(x + 1, y - 10)

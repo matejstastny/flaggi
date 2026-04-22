@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Manages all database operations for Flaggi.
  *
- * We use SQLite via JDBC — think of it as a single .db file on disk that we
+ * We use SQLite via JDBC - think of it as a single .db file on disk that we
  * talk to using SQL queries (structured text commands).
  *
  * Call DatabaseManager.initialize() once when the server starts, then use the
@@ -44,7 +44,7 @@ public class DatabaseManager {
 	public static void initialize() {
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
 
-			// players table — one row per unique player name.
+			// players table - one row per unique player name.
 			// "INTEGER PRIMARY KEY" is SQLite's auto-incrementing ID.
 			stmt.execute("""
 					    CREATE TABLE IF NOT EXISTS players (
@@ -60,7 +60,7 @@ public class DatabaseManager {
 					    )
 					""");
 
-			// games table — one row per match.
+			// games table - one row per match.
 			stmt.execute("""
 					    CREATE TABLE IF NOT EXISTS games (
 					        id            INTEGER PRIMARY KEY,
@@ -70,7 +70,7 @@ public class DatabaseManager {
 					    )
 					""");
 
-			// player_game_stats — links players to games.
+			// player_game_stats - links players to games.
 			// One row per player per game, storing what they did in that match.
 			// "REFERENCES" means this column must point to a real row in the other table.
 			stmt.execute("""
@@ -105,7 +105,7 @@ public class DatabaseManager {
 	 */
 	public static void saveGame(String winnerTeam, int durationSecs, List<PlayerMatchStats> playerStats) {
 		try (Connection conn = connect()) {
-			// Wrap everything in a transaction — either all of it saves, or none of it
+			// Wrap everything in a transaction - either all of it saves, or none of it
 			// does.
 			// This prevents half-saved data if something goes wrong mid-way.
 			conn.setAutoCommit(false);
@@ -293,7 +293,7 @@ public class DatabaseManager {
 	// Data classes
 	// -------------------------------------------------------------------------
 
-	/** What you pass in when saving a game — one per player. */
+	/** What you pass in when saving a game - one per player. */
 	public static class PlayerMatchStats {
 		public final String playerName;
 		public final String team; // "red" or "blue"

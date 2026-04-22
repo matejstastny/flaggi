@@ -90,7 +90,7 @@ message ServerEndGame {
 // UDP Messages -----------------------------------------------------------------
 
 message ServerStateUpdate {
-    // The local player's own object — used by the client to:
+    // The local player's own object - used by the client to:
     //   1. Center the camera (camera.x = me.x, camera.y = me.y)
     //   2. Render the local player in world space
     //   3. Show the local player's HP / flag count in the HUD
@@ -99,7 +99,7 @@ message ServerStateUpdate {
     // All other objects in the world (other players, flags, bullets, trees).
     repeated ServerGameObject other = 2;
 
-    // Server tick number — used by DebugOverlay to show tick count.
+    // Server tick number - used by DebugOverlay to show tick count.
     int32 tick = 3;
 }
 
@@ -112,7 +112,7 @@ message ServerGameObject {
     double         coll_width  = 6;
     double         coll_height = 7;
 
-    // Player-specific — only set when type == PLAYER
+    // Player-specific - only set when type == PLAYER
     PlayerSkin      skin        = 8;
     PlayerAnimation animation   = 9;
     bool            facing_left = 10;

@@ -21,7 +21,7 @@ public class Hitboxes {
 	// Hitboxes -----------------------------------------------------------------
 
 	/**
-	 * Player hitbox — centred on the player origin (x, y). 5×5 unit square offset
+	 * Player hitbox - centred on the player origin (x, y). 5×5 unit square offset
 	 * by -2.5 so the origin sits in the middle
 	 */
 	public static Hitbox player() {
@@ -29,14 +29,14 @@ public class Hitboxes {
 	}
 
 	/**
-	 * Bullet hitbox — small 2×2 square, centred on the bullet origin
+	 * Bullet hitbox - small 2×2 square, centred on the bullet origin
 	 */
 	public static Hitbox bullet() {
 		return new Hitbox(-1, -1, 2, 2);
 	}
 
 	/**
-	 * Flag hitbox — 6×6 square, centred on the flag origin. Slightly larger than a
+	 * Flag hitbox - 6×6 square, centred on the flag origin. Slightly larger than a
 	 * player so pickup is forgiving
 	 */
 	public static Hitbox flag() {

@@ -119,7 +119,7 @@ public class GameData {
 	public Map<String, ServerStateUpdate> getServerUpdateData() {
 		Map<String, ServerStateUpdate> updates = new HashMap<>();
 
-		// Collect all non-player objects once — they are the same for every player
+		// Collect all non-player objects once - they are the same for every player
 		List<flaggi.proto.ServerMessages.ServerGameObject> sharedObjects = new ArrayList<>();
 
 		for (BulletGameObject b : bullets) {
