@@ -43,7 +43,7 @@
             let asset = null
             if (os === "macos") asset = assets.find((a) => a.name.endsWith(".dmg"))
             else if (os === "windows") asset = assets.find((a) => a.name.endsWith(".exe"))
-            else if (os === "linux") asset = assets.find((a) => a.name.includes("universal") && a.name.endsWith(".jar"))
+            else if (os === "linux") asset = assets.find((a) => a.name.endsWith(".tar.gz"))
 
             // Fallback: try universal jar
             if (!asset) asset = assets.find((a) => a.name.includes("universal") && a.name.endsWith(".jar"))
