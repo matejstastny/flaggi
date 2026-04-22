@@ -1,12 +1,3 @@
-// ------------------------------------------------------------------------------
-// GameUi.java - Handles rendering and updating the game UI
-// ------------------------------------------------------------------------------
-// Author: Matej Stastny
-// Date: 06-21-2025 (MM-DD-YYYY)
-// License: MIT
-// Link: https://github.com/matejstastny/flaggi
-// ------------------------------------------------------------------------------
-
 package flaggi.client.ui;
 
 import flaggi.client.common.Sprite;
