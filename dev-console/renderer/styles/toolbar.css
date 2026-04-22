@@ -89,7 +89,9 @@ button {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    transition: filter 0.12s, transform 0.08s;
+    transition:
+        filter 0.12s,
+        transform 0.08s;
     -webkit-app-region: no-drag;
 }
 

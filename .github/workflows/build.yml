@@ -1,49 +1,49 @@
 name: Build
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "buildSrc/**"
-      - "client/**"
-      - "server/**"
-      - "shared/**"
-      - "gradle/**"
-      - "build.gradle.kts"
-      - "settings.gradle.kts"
-      - "gradle.properties"
+    push:
+        branches: [main]
+        paths:
+            - "buildSrc/**"
+            - "client/**"
+            - "server/**"
+            - "shared/**"
+            - "gradle/**"
+            - "build.gradle.kts"
+            - "settings.gradle.kts"
+            - "gradle.properties"
 
-  pull_request:
-    branches: [main]
-    paths:
-      - "buildSrc/**"
-      - "client/**"
-      - "server/**"
-      - "shared/**"
-      - "gradle/**"
-      - "build.gradle.kts"
-      - "settings.gradle.kts"
-      - "gradle.properties"
+    pull_request:
+        branches: [main]
+        paths:
+            - "buildSrc/**"
+            - "client/**"
+            - "server/**"
+            - "shared/**"
+            - "gradle/**"
+            - "build.gradle.kts"
+            - "settings.gradle.kts"
+            - "gradle.properties"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        module: [server, client, shared]
+        strategy:
+            matrix:
+                module: [server, client, shared]
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: gradle
+            - uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: 21
+                  cache: gradle
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+            - name: Make gradlew executable
+              run: chmod +x gradlew
 
-      - name: Build module
-        run: ./gradlew :${{ matrix.module }}:build --no-daemon
+            - name: Build module
+              run: ./gradlew :${{ matrix.module }}:build --no-daemon
