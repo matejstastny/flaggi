@@ -50,10 +50,14 @@ jobs:
               if: runner.os == 'Windows'
               shell: pwsh
               run: |
-                  choco install wixtoolset --version=3.11.2 -y
-                  $wixBin = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-                  if (-not (Test-Path $wixBin)) {
-                    throw "WiX 3 installation not found at $wixBin"
+                  choco install wixtoolset -y
+                  $wixBin = Get-ChildItem "C:\Program Files (x86)" -Directory -Filter "WiX Toolset v3*" |
+                    Sort-Object Name -Descending |
+                    ForEach-Object { Join-Path $_.FullName "bin" } |
+                    Where-Object { (Test-Path (Join-Path $_ "candle.exe")) -and (Test-Path (Join-Path $_ "light.exe")) } |
+                    Select-Object -First 1
+                  if (-not $wixBin -or -not (Test-Path $wixBin)) {
+                    throw "WiX 3 installation not found under C:\Program Files (x86)"
                   }
                   "$wixBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -92,7 +96,7 @@ jobs:
                   test -f "$JAR_FILE"
 
                   rm -rf "$RUNTIME_DIR" "$DIST_DIR"
-                  mkdir -p "$RUNTIME_DIR" "$DIST_DIR"
+                  mkdir -p "$DIST_DIR"
 
                   MODULES=$(jdeps --multi-release 21 --print-module-deps --ignore-missing-deps "$JAR_FILE")
 
