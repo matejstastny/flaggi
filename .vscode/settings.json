@@ -61,7 +61,8 @@
         "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
     "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false
     },
     "[xml]": {
         "editor.defaultFormatter": "redhat.vscode-xml"

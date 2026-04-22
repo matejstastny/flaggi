@@ -5,6 +5,10 @@ description: Protocol Buffer message definitions used for client-server communic
 
 Flaggi uses Protocol Buffers v3 for all network serialization. Proto definitions live in `shared/src/main/proto/` and generate Java classes in the `flaggi.proto` package.
 
+:::tip[Key Concept]
+Treat the proto files as the source of truth. If a message changes there, the generated Java API changes with it.
+:::
+
 ## Proto files
 
 | File                    | Direction       | Purpose                    |
@@ -30,6 +34,8 @@ message ClientMessage {
   }
 }
 ```
+
+The wrapper lets the server read one envelope and then dispatch by payload type.
 
 ### `ClientStateUpdate` (UDP)
 
@@ -88,6 +94,8 @@ message ServerMessage {
 }
 ```
 
+This is the server-side mirror of `ClientMessage`.
+
 ### `ServerStateUpdate` (UDP)
 
 ```protobuf
@@ -97,6 +105,8 @@ message ServerStateUpdate {
   int32 tick = 3;
 }
 ```
+
+`me` is personalized for the receiving player, while `other` contains the rest of the visible world.
 
 ### `ServerGameObject`
 
@@ -119,6 +129,23 @@ message ServerGameObject {
   string username = 13;
 }
 ```
+
+## Why this shape?
+
+The protocol keeps the game state simple to consume:
+
+- the client gets a ready-to-render snapshot every tick
+- the server does not send unnecessary internal state
+- each object can be updated, filtered, or extended independently
+
+## Evolving the protocol
+
+When changing a `.proto` file:
+
+1. Add new fields instead of renumbering old ones.
+2. Avoid reusing removed field numbers.
+3. Keep client and server in sync.
+4. Rebuild the shared module to regenerate Java classes.
 
 ### Game object enums
 
@@ -150,8 +177,12 @@ enum PlayerAnimation {
 
 After editing `.proto` files, rebuild the shared module:
 
-```bash
+```bash title="Regenerate protobuf classes"
 ./gradlew :shared:build
 ```
 
 The protobuf Gradle plugin (configured in `buildSrc/java-common.gradle.kts`) runs `protoc 3.25.1` and generates Java classes into the build output.
+
+:::note[Note]
+The generated classes land in the `flaggi.proto` package and are consumed by both the client and the server.
+:::

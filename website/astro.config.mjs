@@ -35,7 +35,23 @@ export default defineConfig({
             sidebar: [
                 {
                     label: "Getting Started",
-                    items: [{ label: "Overview", slug: "getting-started/overview" }]
+                    items: [{ label: "Play the Game", slug: "getting-started/overview" }]
+                },
+                {
+                    label: "Developer Guide",
+                    items: [
+                        { label: "Setup", slug: "developer/setup" },
+                        { label: "Docs Website", slug: "developer/website" },
+                        { label: "CI & Formatting", slug: "developer/ci" }
+                    ]
+                },
+                {
+                    label: "Architecture",
+                    items: [
+                        { label: "Structure", slug: "architecture/structure" },
+                        { label: "Networking", slug: "architecture/networking" },
+                        { label: "Protocol", slug: "architecture/protocol" }
+                    ]
                 }
             ]
         })
