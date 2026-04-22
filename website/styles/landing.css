@@ -295,6 +295,11 @@ nav {
     fill: currentColor;
 }
 
+.btn-download #download-label svg * {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
 .btn-download .spinner {
     width: 18px;
     height: 18px;
