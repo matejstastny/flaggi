@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------
+// FlagGameObject.java - Flag game object (capture-the-flag mechanic)
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 02-26-2026 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
+
 package flaggi.shared.common;
 
 import flaggi.proto.ServerMessages.GameObjectType;
@@ -10,11 +19,11 @@ public class FlagGameObject extends GameObject {
         BLUE
     }
 
-	public enum FlagState {
-		AT_BASE, // resting at home base - can be stolen by enemy
-		CARRIED, // picked up and held by a player
-		DROPPED // dropped mid-field - either team can interact
-	}
+    public enum FlagState {
+        AT_BASE, // resting at home base - can be stolen by enemy
+        CARRIED, // picked up and held by a player
+        DROPPED // dropped mid-field - either team can interact
+    }
 
     private final Team team;
     private final double baseX, baseY; // where it respawns when returned
@@ -47,7 +56,9 @@ public class FlagGameObject extends GameObject {
 
     // Public -------------------------------------------------------------------
 
-    /** Pick up this flag by the given player. Only valid when AT_BASE or DROPPED. */
+    /**
+     * Pick up this flag by the given player. Only valid when AT_BASE or DROPPED.
+     */
     public boolean pickUp(String playerUuid) {
         if (state == FlagState.CARRIED) return false;
         state = FlagState.CARRIED;
@@ -64,8 +75,8 @@ public class FlagGameObject extends GameObject {
     }
 
     /**
-     * Return the flag to its home base (called when captured or when a teammate touches a dropped
-     * flag).
+     * Return the flag to its home base (called when captured or when a teammate
+     * touches a dropped flag).
      */
     public void returnToBase() {
         setX(baseX);
@@ -110,7 +121,9 @@ public class FlagGameObject extends GameObject {
         return state == FlagState.AT_BASE;
     }
 
-    /** World-space collision bounds (used for proximity / overlap checks). */
+    /**
+     * World-space collision bounds (used for proximity / overlap checks).
+     */
     public double worldCollX() {
         return x() + collision().getX();
     }

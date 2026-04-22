@@ -1,3 +1,12 @@
+// --------------------------------------------------------------------------------------------
+// DatabaseManager.java
+// --------------------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 2026-02-21 (YYYY-MM-DD)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// --------------------------------------------------------------------------------------------
+
 package flaggi.server.common;
 
 import java.sql.Connection;
@@ -15,8 +24,8 @@ import java.util.List;
  * We use SQLite via JDBC - think of it as a single .db file on disk that we
  * talk to using SQL queries (structured text commands).
  *
- * <p>Call DatabaseManager.initialize() once when the server starts, then use the static methods
- * anywhere in the server to save/read data.
+ * Call DatabaseManager.initialize() once when the server starts, then use the
+ * static methods anywhere in the server to save/read data.
  */
 public class DatabaseManager {
 
@@ -29,16 +38,17 @@ public class DatabaseManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Call this once when the server starts. Creates the database file and all tables if they don't
-     * already exist.
+     * Call this once when the server starts. Creates the database file and all
+     * tables if they don't already exist.
      */
     public static void initialize() {
         try (Connection conn = connect();
                 Statement stmt = conn.createStatement()) {
 
-			// players table - one row per unique player name.
-			// "INTEGER PRIMARY KEY" is SQLite's auto-incrementing ID.
-			stmt.execute("""
+            // players table - one row per unique player name.
+            // "INTEGER PRIMARY KEY" is SQLite's auto-incrementing ID.
+            stmt.execute(
+                    """
 					    CREATE TABLE IF NOT EXISTS players (
 					        id            INTEGER PRIMARY KEY,
 					        name          TEXT    NOT NULL UNIQUE,
@@ -52,8 +62,9 @@ public class DatabaseManager {
 					    )
 					""");
 
-			// games table - one row per match.
-			stmt.execute("""
+            // games table - one row per match.
+            stmt.execute(
+                    """
 					    CREATE TABLE IF NOT EXISTS games (
 					        id            INTEGER PRIMARY KEY,
 					        winner_team   TEXT    NOT NULL,   -- 'red' or 'blue'
@@ -62,10 +73,11 @@ public class DatabaseManager {
 					    )
 					""");
 
-			// player_game_stats - links players to games.
-			// One row per player per game, storing what they did in that match.
-			// "REFERENCES" means this column must point to a real row in the other table.
-			stmt.execute("""
+            // player_game_stats - links players to games.
+            // One row per player per game, storing what they did in that match.
+            // "REFERENCES" means this column must point to a real row in the other table.
+            stmt.execute(
+                    """
 					    CREATE TABLE IF NOT EXISTS player_game_stats (
 					        id        INTEGER PRIMARY KEY,
 					        player_id INTEGER NOT NULL REFERENCES players(id),
@@ -79,39 +91,8 @@ public class DatabaseManager {
 
             System.out.println("[DB] Database initialized at: " + DB_PATH);
 
-    } catch (SQLException e) {
-      System.err.println("[DB] Failed to initialize database: " + e.getMessage());
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Writing data
-  // -------------------------------------------------------------------------
-
-	/**
-	 * Call this at the end of each match to save everything.
-	 *
-	 * @param winnerTeam   "red" or "blue"
-	 * @param durationSecs how long the game lasted in seconds
-	 * @param playerStats  list of what each player did this match
-	 */
-	public static void saveGame(String winnerTeam, int durationSecs, List<PlayerMatchStats> playerStats) {
-		try (Connection conn = connect()) {
-			// Wrap everything in a transaction - either all of it saves, or none of it
-			// does.
-			// This prevents half-saved data if something goes wrong mid-way.
-			conn.setAutoCommit(false);
-
-      try {
-        // 1. Insert the game row and get its auto-generated ID back.
-        int gameId = insertGame(conn, winnerTeam, durationSecs);
-
-        // 2. For each player, upsert (insert or update) their row in `players`,
-        // then insert their per-game stats.
-        for (PlayerMatchStats stats : playerStats) {
-          int playerId = upsertPlayer(conn, stats.playerName);
-          insertPlayerGameStats(conn, playerId, gameId, stats);
-          updatePlayerTotals(conn, playerId, stats);
+        } catch (SQLException e) {
+            System.err.println("[DB] Failed to initialize database: " + e.getMessage());
         }
     }
 
@@ -122,13 +103,13 @@ public class DatabaseManager {
     /**
      * Call this at the end of each match to save everything.
      *
-     * @param winnerTeam "red" or "blue"
+     * @param winnerTeam   "red" or "blue"
      * @param durationSecs how long the game lasted in seconds
-     * @param playerStats list of what each player did this match
+     * @param playerStats  list of what each player did this match
      */
     public static void saveGame(String winnerTeam, int durationSecs, List<PlayerMatchStats> playerStats) {
         try (Connection conn = connect()) {
-            // Wrap everything in a transaction — either all of it saves, or none of it
+            // Wrap everything in a transaction - either all of it saves, or none of it
             // does.
             // This prevents half-saved data if something goes wrong mid-way.
             conn.setAutoCommit(false);
@@ -162,7 +143,10 @@ public class DatabaseManager {
     // Reading data (for the leaderboard)
     // -------------------------------------------------------------------------
 
-    /** Returns all players sorted by wins descending. This is the main leaderboard query. */
+    /**
+     * Returns all players sorted by wins descending. This is the main leaderboard
+     * query.
+     */
     public static List<LeaderboardEntry> getLeaderboard() {
         List<LeaderboardEntry> entries = new ArrayList<>();
         String sql =
@@ -204,7 +188,9 @@ public class DatabaseManager {
         return entries;
     }
 
-    /** Returns the last N games played, most recent first. */
+    /**
+     * Returns the last N games played, most recent first.
+     */
     public static List<GameHistoryEntry> getRecentGames(int limit) {
         List<GameHistoryEntry> entries = new ArrayList<>();
         String sql =
@@ -240,7 +226,10 @@ public class DatabaseManager {
     // Private helpers
     // -------------------------------------------------------------------------
 
-    /** Opens a connection to the SQLite file. Always use in a try-with-resources block. */
+    /**
+     * Opens a connection to the SQLite file. Always use in a try-with-resources
+     * block.
+     */
     private static Connection connect() throws SQLException {
         return DriverManager.getConnection(DB_URL);
     }
@@ -260,8 +249,8 @@ public class DatabaseManager {
     }
 
     /**
-     * "Upsert" = INSERT if the player doesn't exist, do nothing if they do. Then fetch their ID
-     * either way.
+     * "Upsert" = INSERT if the player doesn't exist, do nothing if they do. Then
+     * fetch their ID either way.
      */
     private static int upsertPlayer(Connection conn, String name) throws SQLException {
         // INSERT OR IGNORE skips the insert if the name already exists (due to UNIQUE).
@@ -281,7 +270,10 @@ public class DatabaseManager {
         }
     }
 
-    /** Inserts a row into player_game_stats for one player's performance in one game. */
+    /**
+     * Inserts a row into player_game_stats for one player's performance in one
+     * game.
+     */
     private static void insertPlayerGameStats(Connection conn, int playerId, int gameId, PlayerMatchStats stats)
             throws SQLException {
         String sql =
@@ -324,13 +316,13 @@ public class DatabaseManager {
     // Data classes
     // -------------------------------------------------------------------------
 
-	/** What you pass in when saving a game - one per player. */
-	public static class PlayerMatchStats {
-		public final String playerName;
-		public final String team; // "red" or "blue"
-		public final int kills;
-		public final int deaths;
-		public final boolean won;
+    /** What you pass in when saving a game - one per player. */
+    public static class PlayerMatchStats {
+        public final String playerName;
+        public final String team; // "red" or "blue"
+        public final int kills;
+        public final int deaths;
+        public final boolean won;
 
         public PlayerMatchStats(String playerName, String team, int kills, int deaths, boolean won) {
             this.playerName = playerName;

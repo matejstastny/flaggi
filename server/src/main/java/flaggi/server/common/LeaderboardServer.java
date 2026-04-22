@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * A tiny web server that serves the Flaggi leaderboard at localhost:8080.
  *
- * <p>Start it once with LeaderboardServer.start() when the game server boots. It reads from the
- * same SQLite database as the game server.
+ * Start it once with LeaderboardServer.start() when the game server boots. It
+ * reads from the same SQLite database as the game server.
  */
 public class LeaderboardServer {
 
@@ -37,12 +37,12 @@ public class LeaderboardServer {
         ctx.contentType("text/html").result(buildPage(players, recentGames));
     }
 
-	/**
-	 * Builds the full HTML page as a string. No frameworks, no build step - just
-	 * straightforward HTML.
-	 */
-	private static String buildPage(List<LeaderboardEntry> players, List<GameHistoryEntry> recentGames) {
-		StringBuilder sb = new StringBuilder();
+    /**
+     * Builds the full HTML page as a string. No frameworks, no build step - just
+     * straightforward HTML.
+     */
+    private static String buildPage(List<LeaderboardEntry> players, List<GameHistoryEntry> recentGames) {
+        StringBuilder sb = new StringBuilder();
 
         sb.append(
                 """

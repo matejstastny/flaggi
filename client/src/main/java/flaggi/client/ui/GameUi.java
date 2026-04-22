@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------
+// GameUi.java - Handles rendering and updating the game UI
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 06-21-2025 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
+
 package flaggi.client.ui;
 
 import flaggi.client.common.Sprite;
@@ -141,17 +150,7 @@ public class GameUi extends Renderable {
             dy = Math.signum(dy) * d;
         }
 
-		synchronized (posLock) {
-			// Mirror server tryMove: diagonal → H-only → V-only
-			if (!clientCollidesWithObstacle(clientX + stepDx, clientY + stepDy)) {
-				clientX += stepDx;
-				clientY += stepDy;
-			} else if (!clientCollidesWithObstacle(clientX + stepDx, clientY)) {
-				clientX += stepDx;
-			} else if (!clientCollidesWithObstacle(clientX, clientY + stepDy)) {
-				clientY += stepDy;
-			}
-			// else: fully blocked - no movement
+        if (dx == 0 && dy == 0) return;
 
         double stepDx = dx * dtTicks;
         double stepDy = dy * dtTicks;
@@ -166,7 +165,7 @@ public class GameUi extends Renderable {
             } else if (!clientCollidesWithObstacle(clientX, clientY + stepDy)) {
                 clientY += stepDy;
             }
-            // else: fully blocked — no movement
+            // else: fully blocked - no movement
 
             // Mirror server boundary clamp
             clientX = Math.max(0, Math.min(roomSize[0], clientX));
@@ -174,13 +173,13 @@ public class GameUi extends Renderable {
         }
     }
 
-	// AABB check - mirrors server collidesWithObstacle(). Reads this.objects
-	// snapshot.
-	private boolean clientCollidesWithObstacle(double cx, double cy) {
-		double px1 = cx + PLAYER_HB_OX;
-		double py1 = cy + PLAYER_HB_OY;
-		double px2 = px1 + PLAYER_HB_W;
-		double py2 = py1 + PLAYER_HB_H;
+    // AABB check - mirrors server collidesWithObstacle(). Reads this.objects
+    // snapshot.
+    private boolean clientCollidesWithObstacle(double cx, double cy) {
+        double px1 = cx + PLAYER_HB_OX;
+        double py1 = cy + PLAYER_HB_OY;
+        double px2 = px1 + PLAYER_HB_W;
+        double py2 = py1 + PLAYER_HB_H;
 
         List<ServerGameObject> objs = this.objects;
         if (objs == null) return false;

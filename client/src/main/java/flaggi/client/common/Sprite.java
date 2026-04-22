@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------
+// Sprite.java - Sprite data structure class
+// ------------------------------------------------------------------------------
+// Author: Matej Stastny
+// Date: 12-01-2024 (MM-DD-YYYY)
+// License: MIT
+// Link: https://github.com/matejstastny/flaggi
+// ------------------------------------------------------------------------------
+
 package flaggi.client.common;
 
 import flaggi.client.App;
@@ -19,18 +28,21 @@ import javax.imageio.ImageIO;
 /**
  * Sprite - loads and manages sprite animations from the resources folder.
  *
- * <p>FOLDER STRUCTURE:
+ * FOLDER STRUCTURE:
  *
- * <p>Animated sprite (has named subfolders, one per animation): sprites/player-blue/ idle/ 1.png,
- * 2.png walk-up/ 1.png, 2.png, 3.png, 4.png walk-down/ ...
+ * Animated sprite (has named subfolders, one per animation):
+ * sprites/player-blue/ idle/ 1.png, 2.png walk-up/ 1.png, 2.png, 3.png, 4.png
+ * walk-down/ ...
  *
- * <p>Static sprite (no subfolders, just PNGs directly in the folder): sprites/bullet/ bullet.png
+ * Static sprite (no subfolders, just PNGs directly in the folder):
+ * sprites/bullet/ bullet.png
  *
- * <p>USAGE: Sprite s = new Sprite("player-blue", 8); // 8 fps s.setAnimation("walk-up"); // in your
- * game loop: s.tick(); s.render(g, x, y, root);
+ * USAGE: Sprite s = new Sprite("player-blue", 8); // 8 fps
+ * s.setAnimation("walk-up"); // in your game loop: s.tick(); s.render(g, x, y,
+ * root);
  *
- * <p>Animation advances via tick(), which should be called once per game loop frame. No background
- * threads are used.
+ * Animation advances via tick(), which should be called once per game loop
+ * frame. No background threads are used.
  */
 public class Sprite {
 
@@ -42,10 +54,10 @@ public class Sprite {
     private final Map<String, Animation> animations = new HashMap<>();
     private String currentAnimation = DEFAULT_ANIMATION;
 
-	// Tick-based animation state - no threads, no races.
-	private int tickCounter = 0;
-	private int currentFrameIndex = 0;
-	private int ticksPerFrame;
+    // Tick-based animation state - no threads, no races.
+    private int tickCounter = 0;
+    private int currentFrameIndex = 0;
+    private int ticksPerFrame;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -53,7 +65,7 @@ public class Sprite {
 
     /**
      * @param spriteName folder name inside sprites/, e.g. "player-blue" or "bullet"
-     * @param fps animation speed; ignored for static sprites
+     * @param fps        animation speed; ignored for static sprites
      */
     public Sprite(String spriteName, int fps) {
         this.ticksPerFrame = Math.max(1, fps > 0 ? 60 / fps : 1);
@@ -65,24 +77,16 @@ public class Sprite {
         }
     }
 
-		// List subfolders - these are animation names (e.g. "idle", "walk-up").
-		List<String> subfolders = FileUtil.listResourceFiles(basePath, "");
+    // -------------------------------------------------------------------------
+    // Loading
+    // -------------------------------------------------------------------------
 
-		if (subfolders.isEmpty()) {
-			// STATIC SPRITE: no subfolders - load PNGs directly from the folder.
-			Animation anim = loadAnimation(basePath);
-			animations.put(DEFAULT_ANIMATION, anim);
-			currentAnimation = DEFAULT_ANIMATION;
-		} else {
-			// ANIMATED SPRITE: each subfolder is one named animation.
-			for (String animName : subfolders) {
-				Animation anim = loadAnimation(basePath + "/" + animName);
-				animations.put(animName, anim);
-			}
-			// Start on the first animation found.
-			currentAnimation = subfolders.get(0);
-		}
-	}
+    /**
+     * Detects whether this is an animated or static sprite by checking if the
+     * sprite folder contains subfolders (animated) or just PNGs (static).
+     */
+    private void loadAnimations(String spriteName) throws IOException {
+        String basePath = SPRITES_RESOURCE_PATH + spriteName;
 
         // Check if the folder exists at all.
         URL folderUrl = getClass().getClassLoader().getResource(basePath);
@@ -90,11 +94,11 @@ public class Sprite {
             throw new IOException("Sprite folder not found: " + basePath);
         }
 
-        // List subfolders — these are animation names (e.g. "idle", "walk-up").
+        // List subfolders - these are animation names (e.g. "idle", "walk-up").
         List<String> subfolders = FileUtil.listResourceFiles(basePath, "");
 
         if (subfolders.isEmpty()) {
-            // STATIC SPRITE: no subfolders — load PNGs directly from the folder.
+            // STATIC SPRITE: no subfolders - load PNGs directly from the folder.
             Animation anim = loadAnimation(basePath);
             animations.put(DEFAULT_ANIMATION, anim);
             currentAnimation = DEFAULT_ANIMATION;
@@ -110,8 +114,8 @@ public class Sprite {
     }
 
     /**
-     * Loads all .png files from a folder as frames of one animation. Files are sorted naturally so
-     * 1.png, 2.png, 10.png order correctly.
+     * Loads all .png files from a folder as frames of one animation. Files are
+     * sorted naturally so 1.png, 2.png, 10.png order correctly.
      */
     private Animation loadAnimation(String folderPath) throws IOException {
         List<Image> frames = new ArrayList<>();
@@ -137,8 +141,8 @@ public class Sprite {
     // -------------------------------------------------------------------------
 
     /**
-     * Call this once per game loop tick to advance the animation. Does nothing for static
-     * (single-frame) sprites.
+     * Call this once per game loop tick to advance the animation. Does nothing for
+     * static (single-frame) sprites.
      */
     public void tick() {
         Animation anim = animations.get(currentAnimation);
@@ -156,11 +160,12 @@ public class Sprite {
     // -------------------------------------------------------------------------
 
     /**
-     * Switches to a named animation and resets the frame counter. Only switches if the animation is
-     * actually different (avoids restarting mid-cycle).
+     * Switches to a named animation and resets the frame counter. Only switches if
+     * the animation is actually different (avoids restarting mid-cycle).
      *
      * @param name animation folder name, e.g. "walk-up", "idle"
-     * @throws IllegalArgumentException if the animation doesn't exist on this sprite
+     * @throws IllegalArgumentException if the animation doesn't exist on this
+     *                                  sprite
      */
     public void setAnimation(String name) {
         if (!animations.containsKey(name)) {
@@ -188,8 +193,8 @@ public class Sprite {
     }
 
     /**
-     * Jumps to a specific frame and freezes animation there. Call setFps() or let tick() resume if
-     * you want it playing again.
+     * Jumps to a specific frame and freezes animation there. Call setFps() or let
+     * tick() resume if you want it playing again.
      *
      * @param frameIndex zero-based frame index
      */
@@ -216,7 +221,9 @@ public class Sprite {
     // Rendering
     // -------------------------------------------------------------------------
 
-    /** Draws the current frame centered on (x, y). */
+    /**
+     * Draws the current frame centered on (x, y).
+     */
     public void render(Graphics2D g, int x, int y, Container root) {
         Image img = getCurrentFrame();
         if (img == null) return;
@@ -225,7 +232,9 @@ public class Sprite {
         g.drawImage(img, x - w / 2, y - h / 2, root);
     }
 
-    /** Draws the current frame with the top-left corner at (x, y). */
+    /**
+     * Draws the current frame with the top-left corner at (x, y).
+     */
     public void renderTopLeft(Graphics2D g, int x, int y, Container root) {
         Image img = getCurrentFrame();
         if (img != null) {
