@@ -24,8 +24,8 @@ server-temp/
 
 # Web
 **/node_modules/
-docs/.astro/
-docs/dist/
+website/.astro/
+website/dist/
 
 # Claude Code
 .claude/
