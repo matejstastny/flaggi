@@ -97,5 +97,8 @@
     "[mdx]": {
         "editor.defaultFormatter": "unifiedjs.vscode-mdx",
         "editor.wordWrap": "on"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
 }
