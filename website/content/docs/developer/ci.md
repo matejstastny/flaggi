@@ -3,7 +3,36 @@ title: CI & Formatting
 description: Continuous integration, formatting checks, and release automation for Flaggi.
 ---
 
-Flaggi uses GitHub Actions for build checks, formatting checks, and website deployment.
+Flaggi uses GitHub Actions for build checks, formatting checks, website deployment and releases.
+
+## Release workflow
+
+Releases are built in CI with a multi-OS matrix in [.github/workflows/release.yml](../../../../.github/workflows/release.yml).
+
+### Trigger
+
+- Automatic on Git tags matching `v*` (example: `v1.2.0`)
+- Manual via `workflow_dispatch`
+
+### What it builds
+
+- Windows installer (`.exe`)
+- macOS installer (`.dmg`)
+- Linux app image (packaged as `.tar.gz`)
+
+### Runtime bundling
+
+Each artifact includes its own Java runtime.
+
+The workflow runs:
+
+1. `jdeps` to detect required Java modules
+2. `jlink` to build a minimal runtime image
+3. `jpackage --runtime-image` to bundle that runtime into the final artifact
+
+### Publishing
+
+On tag builds, the workflow creates a GitHub Release and uploads all packaged artifacts automatically.
 
 ## Build workflow
 

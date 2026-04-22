@@ -1,0 +1,164 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: release-${{ github.ref }}
+    cancel-in-progress: false
+
+jobs:
+    package:
+        name: Package (${{ matrix.target.name }})
+        runs-on: ${{ matrix.target.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                target:
+                    - name: windows
+                      os: windows-latest
+                      package_type: exe
+                      icon: assets/icons/win.ico
+                      output_ext: exe
+                    - name: macos
+                      os: macos-latest
+                      package_type: dmg
+                      icon: assets/icons/flaggi.icns
+                      output_ext: dmg
+                    - name: linux
+                      os: ubuntu-latest
+                      package_type: app-image
+                      icon: assets/icons/console_icon.png
+                      output_ext: tar.gz
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: 21
+                  cache: gradle
+
+            - name: Install WiX 3 (Windows)
+              if: runner.os == 'Windows'
+              shell: pwsh
+              run: |
+                  choco install wixtoolset --version=3.11.2 -y
+                  $wixBin = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+                  if (-not (Test-Path $wixBin)) {
+                    throw "WiX 3 installation not found at $wixBin"
+                  }
+                  "$wixBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+            - name: Resolve version
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+                    VERSION="${GITHUB_REF_NAME#v}"
+                  else
+                    VERSION="$(grep '^version=' gradle.properties | cut -d= -f2)"
+                  fi
+                  echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+            - name: Build shadowJar (Unix)
+              if: runner.os != 'Windows'
+              shell: bash
+              run: ./gradlew :client:shadowJar --no-daemon
+
+            - name: Build shadowJar (Windows)
+              if: runner.os == 'Windows'
+              shell: pwsh
+              run: .\gradlew.bat :client:shadowJar --no-daemon
+
+            - name: Package app
+              id: package_app
+              shell: bash
+              run: |
+                  set -euo pipefail
+
+                  APP_NAME="Flaggi"
+                  JAR_FILE="client/build/libs/flaggi-client.jar"
+                  DIST_DIR="$PWD/dist"
+                  RUNTIME_DIR="$PWD/build/jre"
+
+                  test -f "$JAR_FILE"
+
+                  rm -rf "$RUNTIME_DIR" "$DIST_DIR"
+                  mkdir -p "$RUNTIME_DIR" "$DIST_DIR"
+
+                  MODULES=$(jdeps --multi-release 21 --print-module-deps --ignore-missing-deps "$JAR_FILE")
+
+                  jlink \
+                    --add-modules "$MODULES" \
+                    --output "$RUNTIME_DIR" \
+                    --strip-debug \
+                    --no-header-files \
+                    --no-man-pages
+
+                  EXTRA_ARGS=()
+                  if [[ "${{ runner.os }}" == "Windows" ]]; then
+                    EXTRA_ARGS+=(--win-per-user-install --win-menu --win-shortcut)
+                  fi
+
+                  jpackage \
+                    --input client/build/libs \
+                    --main-jar "flaggi-client.jar" \
+                    --name "$APP_NAME" \
+                    --app-version "$APP_VERSION" \
+                    --type "${{ matrix.target.package_type }}" \
+                    --dest "$DIST_DIR" \
+                    --runtime-image "$RUNTIME_DIR" \
+                    --icon "${{ matrix.target.icon }}" \
+                    "${EXTRA_ARGS[@]}"
+
+                  case "${{ matrix.target.name }}" in
+                    windows)
+                      src_file=$(find "$DIST_DIR" -maxdepth 1 -name '*.exe' -print -quit)
+                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-windows.exe"
+                      mv "$src_file" "$out_file"
+                      ;;
+                    macos)
+                      src_file=$(find "$DIST_DIR" -maxdepth 1 -name '*.dmg' -print -quit)
+                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-macos.dmg"
+                      mv "$src_file" "$out_file"
+                      ;;
+                    linux)
+                      tar -C "$DIST_DIR" -czf "$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz" "$APP_NAME"
+                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz"
+                      ;;
+                  esac
+
+                  echo "output_file=$out_file" >> "$GITHUB_OUTPUT"
+
+            - name: Upload packaged artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: release-${{ matrix.target.name }}
+                  path: ${{ steps.package_app.outputs.output_file }}
+                  if-no-files-found: error
+
+    publish:
+        name: Publish GitHub Release
+        needs: package
+        if: startsWith(github.ref, 'refs/tags/v')
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: release-artifacts
+
+            - name: Publish release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: release-artifacts/**/**
+                  generate_release_notes: true
