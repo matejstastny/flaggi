@@ -7,7 +7,7 @@ on:
     workflow_dispatch:
         inputs:
             release_tag:
-                description: "Release tag to publish (for example: v1.2.3)"
+                description: "Release tag (e.g. v1.2.3)"
                 required: true
                 type: string
 
@@ -28,19 +28,10 @@ jobs:
                 target:
                     - name: windows
                       os: windows-latest
-                      package_type: exe
-                      icon: assets/icons/win.ico
-                      output_ext: exe
                     - name: macos
                       os: macos-latest
-                      package_type: app-image
-                      icon: assets/icons/flaggi.icns
-                      output_ext: dmg
                     - name: linux
                       os: ubuntu-latest
-                      package_type: app-image
-                      icon: assets/icons/console_icon.png
-                      output_ext: tar.gz
 
         steps:
             - uses: actions/checkout@v4
@@ -62,7 +53,7 @@ jobs:
                     Where-Object { (Test-Path (Join-Path $_ "candle.exe")) -and (Test-Path (Join-Path $_ "light.exe")) } |
                     Select-Object -First 1
                   if (-not $wixBin -or -not (Test-Path $wixBin)) {
-                    throw "WiX 3 installation not found under C:\Program Files (x86)"
+                    throw "WiX 3 not found under C:\Program Files (x86)"
                   }
                   "$wixBin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -75,22 +66,18 @@ jobs:
               shell: bash
               run: |
                   set -euo pipefail
-                  if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+                  if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
                     VERSION="${GITHUB_REF_NAME#v}"
-                  elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+                  elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
                     TAG="${{ github.event.inputs.release_tag }}"
-                    if [[ ! "$TAG" =~ ^v.+ ]]; then
-                      echo "Manual dispatch requires a tag starting with 'v' (got: $TAG)" >&2
-                      exit 1
-                    fi
+                    [[ "$TAG" =~ ^v.+ ]] || { echo "Tag must start with 'v' (got: $TAG)" >&2; exit 1; }
                     VERSION="${TAG#v}"
                   else
                     VERSION="$(grep '^version=' gradle.properties | cut -d= -f2)"
                   fi
                   echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
 
-            - name: Build shadowJar (Unix)
-              if: runner.os != 'Windows'
+            - name: Build client shadowJar
               shell: bash
               run: ./gradlew :client:shadowJar --no-daemon
 
@@ -99,94 +86,17 @@ jobs:
               shell: bash
               run: ./gradlew :server:shadowJar --no-daemon
 
-            - name: Build shadowJar (Windows)
-              if: runner.os == 'Windows'
-              shell: pwsh
-              run: .\gradlew.bat :client:shadowJar --no-daemon
-
             - name: Package app
               id: package_app
               shell: bash
+              run: ./scripts/package.sh --version "$APP_VERSION" --skip-build
+
+            - name: Prepare release JARs (Linux)
+              if: matrix.target.name == 'linux'
+              shell: bash
               run: |
-                  set -euo pipefail
-
-                  APP_NAME="Flaggi"
-                  JAR_FILE="client/build/libs/flaggi-client.jar"
-                  DIST_DIR="dist"
-                  RUNTIME_DIR="build/jre"
-                  DMG_BACKGROUND="assets/banners/dmg-background.png"
-                  JPACKAGE_DEST="$DIST_DIR"
-                  PACKAGE_TYPE="${{ matrix.target.package_type }}"
-
-                  test -f "$JAR_FILE"
-
-                  rm -rf "$RUNTIME_DIR" "$DIST_DIR"
-                  mkdir -p "$DIST_DIR"
-
-                  if [[ "${{ matrix.target.name }}" == "macos" ]]; then
-                    JPACKAGE_DEST="build/app-image"
-                    rm -rf "$JPACKAGE_DEST"
-                    mkdir -p "$JPACKAGE_DEST"
-                    test -f "$DMG_BACKGROUND"
-                  fi
-
-                  MODULES=$(jdeps --multi-release 21 --print-module-deps --ignore-missing-deps "$JAR_FILE")
-
-                  jlink \
-                    --add-modules "$MODULES" \
-                    --output "$RUNTIME_DIR" \
-                    --strip-debug \
-                    --no-header-files \
-                    --no-man-pages
-
-                  JPACKAGE_ARGS=(
-                    --input client/build/libs
-                    --main-jar "flaggi-client.jar"
-                    --name "$APP_NAME"
-                    --app-version "$APP_VERSION"
-                    --type "$PACKAGE_TYPE"
-                    --dest "$JPACKAGE_DEST"
-                    --runtime-image "$RUNTIME_DIR"
-                    --icon "${{ matrix.target.icon }}"
-                  )
-
-                  if [[ "${{ runner.os }}" == "Windows" ]]; then
-                    JPACKAGE_ARGS+=(--win-per-user-install --win-menu --win-shortcut)
-                  fi
-
-                  jpackage "${JPACKAGE_ARGS[@]}"
-
-                  case "${{ matrix.target.name }}" in
-                    windows)
-                      src_file=$(find "$DIST_DIR" -maxdepth 1 -name '*.exe' -print -quit)
-                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-windows.exe"
-                      mv "$src_file" "$out_file"
-                      ;;
-                    macos)
-                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-macos.dmg"
-                      rm -f "$out_file"
-                      create-dmg \
-                        --volname "$APP_NAME" \
-                        --volicon "${{ matrix.target.icon }}" \
-                        --background "$DMG_BACKGROUND" \
-                        --window-pos 200 120 \
-                        --window-size 660 400 \
-                        --icon-size 100 \
-                        --icon "${APP_NAME}.app" 165 190 \
-                        --hide-extension "${APP_NAME}.app" \
-                        --app-drop-link 495 190 \
-                        "$out_file" \
-                        "$JPACKAGE_DEST"
-                      ;;
-                    linux)
-                      tar -C "$DIST_DIR" -czf "$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz" "$APP_NAME"
-                      cp "client/build/libs/flaggi-client.jar" "$DIST_DIR/Flaggi-${APP_VERSION}-client-universal.jar"
-                      cp "server/build/libs/flaggi-server.jar" "$DIST_DIR/Flaggi-${APP_VERSION}-server.jar"
-                      out_file="$DIST_DIR/Flaggi-${APP_VERSION}-linux.tar.gz"
-                      ;;
-                  esac
-
-                  echo "output_file=$out_file" >> "$GITHUB_OUTPUT"
+                  cp client/build/libs/flaggi-client.jar "dist/Flaggi-${APP_VERSION}-client-universal.jar"
+                  cp server/build/libs/flaggi-server.jar "dist/Flaggi-${APP_VERSION}-server.jar"
 
             - name: Upload packaged artifact
               uses: actions/upload-artifact@v4
@@ -195,7 +105,7 @@ jobs:
                   path: ${{ steps.package_app.outputs.output_file }}
                   if-no-files-found: error
 
-            - name: Upload universal and server jars
+            - name: Upload universal and server JARs (Linux)
               if: matrix.target.name == 'linux'
               uses: actions/upload-artifact@v4
               with:
