@@ -6,12 +6,6 @@
     padding: 0;
 }
 
-/* ── Design tokens ───────────────────────────────────────────────────────────
-   Red/blue flaggi theme on deep navy background.
-   Red   = action, alert, accent, player 1
-   Blue  = info, secondary, player 2
-   Navy  = base background layers
-*/
 :root {
     /* Base */
     --bg: #0a0d14;

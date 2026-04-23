@@ -1,23 +1,28 @@
-const { app, BrowserWindow, ipcMain } = require("electron")
-const { spawn } = require("child_process")
-const path = require("path")
+import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process"
+import { app, BrowserWindow, ipcMain } from "electron"
+import path from "node:path"
 
-// ── CONFIG ───────────────────────────────────────────────────────────────────
+// Config ----------------------------------------------------------------------
 
-const FLAGGI_ROOT = path.resolve(__dirname, "..")
+const DEV_CONSOLE_ROOT = path.resolve(__dirname, "..")
+const FLAGGI_ROOT = path.resolve(DEV_CONSOLE_ROOT, "..")
 const RUN_SCRIPT = path.join(FLAGGI_ROOT, "scripts", "run.sh")
 
 const SERVER_READY_PATTERN = /Application start/
 const SERVER_READY_TIMEOUT_MS = 60_000
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
-let win
-let procs = { server: null, client1: null, client2: null }
+let win: BrowserWindow | null = null
+let procs: Record<string, ChildProcessWithoutNullStreams | null> = {
+    server: null,
+    client1: null,
+    client2: null
+}
 let isBuilding = false
-const logWatchers = {}
+const logWatchers: Record<string, Array<(data: string) => void>> = {}
 
-// ── Window ────────────────────────────────────────────────────────────────────
+// Window --------------------------------------------------------------------
 
 function createWindow() {
     win = new BrowserWindow({
@@ -37,17 +42,11 @@ function createWindow() {
         }
     })
 
-    win.loadFile(path.join(__dirname, "renderer", "dist", "index.html"))
-    // win.webContents.openDevTools();
+    void win.loadFile(path.join(DEV_CONSOLE_ROOT, "dist", "renderer", "index.html"))
 }
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
     createWindow()
-    // const path = require("path")
-    // if (app.dock) {
-    //     const iconPath = path.join(FLAGGI_ROOT, "assets", "icons", "flaggi.icns")
-    //     app.dock.setIcon(iconPath)
-    // }
 })
 app.setName("Flaggi Dev Console")
 app.on("before-quit", () => killAll())
@@ -56,19 +55,21 @@ app.on("window-all-closed", () => {
     app.quit()
 })
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Helpers -------------------------------------------------------------------
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-function send(channel, data) {
+function send(channel: string, data: unknown) {
     const watchers = logWatchers[channel]
-    if (watchers) for (const fn of [...watchers]) fn(data)
+    if (watchers) {
+        for (const fn of [...watchers]) fn(String(data))
+    }
     if (win && !win.isDestroyed()) win.webContents.send(channel, data)
 }
 
-const setStatus = (s) => send("status", s)
-const setButtonState = (s) => send("button-state", s)
-const setPanelStamp = (p, ts) => send("panel-stamp", { panel: p, stamp: ts })
+const setStatus = (status: string) => send("status", status)
+const setButtonState = (state: string) => send("button-state", state)
+const setPanelStamp = (panel: string, stamp: string | null) => send("panel-stamp", { panel, stamp })
 
 function timestamp() {
     return new Date().toLocaleTimeString([], {
@@ -78,42 +79,56 @@ function timestamp() {
     })
 }
 
-// ── Process management ────────────────────────────────────────────────────────
+// Process management --------------------------------------------------------
 
 function killAll() {
     for (const [key, proc] of Object.entries(procs)) {
         if (proc) {
             try {
-                process.kill(-proc.pid, "SIGKILL")
-            } catch (_) {}
+                if (proc.pid !== undefined) process.kill(-proc.pid, "SIGKILL")
+            } catch {
+                // ignore
+            }
             try {
                 proc.kill("SIGKILL")
-            } catch (_) {}
+            } catch {
+                // ignore
+            }
             procs[key] = null
         }
     }
 }
 
-function exitMessage(code) {
+function exitMessage(code: number | null) {
     if (code === null || code === undefined) return "[process stopped]\n"
     if (code === 0) return "[process exited cleanly]\n"
     return `[process exited with code ${code}]\n`
 }
 
-function spawnProc(args, logChannel, onClose, extraEnv = {}) {
+function spawnProc(
+    args: string[],
+    logChannel: string,
+    onClose?: (code: number | null) => void,
+    extraEnv: Record<string, string> = {}
+) {
+    type ProcWithEvents = ChildProcessWithoutNullStreams & {
+        on(event: "close", listener: (code: number | null) => void): ProcWithEvents
+        on(event: "error", listener: (err: Error) => void): ProcWithEvents
+    }
+
     const proc = spawn(args[0], args.slice(1), {
         cwd: FLAGGI_ROOT,
         detached: true,
         env: { ...process.env, ...extraEnv }
-    })
+    }) as ProcWithEvents
 
-    proc.stdout.on("data", (d) => send(logChannel, d.toString()))
-    proc.stderr.on("data", (d) => send(logChannel, d.toString()))
-    proc.on("close", (code) => {
-        send(logChannel, "\n" + exitMessage(code))
+    proc.stdout.on("data", (data) => send(logChannel, data.toString()))
+    proc.stderr.on("data", (data) => send(logChannel, data.toString()))
+    proc.on("close", (code: number | null) => {
+        send(logChannel, `\n${exitMessage(code)}`)
         onClose?.(code)
     })
-    proc.on("error", (err) => {
+    proc.on("error", (err: Error) => {
         send(logChannel, `\n[spawn error: ${err.message}]\n`)
         onClose?.(-1)
     })
@@ -121,18 +136,18 @@ function spawnProc(args, logChannel, onClose, extraEnv = {}) {
     return proc
 }
 
-// ── Pattern watcher ───────────────────────────────────────────────────────────
+// Pattern watcher -----------------------------------------------------------
 
-function waitForPattern(logChannel, pattern, timeoutMs) {
-    return new Promise((resolve) => {
+function waitForPattern(logChannel: string, pattern: RegExp, timeoutMs: number) {
+    return new Promise<boolean>((resolve) => {
         if (!logWatchers[logChannel]) logWatchers[logChannel] = []
 
         const cleanup = () => {
-            logWatchers[logChannel] = logWatchers[logChannel].filter((f) => f !== watcher)
+            logWatchers[logChannel] = logWatchers[logChannel].filter((fn) => fn !== watcher)
             clearTimeout(timer)
         }
 
-        const watcher = (data) => {
+        const watcher = (data: string) => {
             if (pattern.test(data)) {
                 cleanup()
                 resolve(true)
@@ -146,7 +161,7 @@ function waitForPattern(logChannel, pattern, timeoutMs) {
     })
 }
 
-// ── Build + launch flow ───────────────────────────────────────────────────────
+// Build + launch flow -------------------------------------------------------
 
 async function rebuild() {
     if (isBuilding) return
@@ -174,10 +189,10 @@ async function rebuild() {
 
     const matched = await Promise.race([
         waitForPattern("server-log", SERVER_READY_PATTERN, SERVER_READY_TIMEOUT_MS),
-        new Promise((resolve) => {
-            const t = setInterval(() => {
+        new Promise<boolean>((resolve) => {
+            const timer = setInterval(() => {
                 if (serverExitedEarly) {
-                    clearInterval(t)
+                    clearInterval(timer)
                     resolve(false)
                 }
             }, 100)
@@ -200,11 +215,11 @@ async function rebuild() {
     setPanelStamp("client1", clientStamp)
     setPanelStamp("client2", clientStamp)
 
-    procs.client1 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client1-log", null, {
+    procs.client1 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client1-log", undefined, {
         FLAGGI_DEV: "true"
     })
     await sleep(500)
-    procs.client2 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client2-log", null, {
+    procs.client2 = spawnProc(["bash", RUN_SCRIPT, "client", "--skip-build"], "client2-log", undefined, {
         FLAGGI_DEV: "true"
     })
 
@@ -213,9 +228,11 @@ async function rebuild() {
     isBuilding = false
 }
 
-// ── IPC ───────────────────────────────────────────────────────────────────────
+// IPC -----------------------------------------------------------------------
 
-ipcMain.on("rebuild", () => rebuild())
+ipcMain.on("rebuild", () => {
+    void rebuild()
+})
 ipcMain.on("kill-all", () => {
     killAll()
     setStatus("stopped")
